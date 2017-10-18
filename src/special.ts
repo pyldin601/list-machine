@@ -1,4 +1,4 @@
-import { chunk, first, head, includes, tail } from 'lodash';
+import { chunk, first, includes } from 'lodash';
 import Env from './Env';
 
 export const OP_ADD = 'OP_ADD';

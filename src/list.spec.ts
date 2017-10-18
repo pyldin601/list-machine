@@ -12,7 +12,7 @@ test('Parse empty list', () => {
 });
 
 test('Parse list of numbers', () => {
-  const result = parseLexemes('(1 2 3)');
+  const result = parseList(parseLexemes('(1 2 3)'));
   expect(result).toEqual([
     [
       '1',
