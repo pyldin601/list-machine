@@ -39,7 +39,9 @@ export const callSpecialForm = (
     /* Language special forms */
     case ST_DEF: {
       const pairs = chunk(list, 2);
-      return pairs.forEach(([name, value]) => env.bind(name, value));
+      return pairs.forEach(
+        ([name, value]) => env.bind(name, parse(value, env)),
+      );
     }
   }
 };
