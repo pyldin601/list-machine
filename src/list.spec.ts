@@ -1,4 +1,4 @@
-import parseLexemes, { CLOSE_PARENTHESIS, OPEN_PARENTHESIS } from './lexeme';
+import parseLexemes from './lexeme';
 import parseList from './list';
 
 test('Parse empty program', () => {
@@ -42,5 +42,27 @@ test('Parse multiple lists', () => {
   expect(result).toEqual([
     ['1', '2', '3'],
     ['4', '5'],
+  ]);
+});
+
+test('Parse big program', () => {
+  const program = `
+    (def fibonacci (n)
+      (cond
+        ((eq n 1) 0)
+        ((eq n 2) 1)
+        ((+ (fibonacci (- n 1)) (fibonacci (- n 2))))))
+    
+    (fibonacci 5)
+  `;
+
+  const result = parseList(parseLexemes(program));
+  expect(result).toEqual([
+    ["def", "fibonacci", ["n"],
+      ["cond",
+        [["eq", "n", "1"], "0"],
+        [["eq", "n", "2"], "1"],
+        [["+", ["fibonacci", ["-", "n", "1"]], ["fibonacci", ["-", "n", "2"]]]]]],
+    ["fibonacci", "5"],
   ]);
 });

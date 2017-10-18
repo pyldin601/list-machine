@@ -23,7 +23,7 @@ const findClosingParenthesisOffset = (lexemes: ILexeme[]): number => {
   return iter(0, 0);
 };
 
-const parseList = (lexemes: ILexeme[]) => {
+const parseList = (lexemes: ILexeme[]): any[] => {
   const iter = (offset: number, accumulator: any[]): any[] => {
     if (isNil(lexemes[offset])) {
       return accumulator;
