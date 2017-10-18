@@ -1,9 +1,9 @@
 import { isNil } from 'lodash';
 
-export const OPEN_PARENTHESIS = Symbol();
-export const CLOSE_PARENTHESIS = Symbol();
+export const OPEN_PARENTHESIS = Symbol('(');
+export const CLOSE_PARENTHESIS = Symbol(')');
 
-type ILexeme = symbol | string;
+export type ILexeme = symbol | string;
 
 export default (program: string): ILexeme[] => {
   const baseIterator = ([head, ...tail]: string[], depth: number, accumulator: ILexeme[]): ILexeme[] => {
