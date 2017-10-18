@@ -41,9 +41,16 @@ const evalSymbol = (symbol: any, env: Env): any => {
   return symbol;
 };
 
+const toString = (symbol: any) => {
+  if (Array.isArray(symbol)) {
+    return `(${symbol.map(toString).join(' ')})`;
+  }
+  return symbol;
+};
+
 export default (program: string, env: Env = initialEnv): any => {
   const lexemes = parseLexemes(program);
   const lists = parseLists(lexemes);
 
-  return lists.reduce((acc, sym) => evalSymbol(sym, env), null);
+  return toString(lists.reduce((acc, sym) => evalSymbol(sym, env), null));
 };
