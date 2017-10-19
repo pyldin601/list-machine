@@ -4,7 +4,6 @@ import parseLexemes from './lexeme';
 import parseLists from './list';
 import { callSpecialForm, isSpecialForm } from './special';
 import { Lambda } from './types';
-import toPrimitive from "./printer";
 
 const initialEnv = new Env();
 
@@ -27,9 +26,10 @@ const applyExpression = ([op, ...args]: any, env: Env) => {
 
   if (evaluatedOp instanceof Lambda) {
     const zippedArgs = _.zipObject(evaluatedOp.args, args);
-    return evalExpression(
-      evaluatedOp.body,
-      evaluatedOp.env.newEnv(zippedArgs),
+    const newEnv = evaluatedOp.env.newEnv(zippedArgs);
+    return evaluatedOp.body.reduce(
+      (_, expression) => evalExpression(expression, newEnv),
+      null,
     );
   }
 

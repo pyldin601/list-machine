@@ -23,7 +23,7 @@ export default class Env {
 
   public get(name: string): any {
     if (name in this.bindings) {
-      return this.bindings[name];
+      return this.get(this.bindings[name]);
     }
 
     if (this.parent) {
