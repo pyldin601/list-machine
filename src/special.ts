@@ -51,8 +51,7 @@ export const callSpecialForm = (
     }
     case LAMBDA: {
       const [lambdaArgs, ...lambdaBody] = args;
-      const newEnv = env.newEnv();
-      return new Lambda(lambdaArgs, lambdaBody, newEnv);
+      return new Lambda(lambdaArgs, lambdaBody, env);
     }
 
     default:

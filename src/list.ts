@@ -1,8 +1,9 @@
 import { isNil } from 'lodash';
 import { CLOSE_PARENTHESIS, ILexeme, OPEN_PARENTHESIS } from './lexeme';
+import tailRecursion from './tailRecursion';
 
 const findClosingParenthesisOffset = (lexemes: ILexeme[]): number => {
-  const iter = (offset: number, depth: number): number => {
+  const iter = tailRecursion((offset: number, depth: number): number => {
     if (isNil(lexemes[offset])) {
       throw new Error('Unpaired closing parenthesis');
     }
@@ -18,13 +19,13 @@ const findClosingParenthesisOffset = (lexemes: ILexeme[]): number => {
       default:
         return iter(offset + 1, depth);
     }
-  };
+  });
 
   return iter(0, 0);
 };
 
 const parseList = (lexemes: ILexeme[]): any[] => {
-  const iter = (offset: number, accumulator: any[]): any[] => {
+  const iter = tailRecursion((offset: number, accumulator: any[]): any[] => {
     if (isNil(lexemes[offset])) {
       return accumulator;
     }
@@ -38,7 +39,7 @@ const parseList = (lexemes: ILexeme[]): any[] => {
       default:
         return iter(offset + 1, [...accumulator, head]);
     }
-  };
+  });
 
   return iter(0, []);
 };
