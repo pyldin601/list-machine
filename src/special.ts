@@ -21,12 +21,12 @@ export const specialForms = [
   LAMBDA,
 ];
 
-export const isSpecialForm = (op: symbol): boolean => (
+export const isSpecialForm = (op: string): boolean => (
   includes(specialForms, op)
 );
 
 export const callSpecialForm = (
-  op: symbol,
+  op: string,
   args: any[],
   evalExpression: (expression: any, env: Env) => any,
   env: Env,
