@@ -22,7 +22,7 @@ export default class Env {
   }
 
   public get(name: string): any {
-    if (name in this.bindings) {
+    if (name in this.bindings && this.bindings[name] !== name) {
       return this.get(this.bindings[name]);
     }
 

@@ -28,7 +28,7 @@ const printNewLine = async (result: any): Promise<any> => {
 };
 
 const printError = async (error: Error): Promise<any> => {
-  return process.stderr.write(String(error));
+  return process.stderr.write(`${error.message}\n${error.stack}`);
 };
 
 const startIteration = () => (

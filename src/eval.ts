@@ -25,7 +25,10 @@ const applyExpression = ([op, ...args]: any, env: Env) => {
   }
 
   if (evaluatedOp instanceof Lambda) {
-    const zippedArgs = _.zipObject(evaluatedOp.args, args);
+    const zippedArgs = _.zipObject(
+      evaluatedOp.args,
+      args.map(exp => evalExpression(exp, env)),
+    );
     const newEnv = evaluatedOp.env.newEnv(zippedArgs);
     return evaluatedOp.body.reduce(
       (_, expression) => evalExpression(expression, newEnv),

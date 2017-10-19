@@ -8,7 +8,7 @@ const toPrimitive = (expression: any): string => {
   }
 
   if (expression instanceof Lambda) {
-    return `(${LAMBDA} ${toPrimitive(expression.args)} ${toPrimitive(expression.body)})`;
+    return `(${LAMBDA} ${toPrimitive(expression.args)} ${expression.body.map(toPrimitive).join(' ')})`;
   }
 
   if (isPrimitive(expression)) {
