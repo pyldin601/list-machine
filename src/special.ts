@@ -1,5 +1,7 @@
 import { chunk, first, includes } from 'lodash';
+import * as winston from 'winston';
 import Env from './Env';
+import { Lambda } from './types/';
 
 export const OP_ADD = '+';
 export const OP_MUL = '*';
@@ -7,13 +9,16 @@ export const OP_SUB = '-';
 export const OP_DIV = '/';
 
 export const ST_DEF = 'def';
+export const LAMBDA = 'lambda';
 
 export const specialForms = [
   OP_ADD,
   OP_MUL,
   OP_SUB,
   OP_DIV,
+
   ST_DEF,
+  LAMBDA,
 ];
 
 export const isSpecialForm = (op: symbol): boolean => (
@@ -44,5 +49,13 @@ export const callSpecialForm = (
         ([name, value]) => env.bind(name, evalExpression(value, env)),
       );
     }
+    case LAMBDA: {
+      const [lambdaArgs, ...lambdaBody] = args;
+      const newEnv = env.newEnv();
+      return new Lambda(lambdaArgs, lambdaBody, newEnv);
+    }
+
+    default:
+      throw new Error(`Unknown special form - ${op}`);
   }
 };

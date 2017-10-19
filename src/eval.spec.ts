@@ -33,3 +33,11 @@ test('Return self if nothing to eval', () => {
 test('Test binding support', () => {
   expectEval('(def a 4) (+ a 2 3)').toBe(9);
 });
+
+test('Test lambda', () => {
+  expectEval(`
+    (def pi 3.14)
+    (def circumference (lambda (r) (* 2 pi r)))
+    (circumference 2)
+  `).toBe(12.56);
+});

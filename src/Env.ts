@@ -37,6 +37,10 @@ export default class Env {
     this.bindings[name] = value;
   }
 
+  public bindAll(bindings: IMap) {
+    this.bindings = { ...this.bindings, ... bindings };
+  }
+
   public mutate(name: string, value: any): void {
     if (name in this.bindings) {
       this.bindings[name] = value;
@@ -60,4 +64,7 @@ export default class Env {
     return false;
   }
 
+  public newEnv(bindings: IMap = {}) {
+    return new Env(bindings, this);
+  }
 }
