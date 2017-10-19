@@ -7,29 +7,29 @@ test('Eval empty program', () => {
 });
 
 test('Eval sum without args', () => {
-  expectEval('(OP_ADD)').toBe(0);
+  expectEval('(+)').toBe(0);
 });
 
 test('Eval sum of one number', () => {
-  expectEval('(OP_ADD 1)').toBe(1);
+  expectEval('(+ 1)').toBe(1);
 });
 
 test('Eval sum of two numbers', () => {
-  expectEval(`(OP_ADD 1 1)`).toBe(2);
+  expectEval(`(+ 1 1)`).toBe(2);
 });
 
 test('Eval sum of three numbers', () => {
-  expectEval(`(OP_ADD 1 2 3)`).toBe(6);
+  expectEval(`(+ 1 2 3)`).toBe(6);
 });
 
 test('Eval nested sums', () => {
-  expectEval(`(OP_ADD 1 2 (OP_ADD 3 4))`).toBe(10);
+  expectEval(`(+ 1 2 (+ 3 4))`).toBe(10);
 });
 
 test('Return self if nothing to eval', () => {
-  expectEval('OP_ADD').toBe('OP_ADD');
+  expectEval('+').toBe('+');
 });
 
 test('Test binding support', () => {
-  expectEval('(def + OP_ADD) (+ 2 3)').toBe(5);
+  expectEval('(def a 4) (+ a 2 3)').toBe(9);
 });
