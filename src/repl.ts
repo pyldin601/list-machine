@@ -20,11 +20,11 @@ const evalCode = async (code: string): Promise<any> => {
 };
 
 const printResult = async (result: any): Promise<any> => {
-  return rl.write(String(toPrimitive(result)));
+  return process.stdout.write(String(toPrimitive(result)));
 };
 
 const printNewLine = async (result: any): Promise<any> => {
-  return rl.write('\n');
+  return process.stdout.write('\n');
 };
 
 const printError = async (error: Error): Promise<any> => {
