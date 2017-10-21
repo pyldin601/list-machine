@@ -10,6 +10,7 @@ export const OP_DIV = '/';
 export const ST_DEF = 'def';
 export const LAMBDA = 'lambda';
 export const MACRO = 'macro';
+export const QUOTE = 'quote';
 
 export const specialForms = [
   OP_ADD,
@@ -20,6 +21,7 @@ export const specialForms = [
   ST_DEF,
   LAMBDA,
   MACRO,
+  QUOTE,
 ];
 
 export const isSpecialForm = (op: string): boolean => (
@@ -57,6 +59,9 @@ export const callSpecialForm = (
     case MACRO: {
       const [macroArgs, ...macroBody] = args;
       return new Macro(macroArgs, macroBody);
+    }
+    case QUOTE: {
+      return first(args);
     }
     default:
       throw new Error(`Unknown special form - ${op}`);

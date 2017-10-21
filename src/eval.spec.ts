@@ -66,3 +66,9 @@ test('Test macro #2', () => {
     (inc 4)
   `).toBe(5);
 });
+
+test('Test quote #1', () => {
+  expectEval(`
+    (quote (+ 4 5))
+  `).toBe('(+ 4 5)');
+});
