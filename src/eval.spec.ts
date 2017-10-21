@@ -1,6 +1,7 @@
 import evalString from './eval';
+import toPrimitive from "./printer";
 
-const expectEval = (program: string) => expect(evalString(program));
+const expectEval = (program: string) => expect(toPrimitive(evalString(program)));
 
 test('Eval empty program', () => {
   expectEval('').toBeNull();
@@ -48,4 +49,21 @@ test('Test lambda #2', () => {
     (def sum-of-squares (lambda (x y) (+ (square x) (square y))))
     (sum-of-squares 3 2)
   `).toBe(13);
+});
+
+test('Test macro #1', () => {
+  expectEval(`
+    (def defmacro (macro (name args body) (def name (macro args body))))
+    (def defun (lambda (name args body) (def name (lambda args body))))
+    (defmacro inc (n) (+ 1 n))
+    (inc 4)
+  `).toBe(5);
+});
+
+test('Test macro #2', () => {
+  expectEval(`
+    (def defun (lambda (name args body) (def name (lambda args body))))
+    (defun inc (n) (+ 1 n))
+    (inc 4)
+  `).toBe(5);
 });

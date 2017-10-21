@@ -1,3 +1,4 @@
 import Lambda from './Lambda';
+import Macro from './Macro';
 
-export { Lambda };
+export { Lambda, Macro };

@@ -1,7 +1,6 @@
 import { chunk, first, includes } from 'lodash';
-import * as winston from 'winston';
 import Env from './Env';
-import { Lambda } from './types/';
+import { Lambda, Macro } from './types/';
 
 export const OP_ADD = '+';
 export const OP_MUL = '*';
@@ -10,6 +9,7 @@ export const OP_DIV = '/';
 
 export const ST_DEF = 'def';
 export const LAMBDA = 'lambda';
+export const MACRO = 'macro';
 
 export const specialForms = [
   OP_ADD,
@@ -19,6 +19,7 @@ export const specialForms = [
 
   ST_DEF,
   LAMBDA,
+  MACRO,
 ];
 
 export const isSpecialForm = (op: string): boolean => (
@@ -53,7 +54,10 @@ export const callSpecialForm = (
       const [lambdaArgs, ...lambdaBody] = args;
       return new Lambda(lambdaArgs, lambdaBody, env);
     }
-
+    case MACRO: {
+      const [macroArgs, ...macroBody] = args;
+      return new Macro(macroArgs, macroBody);
+    }
     default:
       throw new Error(`Unknown special form - ${op}`);
   }

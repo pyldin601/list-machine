@@ -3,24 +3,37 @@ import Env from './Env';
 import parseLexemes from './lexeme';
 import parseLists from './list';
 import { callSpecialForm, isSpecialForm } from './special';
-import { Lambda } from './types';
+import { Lambda, Macro } from './types';
+import { isEmptyList, isList, isSymbol } from './util';
 
 const initialEnv = new Env();
 
 const evalExpression = (expression: any, env: Env) => {
-  if (!Array.isArray(expression)) {
-    if (env.isBound(expression)) {
-      return env.get(expression);
-    }
-    return tryNumber(expression);
+  if (isList(expression)) {
+    return applyExpression(expression, env);
   }
-  if (_.isEmpty(expression)) {
-    return expression;
+
+  if (env.isBound(expression)) {
+    return env.get(expression);
   }
-  return applyExpression(expression, env);
+
+  if (looksLikeBoolean(expression)) {
+    return Boolean(expression);
+  }
+
+  if (looksLikeNumber(expression)) {
+    return parseFloat(expression);
+  }
+
+  return expression;
 };
 
-const applyExpression = ([op, ...args]: any, env: Env) => {
+const applyExpression = (expression: any, env: Env) => {
+  if (isEmptyList(expression)) {
+    return expression;
+  }
+
+  const [op, ...args] = expression;
   const evaluatedOp = evalExpression(op, env);
 
   if (isSpecialForm(evaluatedOp)) {
@@ -34,7 +47,15 @@ const applyExpression = ([op, ...args]: any, env: Env) => {
     );
     const newEnv = evaluatedOp.env.newEnv(zippedArgs);
     return evaluatedOp.body.reduce(
-      (_, expression) => evalExpression(expression, newEnv),
+      (previousResult, exp) => evalExpression(exp, newEnv),
+      null,
+    );
+  }
+
+  if (evaluatedOp instanceof Macro) {
+    const zippedArgs = _.zipObject(evaluatedOp.args, args);
+    return proceedMacro(zippedArgs, evaluatedOp.body).reduce(
+      (previousResult, exp) => evalExpression(exp, env),
       null,
     );
   }
@@ -42,15 +63,25 @@ const applyExpression = ([op, ...args]: any, env: Env) => {
   return [evaluatedOp, ...args];
 };
 
-const tryNumber = (value: string): any => {
-  const numeric = parseFloat(value);
-
-  if (isNaN(numeric)) {
-    return value;
-  }
-
-  return numeric;
+const proceedMacro = (args: any, body: any): any => {
+  return body.map(exp => {
+    if (isList(exp)) {
+      return proceedMacro(args, exp);
+    }
+    if (isSymbol(exp) && exp in args) {
+      return args[exp];
+    }
+    return exp;
+  });
 };
+
+const looksLikeBoolean = (exp: string): boolean => (
+  _.includes(['true', 'false'], exp)
+);
+
+const looksLikeNumber = (exp: string): boolean => (
+  !isNaN(parseFloat(exp))
+);
 
 export default (program: string, env: Env = initialEnv): any => {
   const lexemes = parseLexemes(program);
