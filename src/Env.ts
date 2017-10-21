@@ -3,16 +3,6 @@ export interface IMap {
 }
 
 export default class Env {
-  private static tryNumber(value: string): any {
-    const numeric = parseFloat(value);
-
-    if (isNaN(numeric)) {
-      return value;
-    }
-
-    return numeric;
-  }
-
   private bindings: IMap;
   private parent?: Env;
 
@@ -22,15 +12,15 @@ export default class Env {
   }
 
   public get(name: string): any {
-    if (name in this.bindings && this.bindings[name] !== name) {
-      return this.get(this.bindings[name]);
+    if (name in this.bindings) {
+      return this.bindings[name];
     }
 
     if (this.parent) {
       return this.parent.get(name);
     }
 
-    return Env.tryNumber(name);
+    return null;
   }
 
   public bind(name: string, value: any): void {

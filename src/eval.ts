@@ -9,7 +9,10 @@ const initialEnv = new Env();
 
 const evalExpression = (expression: any, env: Env) => {
   if (!Array.isArray(expression)) {
-    return env.get(expression);
+    if (env.isBound(expression)) {
+      return env.get(expression);
+    }
+    return tryNumber(expression);
   }
   if (_.isEmpty(expression)) {
     return expression;
@@ -37,6 +40,16 @@ const applyExpression = ([op, ...args]: any, env: Env) => {
   }
 
   return [evaluatedOp, ...args];
+};
+
+const tryNumber = (value: string): any => {
+  const numeric = parseFloat(value);
+
+  if (isNaN(numeric)) {
+    return value;
+  }
+
+  return numeric;
 };
 
 export default (program: string, env: Env = initialEnv): any => {

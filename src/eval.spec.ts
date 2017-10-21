@@ -34,10 +34,18 @@ test('Test binding support', () => {
   expectEval('(def a 4) (+ a 2 3)').toBe(9);
 });
 
-test('Test lambda', () => {
+test('Test lambda #1', () => {
   expectEval(`
     (def pi 3.14)
     (def circumference (lambda (r) (* 2 pi r)))
     (circumference 2)
   `).toBe(12.56);
+});
+
+test('Test lambda #2', () => {
+  expectEval(`
+    (def square (lambda (x) (* x x)))
+    (def sum-of-squares (lambda (x y) (+ (square x) (square y))))
+    (sum-of-squares 3 2)
+  `).toBe(13);
 });
