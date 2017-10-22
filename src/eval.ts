@@ -43,7 +43,10 @@ const applyExpression = (expression: any, env: Env) => {
   if (evaluatedOp instanceof Lambda) {
     const zippedArgs = _.zipObject(
       evaluatedOp.args,
-      args.map(exp => evalExpression(exp, env)),
+      squeezeArguments(
+        args.map(exp => evalExpression(exp, env)),
+        evaluatedOp.args.length,
+      ),
     );
     const newEnv = evaluatedOp.env.newEnv(zippedArgs);
     return evaluatedOp.body.reduce(
@@ -53,20 +56,33 @@ const applyExpression = (expression: any, env: Env) => {
   }
 
   if (evaluatedOp instanceof Macro) {
-    const zippedArgs = _.zipObject(evaluatedOp.args, args);
-    return proceedMacro(zippedArgs, evaluatedOp.body).reduce(
+    const zippedArgs = _.zipObject(
+      evaluatedOp.args,
+      squeezeArguments(
+        args,
+        evaluatedOp.args.length,
+      ),
+    );
+    return expandMacro(zippedArgs, evaluatedOp.body).reduce(
       (previousResult, exp) => evalExpression(exp, env),
       null,
     );
   }
 
-  throw new Error(`Could not apply ${evaluatedOp} to arguments`);
+  throw new Error(`"${evaluatedOp}" is not callable`);
 };
 
-const proceedMacro = (args: any, body: any): any => {
+const squeezeArguments = (args: any[], amount: number): any[] => {
+  if (args.length <= amount) {
+    return args;
+  }
+  return [...args.slice(0, amount - 1), args.slice(amount - 1)];
+};
+
+const expandMacro = (args: any, body: any): any => {
   return body.map(exp => {
     if (isList(exp)) {
-      return proceedMacro(args, exp);
+      return expandMacro(args, exp);
     }
     if (isSymbol(exp) && exp in args) {
       return args[exp];

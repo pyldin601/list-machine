@@ -7,10 +7,6 @@ test('Eval empty program', () => {
   expectEval('').toBeNull();
 });
 
-test('Eval sum without args', () => {
-  expectEval('(+)').toBe(0);
-});
-
 test('Eval sum of one number', () => {
   expectEval('(+ 1)').toBe(1);
 });
@@ -61,7 +57,7 @@ test('Test macro #1', () => {
 
 test('Test macro #2', () => {
   expectEval(`
-    (def defun (lambda (name args body) (def name (lambda args body))))
+    (def defun (macro (name args body) (def name (lambda args body))))
     (defun inc (n) (+ 1 n))
     (inc 4)
   `).toBe(5);
@@ -84,3 +80,17 @@ test('Test cond and eq? #1', () => {
     (fib 12)
   `).toBe(144);
 });
+
+
+test('Test arguments squeeze', () => {
+  expectEval(`
+    (def f (lambda (x y) (list x y)))
+    (f 3 4)
+  `).toBe('(3 4)');
+
+  expectEval(`
+    (def f (lambda (x y) (list x y)))
+    (f 3 4 5 6)
+  `).toBe('(3 (4 5 6))');
+});
+

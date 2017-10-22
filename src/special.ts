@@ -23,6 +23,8 @@ export const QUOTE = 'quote';
 export const EVAL = 'eval';
 export const COND = 'cond';
 
+export const EXP_LIST = 'list';
+
 export const specialForms = [
   OP_ADD,
   OP_MUL,
@@ -44,6 +46,8 @@ export const specialForms = [
   QUOTE,
   EVAL,
   COND,
+
+  EXP_LIST,
 ];
 
 export const isSpecialForm = (op: string): boolean => (
@@ -141,6 +145,8 @@ export const callSpecialForm = (
       }
       return undefined;
     }
+
+    case EXP_LIST: return args.map(arg => evalExpression(arg, env));
 
     default:
       throw new Error(`Unknown special form - ${op}`);
