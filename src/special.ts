@@ -21,6 +21,7 @@ export const LAMBDA = 'lambda';
 export const MACRO = 'macro';
 export const QUOTE = 'quote';
 export const EVAL = 'eval';
+export const EVAL_IN = 'eval-in';
 export const COND = 'cond';
 
 export const EXP_LIST = 'list';
@@ -45,6 +46,7 @@ export const specialForms = [
   MACRO,
   QUOTE,
   EVAL,
+  EVAL_IN,
   COND,
 
   EXP_LIST,
@@ -132,6 +134,14 @@ export const callSpecialForm = (
 
     case EVAL:
       return evalExpression(first(args), env);
+
+    case EVAL_IN: {
+      const lambda = evalExpression(first(args), env);
+      if (!(lambda instanceof Lambda)) {
+        throw new Error(`First argument must be lambda`);
+      }
+      return evalExpression(args[1], lambda.env);
+    }
 
     case COND: {
       const pairs = chunk(args, 2);

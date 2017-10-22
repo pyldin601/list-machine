@@ -94,3 +94,19 @@ test('Test arguments squeeze', () => {
   `).toBe('(3 (4 5 6))');
 });
 
+
+test('Test eval-in', () => {
+  expectEval(`
+    (def foo 5
+         bar 15)
+
+    (def f
+      (lambda ()
+        (def foo 10
+             bar 20)
+        (lambda ())))
+
+    (eval-in (f) (list foo bar))
+  `).toBe('(10 20)');
+
+});
