@@ -73,3 +73,28 @@ test('Parse quote', () => {
     ['quote', ['1', '2', '3']],
   ]);
 });
+
+xtest('Parse less parenthesis program', () => {
+  const program = `
+    def fib (n)
+      cond
+        (eq? n 1) 0
+        (eq? n 2) 1
+        +
+          fib (- n 1)
+          fib (- n 2)
+    
+    fib 5
+  `;
+
+  const result = parseList(parseLexemes(program));
+
+  expect(result).toEqual([
+    ['def', 'fib', ['n'],
+      ['cond',
+        [['eq?', 'n', '1'], '0'],
+        [['eq?', 'n', '2'], '1'],
+        [['+', ['fib', ['-', 'n', '1']], ['fib', ['-', 'n', '2']]]]]],
+    ['fib', '5'],
+  ]);
+});
