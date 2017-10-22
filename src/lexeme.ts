@@ -7,6 +7,13 @@ export const APOSTROPHE = Symbol('\'');
 
 export type ILexeme = symbol | string;
 
+export class Indent {
+  public size: number;
+  constructor(size: number) {
+    this.size = size;
+  }
+}
+
 export default (program: string): ILexeme[] => {
   const baseIterator = tailRecursion(([head, ...tail]: string[], depth: number, accumulator: ILexeme[]): ILexeme[] => {
     if (isNil(head)) {
@@ -21,10 +28,11 @@ export default (program: string): ILexeme[] => {
       case ')':
         return baseIterator(tail, depth - 1, [...accumulator, CLOSE_PARENTHESIS]);
       case ' ':
-      case '\n':
       case '\r':
       case '\t':
         return baseIterator(tail, depth, accumulator);
+      case '\n':
+        return indentIterator(tail, 0, depth, accumulator);
       case '\'':
         return baseIterator(tail, depth, [...accumulator, APOSTROPHE]);
       default:
@@ -53,5 +61,21 @@ export default (program: string): ILexeme[] => {
     }
   });
 
-  return baseIterator(program.split(''), 0, []);
+  const indentIterator = tailRecursion((list: string[], size: number, depth: number, acc: ILexeme[]): ILexeme[] => {
+    const [head, ...tail] = list;
+    switch (head) {
+      case ' ':
+        return indentIterator(tail, size + 1, depth, acc);
+      default:
+        return baseIterator(
+          list,
+          depth,
+          size > 0
+            ? [...acc, new Indent(size)]
+            : acc,
+        );
+    }
+  });
+
+  return indentIterator(program.split(''), 0, 0, []);
 };
