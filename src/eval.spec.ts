@@ -69,6 +69,18 @@ test('Test macro #2', () => {
 
 test('Test quote #1', () => {
   expectEval(`
-    (quote (+ 4 5))
-  `).toBe('(+ 4 5)');
+    (quote (1 2 3))
+  `).toBe('(1 2 3)');
+});
+
+test('Test cond and eq? #1', () => {
+  expectEval(`
+    (def fib 
+      (lambda (n)
+        (cond
+          (eq? 0 n) 0
+          (eq? 1 n) 1
+          (+ (fib (- n 2)) (fib (- n 1))))))
+    (fib 12)
+  `).toBe(144);
 });

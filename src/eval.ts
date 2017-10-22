@@ -60,7 +60,7 @@ const applyExpression = (expression: any, env: Env) => {
     );
   }
 
-  return [evaluatedOp, ...args];
+  throw new Error(`Could not apply ${evaluatedOp} to arguments`);
 };
 
 const proceedMacro = (args: any, body: any): any => {
