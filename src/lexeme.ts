@@ -1,22 +1,17 @@
-import { isNil } from 'lodash';
+import * as compose from 'compose-function';
+import * as _ from 'lodash';
 import tailRecursion from './tailRecursion';
 
 export const OPEN_PARENTHESIS = Symbol('(');
 export const CLOSE_PARENTHESIS = Symbol(')');
 export const APOSTROPHE = Symbol('\'');
+export const SPACE = Symbol(' ');
 
 export type ILexeme = symbol | string;
 
-export class Indent {
-  public size: number;
-  constructor(size: number) {
-    this.size = size;
-  }
-}
-
-export default (program: string): ILexeme[] => {
+const parse = (program: string): ILexeme[] => {
   const baseIterator = tailRecursion(([head, ...tail]: string[], depth: number, accumulator: ILexeme[]): ILexeme[] => {
-    if (isNil(head)) {
+    if (_.isNil(head)) {
       if (depth !== 0) {
         throw new Error(`Unbalanced parenthesis`)
       }
@@ -28,11 +23,11 @@ export default (program: string): ILexeme[] => {
       case ')':
         return baseIterator(tail, depth - 1, [...accumulator, CLOSE_PARENTHESIS]);
       case ' ':
+        return baseIterator(tail, depth, accumulator);
       case '\r':
       case '\t':
-        return baseIterator(tail, depth, accumulator);
       case '\n':
-        return indentIterator(tail, 0, depth, accumulator);
+        return baseIterator(tail, depth, accumulator);
       case '\'':
         return baseIterator(tail, depth, [...accumulator, APOSTROPHE]);
       default:
@@ -41,9 +36,9 @@ export default (program: string): ILexeme[] => {
   });
 
   const symbolIterator = tailRecursion(([head, ...tail]: string[], symbol: string, depth: number, accumulator: ILexeme[]): ILexeme[] => {
-    if (isNil(head)) {
+    if (_.isNil(head)) {
       if (depth !== 0) {
-        throw new Error(`Unbalanced parenthesis`)
+        throw new Error(`Syntax error`)
       }
       return [...accumulator, symbol];
     }
@@ -61,21 +56,7 @@ export default (program: string): ILexeme[] => {
     }
   });
 
-  const indentIterator = tailRecursion((list: string[], size: number, depth: number, acc: ILexeme[]): ILexeme[] => {
-    const [head, ...tail] = list;
-    switch (head) {
-      case ' ':
-        return indentIterator(tail, size + 1, depth, acc);
-      default:
-        return baseIterator(
-          list,
-          depth,
-          size > 0
-            ? [...acc, new Indent(size)]
-            : acc,
-        );
-    }
-  });
-
-  return indentIterator(program.split(''), 0, 0, []);
+  return baseIterator(program.split(''), 0, []);
 };
+
+export default compose(parse);

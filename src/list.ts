@@ -1,6 +1,6 @@
 import * as compose from 'compose-function';
 import * as _ from 'lodash';
-import { APOSTROPHE, CLOSE_PARENTHESIS, ILexeme, Indent, OPEN_PARENTHESIS } from './lexeme';
+import { APOSTROPHE, CLOSE_PARENTHESIS, ILexeme, OPEN_PARENTHESIS } from './lexeme';
 import { QUOTE } from './special';
 import tailRecursion from './tailRecursion';
 import { isList } from './util';
@@ -44,26 +44,6 @@ const parseList = (lexemes: ILexeme[]): any[] => {
   return iter(0, []);
 };
 
-const preProcess = (list: any[], depth = 0): any[] => {
-  const iter = tailRecursion(([head, ...tail], acc): any[] => {
-    if (_.isNil(head)) {
-      return acc;
-    }
-
-    if (isList(head)) {
-      return iter(tail, [...acc, preProcess(head, depth + 1)]);
-    }
-
-    if (head instanceof Indent) {
-      return iter(tail, acc);
-    }
-
-    return iter(tail, [...acc, head]);
-  });
-
-  return iter(list, []);
-};
-
 const postProcess = (list: any[]): any[] => {
   const iter = tailRecursion(([head, ...tail], acc): any[] => {
     if (_.isNil(head)) {
@@ -84,4 +64,4 @@ const postProcess = (list: any[]): any[] => {
   return iter(list, []);
 };
 
-export default compose(postProcess, parseList, preProcess);
+export default compose(postProcess, parseList);
