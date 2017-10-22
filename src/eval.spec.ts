@@ -74,9 +74,9 @@ test('Test cond and eq? #1', () => {
     (def fib 
       (lambda (n)
         (cond
-          (eq? 0 n) 0
-          (eq? 1 n) 1
-          (+ (fib (- n 2)) (fib (- n 1))))))
+          ((eq? 0 n) 0)
+          ((eq? 1 n) 1)
+          ((+ (fib (- n 2)) (fib (- n 1)))))))
     (fib 12)
   `).toBe(144);
 });

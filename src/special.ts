@@ -144,10 +144,12 @@ export const callSpecialForm = (
     }
 
     case COND: {
-      const pairs = chunk(args, 2);
-      for (const pair of pairs) {
+      for (const pair of args) {
         if (pair.length === 1) {
           return evalExpression(first(pair), env);
+        }
+        if (pair.length === 0) {
+          continue;
         }
         if (evalExpression(first(pair), env)) {
           return evalExpression(last(pair), env);
