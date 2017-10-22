@@ -69,7 +69,7 @@ const applyExpression = (expression: any, env: Env) => {
     );
   }
 
-  throw new Error(`"${evaluatedOp}" is not callable`);
+  throw new Error(`Symbol "${evaluatedOp}" is not callable`);
 };
 
 const squeezeArguments = (args: any[], amount: number): any[] => {

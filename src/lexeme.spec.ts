@@ -1,4 +1,4 @@
-import parseLexemes, { CLOSE_PARENTHESIS, OPEN_PARENTHESIS } from './lexeme';
+import parseLexemes, { CLOSE_PARENTHESIS, OPEN_PARENTHESIS, APOSTROPHE } from './lexeme';
 
 test('Parse empty program', () => {
   const result = parseLexemes('');
@@ -43,4 +43,15 @@ test('Parse incorrect list', () => {
   expect(() => parseLexemes(')')).toThrowError(errorMessage);
   expect(() => parseLexemes('())')).toThrowError(errorMessage);
   expect(() => parseLexemes('(()')).toThrowError(errorMessage);
+});
+
+test('Test quote', () => {
+  expect(parseLexemes(`'(1 2 3)`)).toEqual([
+    APOSTROPHE,
+    OPEN_PARENTHESIS,
+    '1',
+    '2',
+    '3',
+    CLOSE_PARENTHESIS,
+  ]);
 });

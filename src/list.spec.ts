@@ -58,11 +58,18 @@ test('Parse big program', () => {
 
   const result = parseList(parseLexemes(program));
   expect(result).toEqual([
-    ["def", "fibonacci", ["n"],
-      ["cond",
-        [["eq", "n", "1"], "0"],
-        [["eq", "n", "2"], "1"],
-        [["+", ["fibonacci", ["-", "n", "1"]], ["fibonacci", ["-", "n", "2"]]]]]],
-    ["fibonacci", "5"],
+    ['def', 'fibonacci', ['n'],
+      ['cond',
+        [['eq', 'n', '1'], '0'],
+        [['eq', 'n', '2'], '1'],
+        [['+', ['fibonacci', ['-', 'n', '1']], ['fibonacci', ['-', 'n', '2']]]]]],
+    ['fibonacci', '5'],
+  ]);
+});
+
+test('Parse quote', () => {
+  const result = parseList(parseLexemes(`'(1 2 3)`));
+  expect(result).toEqual([
+    ['quote', ['1', '2', '3']],
   ]);
 });

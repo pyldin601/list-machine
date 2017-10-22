@@ -3,6 +3,7 @@ import tailRecursion from './tailRecursion';
 
 export const OPEN_PARENTHESIS = Symbol('(');
 export const CLOSE_PARENTHESIS = Symbol(')');
+export const APOSTROPHE = Symbol('\'');
 
 export type ILexeme = symbol | string;
 
@@ -24,6 +25,8 @@ export default (program: string): ILexeme[] => {
       case '\r':
       case '\t':
         return baseIterator(tail, depth, accumulator);
+      case '\'':
+        return baseIterator(tail, depth, [...accumulator, APOSTROPHE]);
       default:
         return symbolIterator(tail, head, depth, accumulator);
     }
