@@ -1,14 +1,11 @@
 import * as _ from 'lodash';
 import { APOSTROPHE, CLOSE_PARENTHESIS, ILexeme, OPEN_PARENTHESIS } from './lexeme';
-import { QUOTE } from "./special";
+import { QUOTE } from './special';
 import tailRecursion from './tailRecursion';
-import { isList } from "./util";
+import { isList } from './util';
 
 const findClosingParenthesisOffset = (lexemes: ILexeme[]): number => {
   const iter = tailRecursion((offset: number, depth: number): number => {
-    if (_.isNil(lexemes[offset])) {
-      throw new Error('Unpaired closing parenthesis');
-    }
     const head = lexemes[offset];
     switch (head) {
       case OPEN_PARENTHESIS:
