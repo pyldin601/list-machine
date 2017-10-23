@@ -2,11 +2,11 @@ import * as compose from 'compose-function';
 import * as _ from 'lodash';
 import tailRecursion from './tailRecursion';
 
-export const OPEN_PARENTHESIS = Symbol();
-export const CLOSE_PARENTHESIS = Symbol();
-export const APOSTROPHE = Symbol();
-export const SPACE = Symbol();
-export const NEW_LINE = Symbol();
+export const OPEN_PARENTHESIS = Symbol('OPEN_PARENTHESIS');
+export const CLOSE_PARENTHESIS = Symbol('CLOSE_PARENTHESIS');
+export const APOSTROPHE = Symbol('APOSTROPHE');
+export const SPACE = Symbol('SPACE');
+export const NEW_LINE = Symbol('NEW_LINE');
 
 export type ILexeme = symbol | string;
 

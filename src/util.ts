@@ -1,5 +1,17 @@
-import { isEmpty, isString } from 'lodash';
+import { isEmpty, isString, last } from 'lodash';
 
 export const isList = (exp: any): boolean => Array.isArray(exp);
 export const isEmptyList = (exp: any): boolean => isList(exp) && isEmpty(exp);
 export const isSymbol = (exp: any): boolean => isString(exp);
+
+export const arraySplitBy = <T> (array: T[], predicate: (T) => boolean): T[][] => {
+  const result = [[]];
+  array.forEach(item => {
+    if (predicate(item)) {
+      result.push([]);
+      return;
+    }
+    last(result).push(item);
+  });
+  return result;
+};

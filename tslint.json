@@ -4,6 +4,7 @@
     "tslint-config-prettier"
   ],
   "rules": {
-    "no-eval": false
+    "no-eval": false,
+    "no-shadowed-variable": false
   }
 }
