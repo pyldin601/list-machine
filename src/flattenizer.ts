@@ -1,7 +1,50 @@
+import * as compose from 'compose-function';
 import * as _ from 'lodash';
-import { APOSTROPHE, CLOSE_PARENTHESIS, default as lexeme, NEW_LINE, OPEN_PARENTHESIS, SPACE } from './lexeme';
+import { APOSTROPHE, CLOSE_PARENTHESIS, NEW_LINE, OPEN_PARENTHESIS, SPACE } from './lexeme';
 import tailRecursion from './tailRecursion';
 import { arraySplitBy } from './util';
+
+const isEmptyLine = (line: any[]) => line.every(lexeme => lexeme === SPACE);
+
+const ignoreEmptyLines = (linesOfLexemes: any[][]): any[][] => (
+  linesOfLexemes.filter(line => !isEmptyLine(line))
+);
+
+const shrinkRedundantIndent = (linesOfLexemes: any[][]): any[][] => {
+  if (_.isEmpty(linesOfLexemes)) {
+    return [];
+  }
+  const minimalDetectedIndent = _.min(linesOfLexemes.map(line => getLineIndent(line)));
+  return linesOfLexemes.map(line => line.slice(minimalDetectedIndent));
+};
+
+const convertIndentsToBrackets = (linesOfLexemes: any[][]): any[][] => {
+  const iter = tailRecursion(([thisLine, nextLine, ...restLines]: any[][], parenBalance: number = 0, indentsStack: number[] = [], acc: any[][] = []) => {
+
+    if (_.isNil(thisLine)) {
+      return acc;
+    }
+
+    const balanceAfterLine = parenBalance + getLineBalance(thisLine);
+
+    const passLineUnchanged = () => iter([nextLine, ...restLines], balanceAfterLine, indentsStack, [...acc, thisLine]);
+
+    if (parenBalance !== 0) {
+      return passLineUnchanged();
+    }
+
+    // this line is last
+    if (_.isNil(nextLine)) {
+      if (_.isEmpty(indentsStack) && isStartsWithList(thisLine)) {
+        return passLineUnchanged();
+      }
+
+
+    }
+  });
+
+  return iter(linesOfLexemes)
+};
 
 const flattenize = (lexemes: any[]): any[] => {
   const lines = arraySplitBy(lexemes, lexeme => lexeme === NEW_LINE);
@@ -18,8 +61,6 @@ const flattenize = (lexemes: any[]): any[] => {
       return [...acc, ...parenthesisList];
     }
 
-    const nextLine = _.head(tail);
-
     const isEmptyLine = head.every(lexeme => lexeme === SPACE);
 
     if (isEmptyLine) {
@@ -35,12 +76,13 @@ const flattenize = (lexemes: any[]): any[] => {
     const thisLineIndent = getLineIndent(head);
     const lineWithoutIndent = head.slice(thisLineIndent);
 
-    const nextLineHasSameIndent = _.isNil(nextLine) || getLineIndent(nextLine) === thisLineIndent;
+    const nextLine = _.head(tail);
+    const nextLineHasSameOrLessIndent = _.isNil(nextLine) || getLineIndent(nextLine) <= thisLineIndent;
     const thisLineContainsSingleItem = _.size(head) === 1;
     const lineStartsWithList = isStartsWithList(lineWithoutIndent);
     const lineNotUnderIndent = _.isEmpty(previousLineIndentStack);
 
-    if ((lineStartsWithList || (thisLineContainsSingleItem && nextLineHasSameIndent)) && lineNotUnderIndent) {
+    if ((lineStartsWithList || (thisLineContainsSingleItem && nextLineHasSameOrLessIndent)) && lineNotUnderIndent) {
       return iter(tail, newLineBalance, previousLineIndentStack, [...acc, ...head]);
     }
 

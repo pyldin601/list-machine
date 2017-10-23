@@ -82,4 +82,4 @@ const postProcess = (lexemes: any[]): any[] => {
   return iter(lexemes, []);
 };
 
-export default compose(flattenize, postProcess, parse);
+export default compose(postProcess, parse);
