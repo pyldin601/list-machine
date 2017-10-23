@@ -35,9 +35,12 @@ const flattenize = (lexemes: any[]): any[] => {
     const thisLineIndent = getLineIndent(head);
     const lineWithoutIndent = head.slice(thisLineIndent);
 
-    const nextLineHasBiggerIndent = !_.isNil(nextLine) && getLineIndent(nextLine) > thisLineIndent;
+    const nextLineHasSameIndent = _.isNil(nextLine) || getLineIndent(nextLine) === thisLineIndent;
+    const thisLineContainsSingleItem = _.size(head) === 1;
+    const lineStartsWithList = isStartsWithList(lineWithoutIndent);
+    const lineNotUnderIndent = _.isEmpty(previousLineIndentStack);
 
-    if ((isStartsWithList(lineWithoutIndent) || (_.size(head) === 1 && !nextLineHasBiggerIndent)) && _.isEmpty(previousLineIndentStack)) {
+    if ((lineStartsWithList || (thisLineContainsSingleItem && nextLineHasSameIndent)) && lineNotUnderIndent) {
       return iter(tail, newLineBalance, previousLineIndentStack, [...acc, ...head]);
     }
 
