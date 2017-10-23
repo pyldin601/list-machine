@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import { CLOSE_PARENTHESIS, NEW_LINE, OPEN_PARENTHESIS, SPACE } from './lexeme';
+import { APOSTROPHE, CLOSE_PARENTHESIS, default as lexeme, NEW_LINE, OPEN_PARENTHESIS, SPACE } from './lexeme';
 import tailRecursion from './tailRecursion';
 import { arraySplitBy } from './util';
 
@@ -18,6 +18,8 @@ const flattenize = (lexemes: any[]): any[] => {
       return [...acc, ...parenthesisList];
     }
 
+    const nextLine = _.head(tail);
+
     const isEmptyLine = head.every(lexeme => lexeme === SPACE);
 
     if (isEmptyLine) {
@@ -32,9 +34,17 @@ const flattenize = (lexemes: any[]): any[] => {
 
     const thisLineIndent = getLineIndent(head);
     const lineWithoutIndent = head.slice(thisLineIndent);
-    const thisLineIndentStack = calcNewIndentStack(previousLineIndentStack, thisLineIndent - initialIndent);
 
-    const nextLine = _.head(tail);
+    const nextLineHasBiggerIndent = !_.isNil(nextLine) && getLineIndent(nextLine) > thisLineIndent;
+
+    if ((isStartsWithList(lineWithoutIndent) || (_.size(head) === 1 && !nextLineHasBiggerIndent)) && _.isEmpty(previousLineIndentStack)) {
+      return iter(tail, newLineBalance, previousLineIndentStack, [...acc, ...head]);
+    }
+
+    const nextLineIndent = getLineIndent(nextLine);
+
+
+    const thisLineIndentStack = calcNewIndentStack(previousLineIndentStack, thisLineIndent - initialIndent);
 
     if (_.isNil(nextLine)) {
       return iter(tail, newLineBalance, thisLineIndentStack, [
@@ -45,7 +55,6 @@ const flattenize = (lexemes: any[]): any[] => {
       ]);
     }
 
-    const nextLineIndent = getLineIndent(nextLine);
     const nextLineIndentStack = calcNewIndentStack(previousLineIndentStack, nextLineIndent - initialIndent);
 
     if (_.size(nextLineIndentStack) > _.size(thisLineIndentStack)) {
@@ -79,6 +88,10 @@ const flattenize = (lexemes: any[]): any[] => {
 
   return iter(lines, 0, [], []);
 };
+
+const isStartsWithList = (lexemes: any[]): boolean => (
+  _.includes([OPEN_PARENTHESIS, APOSTROPHE], _.head(lexemes))
+);
 
 const calcNewIndentStack = (indentsStack: number[], newIndent: number): number[] => {
   const size = _.sum(indentsStack);

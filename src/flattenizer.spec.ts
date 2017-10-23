@@ -61,3 +61,13 @@ test('Flattenize lines with indents #2', () => {
     OPEN_PARENTHESIS, 'e', 'f', CLOSE_PARENTHESIS,
   ]);
 });
+
+test('Do not flattenize parenthesis', () => {
+  const lexemes = flattenize([
+    OPEN_PARENTHESIS, 'def', 'a', 'b', CLOSE_PARENTHESIS,
+  ]);
+
+  expect(lexemes).toEqual([
+    OPEN_PARENTHESIS, 'def', 'a', 'b', CLOSE_PARENTHESIS,
+  ]);
+});
