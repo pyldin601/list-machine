@@ -1,6 +1,6 @@
 import * as compose from 'compose-function';
 import * as _ from 'lodash';
-import { APOSTROPHE, CLOSE_PARENTHESIS, NEW_LINE, OPEN_PARENTHESIS, SPACE } from './lexeme';
+import { APOSTROPHE, CLOSE_PARENTHESIS, INDENT, NEW_LINE, OPEN_PARENTHESIS } from './lexeme';
 import tailRecursion from './tailRecursion';
 import { arraySplitBy } from './util';
 
@@ -12,7 +12,7 @@ const mergeLexemeLines = (lexemes: any[][]): any[] => {
   return _.flatten(lexemes);
 };
 
-const isEmptyLine = (line: any[]) => line.every(lexeme => lexeme === SPACE);
+const isEmptyLine = (line: any[]) => line.every(lexeme => lexeme === INDENT);
 
 const ignoreEmptyLines = (linesOfLexemes: any[][]): any[][] => (
   linesOfLexemes.filter(line => !isEmptyLine(line))
@@ -36,25 +36,37 @@ const convertIndentsToBrackets = (linesOfLexemes: any[][]): any[][] => {
     }
 
     const balanceAfterLine = parenBalance + getLineBalance(thisLine);
+    const thisLineIndent = getLineIndent(thisLine);
+    const lineWithoutIndent = thisLine.slice(thisLineIndent);
 
-    const passLineUnchanged = () => iter([nextLine, ...restLines], balanceAfterLine, indentsStack, [...acc, thisLine]);
+    const passLineUnchanged = () => iter(
+      [nextLine, ...restLines],
+      balanceAfterLine,
+      indentsStack,
+      [...acc, lineWithoutIndent],
+    );
 
+    // Do not wrap brackets inside opened brackets
     if (parenBalance !== 0) {
       return passLineUnchanged();
     }
 
+    // Do not wrap brackets if line does not have indent and starts with open parenthesis
     if (_.isEmpty(indentsStack) && isStartsWithList(thisLine)) {
       return passLineUnchanged();
     }
 
-    const thisLineIndent = getLineIndent(thisLine);
     const thisLineIndentStack = calcNewIndentStack(indentsStack, thisLineIndent);
-    const lineWithoutIndent = thisLine.slice(thisLineIndent);
 
     // this line is last
     if (_.isNil(nextLine)) {
-      if (_.isEmpty(indentsStack) && _.size(thisLine) === 1) {
-        return passLineUnchanged();
+      if (_.size(lineWithoutIndent) === 1) {
+        return iter(
+          [nextLine, ...restLines],
+          balanceAfterLine,
+          thisLineIndentStack,
+          [...acc, lineWithoutIndent],
+        );
       }
 
       return iter(
@@ -67,18 +79,6 @@ const convertIndentsToBrackets = (linesOfLexemes: any[][]): any[][] => {
 
     const nextLineIndent = getLineIndent(nextLine);
 
-    if (_.size(thisLine) === 1 && nextLineIndent <= thisLineIndent) {
-      return passLineUnchanged();
-    }
-
-    if (nextLineIndent === thisLineIndent) {
-      return iter(
-        [nextLine, ...restLines],
-        balanceAfterLine,
-        thisLineIndentStack,
-        [...acc, [OPEN_PARENTHESIS, ...lineWithoutIndent, CLOSE_PARENTHESIS]],
-      );
-    }
 
     if (nextLineIndent > thisLineIndent) {
       return iter(
@@ -89,6 +89,21 @@ const convertIndentsToBrackets = (linesOfLexemes: any[][]): any[][] => {
       );
     }
 
+    const wrappedLine = (
+      (_.size(lineWithoutIndent) === 1)
+        ? lineWithoutIndent
+        : [OPEN_PARENTHESIS, ...lineWithoutIndent, CLOSE_PARENTHESIS]
+    );
+
+    if (nextLineIndent === thisLineIndent) {
+      return iter(
+        [nextLine, ...restLines],
+        balanceAfterLine,
+        thisLineIndentStack,
+        [...acc, wrappedLine],
+      );
+    }
+
     const parensToClose = _.size(thisLineIndentStack) - calcNewIndentStack(thisLineIndentStack, nextLineIndent);
     const parens = Array(parensToClose).fill(CLOSE_PARENTHESIS);
 
@@ -96,7 +111,7 @@ const convertIndentsToBrackets = (linesOfLexemes: any[][]): any[][] => {
       [nextLine, ...restLines],
       balanceAfterLine,
       thisLineIndentStack,
-      [...acc, [OPEN_PARENTHESIS, ...lineWithoutIndent, CLOSE_PARENTHESIS, ...parens]],
+      [...acc, [...wrappedLine, ...parens]],
     );
   });
 
@@ -149,7 +164,7 @@ const getLineBalance = (lexemes: any[]) => {
 };
 
 const getLineIndent = (lexemes: any[]) => {
-  return _.size(_.takeWhile(lexemes, lexeme => lexeme === SPACE));
+  return _.size(_.takeWhile(lexemes, lexeme => lexeme === INDENT));
 };
 
 export default compose(

@@ -1,5 +1,5 @@
 import flattenize from './flattenizer';
-import { CLOSE_PARENTHESIS, NEW_LINE, OPEN_PARENTHESIS, SPACE } from './lexeme';
+import { CLOSE_PARENTHESIS, NEW_LINE, OPEN_PARENTHESIS, INDENT } from './lexeme';
 
 test('Flattenize empty program', () => {
   const lexemes = flattenize([]);
@@ -28,8 +28,8 @@ test('Flattenize two lines without indents', () => {
 
 test('Flattenize two lines with same indents', () => {
   const lexemes = flattenize([
-    SPACE, 'def', 'a', 'b', NEW_LINE,
-    SPACE, 'def', 'c', 'd',
+    INDENT, 'def', 'a', 'b', NEW_LINE,
+    INDENT, 'def', 'c', 'd',
   ]);
   expect(lexemes).toEqual([
     OPEN_PARENTHESIS, "def", "a", "b", CLOSE_PARENTHESIS,
@@ -44,7 +44,7 @@ test('Flattenize two lines with same indents', () => {
 test('Flattenize lines with indents #1', () => {
   const lexemes = flattenize([
     'foo', 'a', 'b', NEW_LINE,
-    SPACE, 'bar', 'c', 'd',
+    INDENT, 'bar', 'c', 'd',
   ]);
   expect(lexemes).toEqual([
     OPEN_PARENTHESIS, "foo", "a", "b",
@@ -60,7 +60,7 @@ test('Flattenize lines with indents #1', () => {
 test('Flattenize lines with indents #2', () => {
   const lexemes = flattenize([
     'def', 'a', 'b', NEW_LINE,
-    SPACE, 'def', 'c', 'd', NEW_LINE,
+    INDENT, 'def', 'c', 'd', NEW_LINE,
     'e', 'f',
   ]);
 

@@ -4,7 +4,7 @@ import toPrimitive from "./printer";
 const expectEval = (program: string) => expect(toPrimitive(evalString(program)));
 
 test('Eval empty program', () => {
-  expectEval('').toBeNull();
+  expectEval('').toBeUndefined();
 });
 
 test('Eval sum of one number', () => {
@@ -114,8 +114,10 @@ test('Test eval-in', () => {
 test('Test expression with less parenthesis', () => {
   expectEval(`
     def square
-      lambda (x) (* x x)
-    
+      lambda (x)
+        * x
+          x
+
     def pi 3.14
     
     def circumference

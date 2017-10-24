@@ -6,7 +6,7 @@ import tailRecursion from './tailRecursion';
 export const OPEN_PARENTHESIS = Symbol('OPEN_PARENTHESIS');
 export const CLOSE_PARENTHESIS = Symbol('CLOSE_PARENTHESIS');
 export const APOSTROPHE = Symbol('APOSTROPHE');
-export const SPACE = Symbol('SPACE');
+export const INDENT = Symbol('INDENT');
 export const NEW_LINE = Symbol('NEW_LINE');
 
 export type ILexeme = symbol | string;
@@ -26,11 +26,10 @@ const parse = (program: string): ILexeme[] => {
         return baseIterator(tail, depth - 1, [...accumulator, CLOSE_PARENTHESIS]);
       case '\r':
       case '\t':
-        return baseIterator(tail, depth, accumulator);
       case ' ':
-        return baseIterator(tail, depth, [...accumulator, SPACE]);
+        return baseIterator(tail, depth, accumulator);
       case '\n':
-        return baseIterator(tail, depth, [...accumulator, NEW_LINE]);
+        return newLineIterator(tail, depth, [...accumulator, NEW_LINE]);
       case '\'':
         return baseIterator(tail, depth, [...accumulator, APOSTROPHE]);
       default:
@@ -61,15 +60,26 @@ const parse = (program: string): ILexeme[] => {
     }
   });
 
-  return baseIterator(program.split(''), 0, []);
+  const newLineIterator = tailRecursion((lexemes: string[], depth: number, acc: ILexeme[]): ILexeme[] => {
+    const [head, ...tail] = lexemes;
+
+    if (_.isNil(head)) {
+      return acc;
+    }
+
+    switch (head) {
+      case ' ':
+        return newLineIterator(tail, depth, [...acc, INDENT]);
+      default:
+        return baseIterator(lexemes, depth, acc);
+    }
+  });
+
+  return newLineIterator(program.split(''), 0, []);
 };
 
 const postProcess = (lexemes: any[]): any[] => {
-  return lexemes.filter(lexeme => !_.includes([SPACE], lexeme));
+  return lexemes.filter(lexeme => !_.includes([INDENT], lexeme));
 };
 
-export default compose(
-  postProcess,
-  flattenize,
-  parse,
-);
+export default compose(flattenize, parse);
