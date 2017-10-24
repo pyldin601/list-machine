@@ -104,8 +104,6 @@ export default (program: string, env: Env = initialEnv): any => {
   const lexemes = parseLexemes(program);
   const lists = parseLists(lexemes);
 
-  console.log(toPrimitive(lists));
-
   return lists.reduce(
     (acc, sym) => evalExpression(sym, env),
     undefined,
