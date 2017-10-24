@@ -32,6 +32,8 @@ const parse = (program: string): ILexeme[] => {
         return newLineIterator(tail, depth, [...accumulator, NEW_LINE]);
       case '\'':
         return baseIterator(tail, depth, [...accumulator, APOSTROPHE]);
+      case '"':
+        return stringIterator(tail, '', depth, accumulator);
       default:
         return symbolIterator(tail, head, depth, accumulator);
     }
@@ -58,6 +60,33 @@ const parse = (program: string): ILexeme[] => {
       default:
         return symbolIterator(tail, symbol + head, depth, accumulator);
     }
+  });
+
+  const stringIterator = tailRecursion((lexemes: string[], symbol: string, depth: number, accumulator: ILexeme[]): ILexeme[] => {
+    const [head, ...tail] = lexemes;
+
+    if (_.isNil(head)) {
+      throw new Error(`Unterminated string literal`);
+    }
+
+    switch (head) {
+      case '"':
+        return baseIterator(tail, depth, [...accumulator, symbol]);
+      case '\\':
+        return escapeIterator(tail, symbol, depth, accumulator);
+      default:
+        return stringIterator(tail, `${symbol}${head}`, depth, accumulator);
+    }
+  });
+
+  const escapeIterator = tailRecursion((lexemes: string[], symbol: string, depth: number, accumulator: ILexeme[]): ILexeme[] => {
+    const [head, ...tail] = lexemes;
+
+    if (_.isNil(head)) {
+      throw new Error(`Unterminated escape literal`);
+    }
+
+    return stringIterator(tail, `${symbol}${head}`, depth, accumulator);
   });
 
   const newLineIterator = tailRecursion((lexemes: string[], depth: number, acc: ILexeme[]): ILexeme[] => {

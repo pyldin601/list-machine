@@ -25,6 +25,7 @@ export const EVAL_IN = 'eval-in';
 export const COND = 'cond';
 
 export const EXP_LIST = 'list';
+export const EXP_JS = 'js';
 
 export const specialForms = [
   OP_ADD,
@@ -50,6 +51,7 @@ export const specialForms = [
   COND,
 
   EXP_LIST,
+  EXP_JS,
 ];
 
 export const isSpecialForm = (op: string): boolean => (
@@ -159,6 +161,11 @@ export const callSpecialForm = (
     }
 
     case EXP_LIST: return args.map(arg => evalExpression(arg, env));
+
+    case EXP_JS: {
+      const [func, ...funcArgs] = args.map(arg => evalExpression(arg, env));
+
+    }
 
     default:
       throw new Error(`Unknown special form - ${op}`);

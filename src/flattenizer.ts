@@ -104,7 +104,7 @@ const convertIndentsToBrackets = (linesOfLexemes: any[][]): any[][] => {
       );
     }
 
-    const parensToClose = _.size(thisLineIndentStack) - calcNewIndentStack(thisLineIndentStack, nextLineIndent);
+    const parensToClose = _.size(thisLineIndentStack) - _.size(calcNewIndentStack(thisLineIndentStack, nextLineIndent));
     const parens = Array(parensToClose).fill(CLOSE_PARENTHESIS);
 
     return iter(
