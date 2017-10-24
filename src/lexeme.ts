@@ -65,21 +65,7 @@ const parse = (program: string): ILexeme[] => {
 };
 
 const postProcess = (lexemes: any[]): any[] => {
-  const iter = tailRecursion(([head, ...tail]: any[], acc: any[]) => {
-    if (_.isNil(head)) {
-      return acc;
-    }
-
-    switch (head) {
-      case NEW_LINE:
-      case SPACE:
-        return iter(tail, acc);
-    }
-
-    return iter(tail, [...acc, head]);
-  });
-
-  return iter(lexemes, []);
+  return lexemes.filter(lexeme => !_.includes([SPACE], lexeme));
 };
 
-export default compose(postProcess, parse);
+export default compose(postProcess, flattenize, parse);

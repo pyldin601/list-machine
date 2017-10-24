@@ -4,6 +4,14 @@ import { APOSTROPHE, CLOSE_PARENTHESIS, NEW_LINE, OPEN_PARENTHESIS, SPACE } from
 import tailRecursion from './tailRecursion';
 import { arraySplitBy } from './util';
 
+const splitLexemesToLines = (lexemes: any[]): any[][] => {
+  return arraySplitBy(lexemes, lexeme => lexeme === NEW_LINE);
+};
+
+const mergeLexemeLines = (lexemes: any[][]): any[] => {
+  return _.flatten(lexemes);
+};
+
 const isEmptyLine = (line: any[]) => line.every(lexeme => lexeme === SPACE);
 
 const ignoreEmptyLines = (linesOfLexemes: any[][]): any[][] => (
@@ -22,7 +30,9 @@ const convertIndentsToBrackets = (linesOfLexemes: any[][]): any[][] => {
   const iter = tailRecursion(([thisLine, nextLine, ...restLines]: any[][], parenBalance: number = 0, indentsStack: number[] = [], acc: any[][] = []) => {
 
     if (_.isNil(thisLine)) {
-      return acc;
+      const parensLeftOpen = _.size(indentsStack);
+      const parens = Array(parensLeftOpen).fill(CLOSE_PARENTHESIS);
+      return [...acc, parens];
     }
 
     const balanceAfterLine = parenBalance + getLineBalance(thisLine);
@@ -33,105 +43,64 @@ const convertIndentsToBrackets = (linesOfLexemes: any[][]): any[][] => {
       return passLineUnchanged();
     }
 
+    if (_.isEmpty(indentsStack) && isStartsWithList(thisLine)) {
+      return passLineUnchanged();
+    }
+
+    const thisLineIndent = getLineIndent(thisLine);
+    const thisLineIndentStack = calcNewIndentStack(indentsStack, thisLineIndent);
+    const lineWithoutIndent = thisLine.slice(thisLineIndent);
+
     // this line is last
     if (_.isNil(nextLine)) {
-      if (_.isEmpty(indentsStack) && isStartsWithList(thisLine)) {
+      if (_.isEmpty(indentsStack) && _.size(thisLine) === 1) {
         return passLineUnchanged();
       }
 
-
-    }
-  });
-
-  return iter(linesOfLexemes)
-};
-
-const flattenize = (lexemes: any[]): any[] => {
-  const lines = arraySplitBy(lexemes, lexeme => lexeme === NEW_LINE);
-
-  if (_.size(lines) === 0) {
-    return [];
-  }
-
-  const initialIndent = getLineIndent(_.head(lines));
-
-  const iter = tailRecursion(([head, ...tail]: any[][], balance: number, previousLineIndentStack: number[], acc: any[]) => {
-    if (_.isNil(head)) {
-      const parenthesisList = Array(_.size(previousLineIndentStack)).fill(CLOSE_PARENTHESIS);
-      return [...acc, ...parenthesisList];
-    }
-
-    const isEmptyLine = head.every(lexeme => lexeme === SPACE);
-
-    if (isEmptyLine) {
-      return iter(tail, balance, previousLineIndentStack, acc);
-    }
-
-    const newLineBalance = balance + getLineBalance(head);
-
-    if (balance !== 0) {
-      return iter(tail, newLineBalance, previousLineIndentStack, [...acc, ...head]);
-    }
-
-    const thisLineIndent = getLineIndent(head);
-    const lineWithoutIndent = head.slice(thisLineIndent);
-
-    const nextLine = _.head(tail);
-    const nextLineHasSameOrLessIndent = _.isNil(nextLine) || getLineIndent(nextLine) <= thisLineIndent;
-    const thisLineContainsSingleItem = _.size(head) === 1;
-    const lineStartsWithList = isStartsWithList(lineWithoutIndent);
-    const lineNotUnderIndent = _.isEmpty(previousLineIndentStack);
-
-    if ((lineStartsWithList || (thisLineContainsSingleItem && nextLineHasSameOrLessIndent)) && lineNotUnderIndent) {
-      return iter(tail, newLineBalance, previousLineIndentStack, [...acc, ...head]);
+      return iter(
+        [],
+        balanceAfterLine,
+        thisLineIndentStack,
+        [...acc, [OPEN_PARENTHESIS, ...lineWithoutIndent, CLOSE_PARENTHESIS]],
+      );
     }
 
     const nextLineIndent = getLineIndent(nextLine);
 
-
-    const thisLineIndentStack = calcNewIndentStack(previousLineIndentStack, thisLineIndent - initialIndent);
-
-    if (_.isNil(nextLine)) {
-      return iter(tail, newLineBalance, thisLineIndentStack, [
-        ...acc,
-        OPEN_PARENTHESIS,
-        ...lineWithoutIndent,
-        CLOSE_PARENTHESIS,
-      ]);
+    if (_.size(thisLine) === 1 && nextLineIndent <= thisLineIndent) {
+      return passLineUnchanged();
     }
 
-    const nextLineIndentStack = calcNewIndentStack(previousLineIndentStack, nextLineIndent - initialIndent);
-
-    if (_.size(nextLineIndentStack) > _.size(thisLineIndentStack)) {
+    if (nextLineIndent === thisLineIndent) {
       return iter(
-        tail,
-        newLineBalance,
+        [nextLine, ...restLines],
+        balanceAfterLine,
         thisLineIndentStack,
-        [...acc, OPEN_PARENTHESIS, ...lineWithoutIndent],
+        [...acc, [OPEN_PARENTHESIS, ...lineWithoutIndent, CLOSE_PARENTHESIS]],
       );
     }
 
-    if (_.size(nextLineIndentStack) === _.size(thisLineIndentStack)) {
+    if (nextLineIndent > thisLineIndent) {
       return iter(
-        tail,
-        newLineBalance,
+        [nextLine, ...restLines],
+        balanceAfterLine,
         thisLineIndentStack,
-        [...acc, OPEN_PARENTHESIS, ...lineWithoutIndent, CLOSE_PARENTHESIS],
+        [...acc, [OPEN_PARENTHESIS, ...lineWithoutIndent]],
       );
     }
 
-    const indentStackDifference = _.size(thisLineIndentStack) - _.size(nextLineIndentStack);
-    const parenthesisToClose = Array(indentStackDifference).fill(CLOSE_PARENTHESIS);
+    const parensToClose = _.size(thisLineIndentStack) - calcNewIndentStack(thisLineIndentStack, nextLineIndent);
+    const parens = Array(parensToClose).fill(CLOSE_PARENTHESIS);
 
     return iter(
-      tail,
-      newLineBalance,
+      [nextLine, ...restLines],
+      balanceAfterLine,
       thisLineIndentStack,
-      [...acc, OPEN_PARENTHESIS, ...lineWithoutIndent, ...parenthesisToClose],
+      [...acc, [OPEN_PARENTHESIS, ...lineWithoutIndent, CLOSE_PARENTHESIS, ...parens]],
     );
   });
 
-  return iter(lines, 0, [], []);
+  return iter(linesOfLexemes)
 };
 
 const isStartsWithList = (lexemes: any[]): boolean => (
@@ -183,4 +152,4 @@ const getLineIndent = (lexemes: any[]) => {
   return _.size(_.takeWhile(lexemes, lexeme => lexeme === SPACE));
 };
 
-export default flattenize;
+export default compose(mergeLexemeLines, convertIndentsToBrackets, shrinkRedundantIndent, ignoreEmptyLines, splitLexemesToLines);

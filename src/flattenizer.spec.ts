@@ -37,17 +37,26 @@ test('Flattenize two lines with same indents', () => {
   ]);
 });
 
+/*
+ foo a b
+   bar c d
+ */
 test('Flattenize lines with indents #1', () => {
   const lexemes = flattenize([
-    'def', 'a', 'b', NEW_LINE,
-    SPACE, 'def', 'c', 'd',
+    'foo', 'a', 'b', NEW_LINE,
+    SPACE, 'bar', 'c', 'd',
   ]);
   expect(lexemes).toEqual([
-    OPEN_PARENTHESIS, "def", "a", "b",
-    OPEN_PARENTHESIS, "def", "c", "d", CLOSE_PARENTHESIS, CLOSE_PARENTHESIS,
+    OPEN_PARENTHESIS, "foo", "a", "b",
+    OPEN_PARENTHESIS, "bar", "c", "d", CLOSE_PARENTHESIS, CLOSE_PARENTHESIS,
   ]);
 });
 
+/*
+ def a b
+   def c d
+ e f
+ */
 test('Flattenize lines with indents #2', () => {
   const lexemes = flattenize([
     'def', 'a', 'b', NEW_LINE,
@@ -57,7 +66,7 @@ test('Flattenize lines with indents #2', () => {
 
   expect(lexemes).toEqual([
     OPEN_PARENTHESIS, 'def', 'a', 'b',
-    OPEN_PARENTHESIS, 'def', 'c', 'd', CLOSE_PARENTHESIS,
+    OPEN_PARENTHESIS, 'def', 'c', 'd', CLOSE_PARENTHESIS, CLOSE_PARENTHESIS,
     OPEN_PARENTHESIS, 'e', 'f', CLOSE_PARENTHESIS,
   ]);
 });
@@ -69,5 +78,15 @@ test('Do not flattenize parenthesis', () => {
 
   expect(lexemes).toEqual([
     OPEN_PARENTHESIS, 'def', 'a', 'b', CLOSE_PARENTHESIS,
+  ]);
+});
+
+test('Do not flattenize single symbol', () => {
+  const lexemes = flattenize([
+    'foo',
+  ]);
+
+  expect(lexemes).toEqual([
+    'foo',
   ]);
 });
