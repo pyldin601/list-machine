@@ -110,3 +110,18 @@ test('Test eval-in', () => {
   `).toBe('(10 20)');
 
 });
+
+test('Test expression with less parenthesis', () => {
+  expectEval(`
+    def square
+      lambda (x) (* x x)
+    
+    def pi 3.14
+    
+    def circumference
+      lambda (radius)
+        * pi (square radius)
+
+    circumference 4
+  `).toBe(50.24);
+});

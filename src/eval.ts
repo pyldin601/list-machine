@@ -5,6 +5,7 @@ import parseLists from './list';
 import { callSpecialForm, isSpecialForm } from './special';
 import { Lambda, Macro } from './types';
 import { isEmptyList, isList, isSymbol } from './util';
+import toPrimitive from "./printer";
 
 const initialEnv = new Env();
 
@@ -51,7 +52,7 @@ const applyExpression = (expression: any, env: Env) => {
     const newEnv = evaluatedOp.env.newEnv(zippedArgs);
     return evaluatedOp.body.reduce(
       (previousResult, exp) => evalExpression(exp, newEnv),
-      null,
+      undefined,
     );
   }
 
@@ -65,7 +66,7 @@ const applyExpression = (expression: any, env: Env) => {
     );
     return expandMacro(zippedArgs, evaluatedOp.body).reduce(
       (previousResult, exp) => evalExpression(exp, env),
-      null,
+      undefined,
     );
   }
 
@@ -103,8 +104,10 @@ export default (program: string, env: Env = initialEnv): any => {
   const lexemes = parseLexemes(program);
   const lists = parseLists(lexemes);
 
+  console.log(toPrimitive(lists));
+
   return lists.reduce(
     (acc, sym) => evalExpression(sym, env),
-    null,
+    undefined,
   );
 };
