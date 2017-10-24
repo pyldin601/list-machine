@@ -68,4 +68,8 @@ const postProcess = (lexemes: any[]): any[] => {
   return lexemes.filter(lexeme => !_.includes([SPACE], lexeme));
 };
 
-export default compose(postProcess, flattenize, parse);
+export default compose(
+  postProcess,
+  flattenize,
+  parse,
+);

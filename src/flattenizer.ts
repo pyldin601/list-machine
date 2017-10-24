@@ -152,4 +152,10 @@ const getLineIndent = (lexemes: any[]) => {
   return _.size(_.takeWhile(lexemes, lexeme => lexeme === SPACE));
 };
 
-export default compose(mergeLexemeLines, convertIndentsToBrackets, shrinkRedundantIndent, ignoreEmptyLines, splitLexemesToLines);
+export default compose(
+  mergeLexemeLines,
+  convertIndentsToBrackets,
+  shrinkRedundantIndent,
+  ignoreEmptyLines,
+  splitLexemesToLines,
+);
