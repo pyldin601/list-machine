@@ -24,10 +24,12 @@
   },
   "dependencies": {
     "@types/winston": "^2.3.6",
+    "@types/xterm": "^2.0.3",
     "compose-function": "^3.0.3",
     "is-primitive": "^2.0.0",
     "lodash": "^4.17.4",
-    "winston": "^2.4.0"
+    "winston": "^2.4.0",
+    "xterm": "^2.9.2"
   },
   "jest": {
     "transform": {
