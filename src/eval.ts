@@ -5,7 +5,6 @@ import { callSpecialForm, isSpecialForm } from './special';
 import parse from './tokens';
 import { Lambda, Macro } from './types';
 import { isEmptyList, isList, isSymbol } from './util';
-import toPrimitive from "./printer";
 
 const initialEnv = new Env();
 
@@ -19,7 +18,7 @@ const evalExpression = (expression: any, env: Env) => {
   }
 
   if (looksLikeBoolean(expression)) {
-    return Boolean(expression);
+    return expression === 'true';
   }
 
   if (looksLikeNumber(expression)) {

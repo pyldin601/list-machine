@@ -42,9 +42,16 @@ test('Test lambda #1', () => {
 
 test('Test lambda #2', () => {
   expectEval(`
-    (def square (lambda (x) (* x x)))
-    (def sum-of-squares (lambda (x y) (+ (square x) (square y))))
-    (sum-of-squares 3 2)
+    def square 
+      lambda (x) (* x x)
+
+    def sum-of-squares
+      lambda (x y)
+        +
+          square x
+          square y
+
+    sum-of-squares 3 2
   `).toBe(13);
 });
 
