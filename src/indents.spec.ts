@@ -1,4 +1,4 @@
-import flattenize from './flattenizer';
+import flattenize from './indents';
 import { CLOSE_PARENTHESIS, NEW_LINE, OPEN_PARENTHESIS, INDENT } from './tokens';
 
 test('Flattenize empty program', () => {

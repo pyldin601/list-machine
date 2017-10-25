@@ -1,6 +1,6 @@
 import * as compose from 'compose-function';
 import * as _ from 'lodash';
-import flattenize from './flattenizer';
+import flattenize from './indents';
 import optimizeTailCall from './optimizeTailCall';
 
 export const OPEN_PARENTHESIS   = Symbol('OPEN_PARENTHESIS');
