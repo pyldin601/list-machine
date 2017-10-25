@@ -34,7 +34,11 @@ const parse = (program: string[]): IToken[] => {
       case ' ':
         return baseIterator(tail, depth, accumulator);
       case '\n':
-        return indentIterator(tail, depth, [...accumulator, NEW_LINE]);
+        if (depth === 0) {
+          return indentIterator(tail, depth, [...accumulator, NEW_LINE])
+        } else {
+          return baseIterator(tail, depth, accumulator);
+        }
       case '\'':
         return baseIterator(tail, depth, [...accumulator, APOSTROPHE]);
       case '"':

@@ -35,15 +35,13 @@ const shrinkRedundantIndent = (lines: IToken[][]): IToken[][] => {
 const convertIndentsToBrackets = (lines: IToken[][]): IToken[][] => {
   const iter = optimizeTailCall((
     [thisLine, nextLine, ...restLines]: IToken[][],
-    parensBalance: number = 0,
     indentStack: number[] = [],
     acc: IToken[][] = [],
   ) => {
+
     if (_.isNil(thisLine)) {
       return acc;
     }
-
-    const balanceAfterLine = parensBalance + getLineBalance(thisLine);
 
     const thisLineIndent = getLineIndent(thisLine);
     const thisLineIndentStack = calcNewIndentStack(indentStack, thisLineIndent);
@@ -53,10 +51,9 @@ const convertIndentsToBrackets = (lines: IToken[][]): IToken[][] => {
 
     const lineWithoutIndent = thisLine.slice(thisLineIndent);
 
-    if (parensBalance !== 0 || balanceAfterLine !== 0 || (_.isEmpty(indentStack) && isStartsWithList(thisLine))) {
+    if (_.isEmpty(indentStack) && isStartsWithList(thisLine)) {
       return iter(
         nextRestLines,
-        balanceAfterLine,
         indentStack,
         [...acc, lineWithoutIndent],
       );
@@ -66,7 +63,6 @@ const convertIndentsToBrackets = (lines: IToken[][]): IToken[][] => {
     if (nextLineIndent > thisLineIndent) {
       return iter(
         nextRestLines,
-        balanceAfterLine,
         thisLineIndentStack,
         [...acc, [OPEN_PARENTHESIS, ...lineWithoutIndent]],
       );
@@ -81,7 +77,6 @@ const convertIndentsToBrackets = (lines: IToken[][]): IToken[][] => {
     if (nextLineIndent === thisLineIndent) {
       return iter(
         nextRestLines,
-        balanceAfterLine,
         thisLineIndentStack,
         [...acc, wrappedLine],
       );
@@ -93,7 +88,6 @@ const convertIndentsToBrackets = (lines: IToken[][]): IToken[][] => {
 
     return iter(
       nextRestLines,
-      balanceAfterLine,
       thisLineIndentStack,
       [...acc, [...wrappedLine, ...parens]],
     );
@@ -133,18 +127,6 @@ const deleteIndentsByDifference = (indentsStack: number[], indentDifference: num
   }
 
   return deleteIndentsByDifference(initialIndents, indentDifference - lastIndent);
-};
-
-const getLineBalance = (tokens: IToken[]) => {
-  return tokens.reduce((acc, token) => {
-    if (token === OPEN_PARENTHESIS) {
-      return acc + 1;
-    }
-    if (token === CLOSE_PARENTHESIS) {
-      return acc - 1;
-    }
-    return acc;
-  }, 0);
 };
 
 const getLineIndent = (tokens: IToken[]) => {
