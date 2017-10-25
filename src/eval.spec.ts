@@ -106,7 +106,8 @@ test('Test eval-in', () => {
              bar 20)
         (lambda ())))
 
-    (eval-in (f) (list foo bar))
+    eval-in (f)
+      list foo bar
   `).toBe('(10 20)');
 
 });

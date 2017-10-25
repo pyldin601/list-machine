@@ -5,6 +5,7 @@ import { callSpecialForm, isSpecialForm } from './special';
 import parse from './tokens';
 import { Lambda, Macro } from './types';
 import { isEmptyList, isList, isSymbol } from './util';
+import toPrimitive from "./printer";
 
 const initialEnv = new Env();
 
@@ -101,6 +102,7 @@ const looksLikeNumber = (exp: string): boolean => (
 
 export default (program: string, env: Env = initialEnv): any => {
   const tokens = parse(program);
+
   const list = toList(tokens);
 
   return list.reduce(

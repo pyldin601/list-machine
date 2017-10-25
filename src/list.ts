@@ -1,7 +1,7 @@
 import * as compose from 'compose-function';
 import * as _ from 'lodash';
-import { QUOTE } from './special';
 import optimizeTailCall from './optimizeTailCall';
+import { QUOTE } from './special';
 import { APOSTROPHE, CLOSE_PARENTHESIS, IToken, OPEN_PARENTHESIS } from './tokens';
 import { isList } from './util';
 
@@ -10,6 +10,11 @@ type IList = IToken | IToken[];
 const findClosingParenthesisOffset = (tokens: IToken[]): number => {
   const iter = optimizeTailCall((offset: number, depth: number): number => {
     const head = tokens[offset];
+
+    if (_.isNil(head)) {
+      throw new Error('Open parenthesis has no pair');
+    }
+
     switch (head) {
       case OPEN_PARENTHESIS:
         return iter(offset + 1, depth + 1);
@@ -38,6 +43,8 @@ const parseList = (tokens: IToken[]): any[] => {
         const pairOffset = findClosingParenthesisOffset(tail);
         const listContent = parseList(tail.slice(0, pairOffset));
         return iter(offset + pairOffset + 2, [...accumulator, listContent]);
+      case CLOSE_PARENTHESIS:
+        throw new Error('Close parenthesis has no pair');
       default:
         return iter(offset + 1, [...accumulator, head]);
     }

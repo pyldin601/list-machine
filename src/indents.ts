@@ -39,7 +39,6 @@ const convertIndentsToBrackets = (lines: IToken[][]): IToken[][] => {
     indentStack: number[] = [],
     acc: IToken[][] = [],
   ) => {
-
     if (_.isNil(thisLine)) {
       return acc;
     }
@@ -49,22 +48,24 @@ const convertIndentsToBrackets = (lines: IToken[][]): IToken[][] => {
     const thisLineIndent = getLineIndent(thisLine);
     const thisLineIndentStack = calcNewIndentStack(indentStack, thisLineIndent);
 
+    const nextLineIndent = _.isNil(nextLine) ? 0 : getLineIndent(nextLine);
+    const nextRestLines = _.isNil(nextLine) ? [] : [nextLine, ...restLines];
+
     const lineWithoutIndent = thisLine.slice(thisLineIndent);
 
-    if (parensBalance !== 0 || (_.isEmpty(indentStack) && isStartsWithList(thisLine))) {
+    if (parensBalance !== 0 || balanceAfterLine !== 0 || (_.isEmpty(indentStack) && isStartsWithList(thisLine))) {
       return iter(
-        [nextLine, ...restLines],
+        nextRestLines,
         balanceAfterLine,
         indentStack,
         [...acc, lineWithoutIndent],
       );
     }
 
-    const nextLineIndent = _.isNil(nextLine) ? 0 : getLineIndent(nextLine);
 
     if (nextLineIndent > thisLineIndent) {
       return iter(
-        [nextLine, ...restLines],
+        nextRestLines,
         balanceAfterLine,
         thisLineIndentStack,
         [...acc, [OPEN_PARENTHESIS, ...lineWithoutIndent]],
@@ -79,7 +80,7 @@ const convertIndentsToBrackets = (lines: IToken[][]): IToken[][] => {
 
     if (nextLineIndent === thisLineIndent) {
       return iter(
-        [nextLine, ...restLines],
+        nextRestLines,
         balanceAfterLine,
         thisLineIndentStack,
         [...acc, wrappedLine],
@@ -91,7 +92,7 @@ const convertIndentsToBrackets = (lines: IToken[][]): IToken[][] => {
     const parens = Array(parensToClose).fill(CLOSE_PARENTHESIS);
 
     return iter(
-      [nextLine, ...restLines],
+      nextRestLines,
       balanceAfterLine,
       thisLineIndentStack,
       [...acc, [...wrappedLine, ...parens]],
