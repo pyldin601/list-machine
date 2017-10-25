@@ -1,11 +1,10 @@
 import * as _ from 'lodash';
 import Env from './Env';
-import parseLexemes from './lexeme';
-import parseLists from './list';
+import toList from './list';
 import { callSpecialForm, isSpecialForm } from './special';
+import parse from './tokens';
 import { Lambda, Macro } from './types';
 import { isEmptyList, isList, isSymbol } from './util';
-import toPrimitive from "./printer";
 
 const initialEnv = new Env();
 
@@ -101,10 +100,10 @@ const looksLikeNumber = (exp: string): boolean => (
 );
 
 export default (program: string, env: Env = initialEnv): any => {
-  const lexemes = parseLexemes(program);
-  const lists = parseLists(lexemes);
+  const tokens = parse(program);
+  const list = toList(tokens);
 
-  return lists.reduce(
+  return list.reduce(
     (acc, sym) => evalExpression(sym, env),
     undefined,
   );

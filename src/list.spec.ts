@@ -1,18 +1,18 @@
-import parseLexemes from './lexeme';
-import parseList from './list';
+import parse from './tokens';
+import structurize from './list';
 
 test('Parse empty program', () => {
-  const result = parseList(parseLexemes(''));
+  const result = structurize(parse(''));
   expect(result).toEqual([]);
 });
 
 test('Parse empty list', () => {
-  const result = parseList(parseLexemes('()'));
+  const result = structurize(parse('()'));
   expect(result).toEqual([[]]);
 });
 
 test('Parse list of numbers', () => {
-  const result = parseList(parseLexemes('(1 2 3)'));
+  const result = structurize(parse('(1 2 3)'));
   expect(result).toEqual([
     [
       '1',
@@ -23,7 +23,7 @@ test('Parse list of numbers', () => {
 });
 
 test('Parse nested lists', () => {
-  const result = parseList(parseLexemes('(1 (2 3 4) 5)'));
+  const result = structurize(parse('(1 (2 3 4) 5)'));
   expect(result).toEqual([
     [
       '1',
@@ -38,7 +38,7 @@ test('Parse nested lists', () => {
 });
 
 test('Parse multiple lists', () => {
-  const result = parseList(parseLexemes('(1 2 3) (4 5)'));
+  const result = structurize(parse('(1 2 3) (4 5)'));
   expect(result).toEqual([
     ['1', '2', '3'],
     ['4', '5'],
@@ -56,7 +56,7 @@ test('Parse big program', () => {
     (fibonacci 5)
   `;
 
-  const result = parseList(parseLexemes(program));
+  const result = structurize(parse(program));
   expect(result).toEqual([
     ['def', 'fibonacci', ['n'],
       ['cond',
@@ -68,7 +68,7 @@ test('Parse big program', () => {
 });
 
 test('Parse quote', () => {
-  const result = parseList(parseLexemes(`'(1 2 3)`));
+  const result = structurize(parse(`'(1 2 3)`));
   expect(result).toEqual([
     ['quote', ['1', '2', '3']],
   ]);

@@ -1,5 +1,5 @@
 import flattenize from './flattenizer';
-import { CLOSE_PARENTHESIS, NEW_LINE, OPEN_PARENTHESIS, INDENT } from './lexeme';
+import { CLOSE_PARENTHESIS, NEW_LINE, OPEN_PARENTHESIS, INDENT } from './tokens';
 
 test('Flattenize empty program', () => {
   const lexemes = flattenize([]);

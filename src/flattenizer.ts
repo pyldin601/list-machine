@@ -1,84 +1,66 @@
 import * as compose from 'compose-function';
 import * as _ from 'lodash';
-import { APOSTROPHE, CLOSE_PARENTHESIS, INDENT, NEW_LINE, OPEN_PARENTHESIS } from './lexeme';
-import tailRecursion from './tailRecursion';
+import optimizeTailCall from './optimizeTailCall';
+import { APOSTROPHE, CLOSE_PARENTHESIS, INDENT, NEW_LINE, OPEN_PARENTHESIS } from './tokens';
 import { arraySplitBy } from './util';
 
-const splitLexemesToLines = (lexemes: any[]): any[][] => {
-  return arraySplitBy(lexemes, lexeme => lexeme === NEW_LINE);
+type IToken = string | symbol;
+
+const splitTokensByLines = (tokens: IToken[]): IToken[][] => {
+  return arraySplitBy(tokens, token => token === NEW_LINE);
 };
 
-const mergeLexemeLines = (lexemes: any[][]): any[] => {
-  return _.flatten(lexemes);
+const mergeLinesOfTokens = (tokens: IToken[][]): IToken[] => {
+  return _.flatten(tokens);
 };
 
-const isEmptyLine = (line: any[]) => line.every(lexeme => lexeme === INDENT);
-
-const ignoreEmptyLines = (linesOfLexemes: any[][]): any[][] => (
-  linesOfLexemes.filter(line => !isEmptyLine(line))
+const isEmptyLine = (line: IToken[]) => (
+  line.every(token => token === INDENT)
 );
 
-const shrinkRedundantIndent = (linesOfLexemes: any[][]): any[][] => {
-  if (_.isEmpty(linesOfLexemes)) {
+const rejectEmptyLines = (lines: IToken[][]): IToken[][] => (
+  lines.filter(line => !isEmptyLine(line))
+);
+
+const shrinkRedundantIndent = (lines: IToken[][]): IToken[][] => {
+  if (_.isEmpty(lines)) {
     return [];
   }
-  const minimalDetectedIndent = _.min(linesOfLexemes.map(line => getLineIndent(line)));
-  return linesOfLexemes.map(line => line.slice(minimalDetectedIndent));
+  const minimalDetectedIndent = _.min(
+    lines.map(line => getLineIndent(line))
+  );
+  return lines.map(line => line.slice(minimalDetectedIndent));
 };
 
-const convertIndentsToBrackets = (linesOfLexemes: any[][]): any[][] => {
-  const iter = tailRecursion(([thisLine, nextLine, ...restLines]: any[][], parenBalance: number = 0, indentsStack: number[] = [], acc: any[][] = []) => {
+const convertIndentsToBrackets = (lines: IToken[][]): IToken[][] => {
+  const iter = optimizeTailCall((
+    [thisLine, nextLine, ...restLines]: IToken[][],
+    parensBalance: number = 0,
+    indentStack: number[] = [],
+    acc: IToken[][] = [],
+  ) => {
 
     if (_.isNil(thisLine)) {
-      const parensLeftOpen = _.size(indentsStack);
-      const parens = Array(parensLeftOpen).fill(CLOSE_PARENTHESIS);
-      return [...acc, parens];
+      return acc;
     }
 
-    const balanceAfterLine = parenBalance + getLineBalance(thisLine);
+    const balanceAfterLine = parensBalance + getLineBalance(thisLine);
+
     const thisLineIndent = getLineIndent(thisLine);
+    const thisLineIndentStack = calcNewIndentStack(indentStack, thisLineIndent);
+
     const lineWithoutIndent = thisLine.slice(thisLineIndent);
 
-    const passLineUnchanged = () => iter(
-      [nextLine, ...restLines],
-      balanceAfterLine,
-      indentsStack,
-      [...acc, lineWithoutIndent],
-    );
-
-    // Do not wrap brackets inside opened brackets
-    if (parenBalance !== 0) {
-      return passLineUnchanged();
-    }
-
-    // Do not wrap brackets if line does not have indent and starts with open parenthesis
-    if (_.isEmpty(indentsStack) && isStartsWithList(thisLine)) {
-      return passLineUnchanged();
-    }
-
-    const thisLineIndentStack = calcNewIndentStack(indentsStack, thisLineIndent);
-
-    // this line is last
-    if (_.isNil(nextLine)) {
-      if (_.size(lineWithoutIndent) === 1) {
-        return iter(
-          [nextLine, ...restLines],
-          balanceAfterLine,
-          thisLineIndentStack,
-          [...acc, lineWithoutIndent],
-        );
-      }
-
+    if (parensBalance !== 0 || (_.isEmpty(indentStack) && isStartsWithList(thisLine))) {
       return iter(
-        [],
+        [nextLine, ...restLines],
         balanceAfterLine,
-        thisLineIndentStack,
-        [...acc, [OPEN_PARENTHESIS, ...lineWithoutIndent, CLOSE_PARENTHESIS]],
+        indentStack,
+        [...acc, lineWithoutIndent],
       );
     }
 
-    const nextLineIndent = getLineIndent(nextLine);
-
+    const nextLineIndent = _.isNil(nextLine) ? 0 : getLineIndent(nextLine);
 
     if (nextLineIndent > thisLineIndent) {
       return iter(
@@ -104,7 +86,8 @@ const convertIndentsToBrackets = (linesOfLexemes: any[][]): any[][] => {
       );
     }
 
-    const parensToClose = _.size(thisLineIndentStack) - _.size(calcNewIndentStack(thisLineIndentStack, nextLineIndent));
+    const nextLineIndentStack = calcNewIndentStack(thisLineIndentStack, nextLineIndent);
+    const parensToClose = _.size(thisLineIndentStack) - _.size(nextLineIndentStack);
     const parens = Array(parensToClose).fill(CLOSE_PARENTHESIS);
 
     return iter(
@@ -115,11 +98,11 @@ const convertIndentsToBrackets = (linesOfLexemes: any[][]): any[][] => {
     );
   });
 
-  return iter(linesOfLexemes)
+  return iter(lines)
 };
 
-const isStartsWithList = (lexemes: any[]): boolean => (
-  _.includes([OPEN_PARENTHESIS, APOSTROPHE], _.head(lexemes))
+const isStartsWithList = (tokens: IToken[]): boolean => (
+  _.includes([OPEN_PARENTHESIS, APOSTROPHE], _.head(tokens))
 );
 
 const calcNewIndentStack = (indentsStack: number[], newIndent: number): number[] => {
@@ -151,26 +134,26 @@ const deleteIndentsByDifference = (indentsStack: number[], indentDifference: num
   return deleteIndentsByDifference(initialIndents, indentDifference - lastIndent);
 };
 
-const getLineBalance = (lexemes: any[]) => {
-  return lexemes.reduce((acc, lexeme) => {
-    if (lexeme === OPEN_PARENTHESIS) {
+const getLineBalance = (tokens: IToken[]) => {
+  return tokens.reduce((acc, token) => {
+    if (token === OPEN_PARENTHESIS) {
       return acc + 1;
     }
-    if (lexeme === CLOSE_PARENTHESIS) {
+    if (token === CLOSE_PARENTHESIS) {
       return acc - 1;
     }
     return acc;
   }, 0);
 };
 
-const getLineIndent = (lexemes: any[]) => {
-  return _.size(_.takeWhile(lexemes, lexeme => lexeme === INDENT));
+const getLineIndent = (tokens: IToken[]) => {
+  return _.size(_.takeWhile(tokens, token => token === INDENT));
 };
 
 export default compose(
-  mergeLexemeLines,
+  mergeLinesOfTokens,
   convertIndentsToBrackets,
   shrinkRedundantIndent,
-  ignoreEmptyLines,
-  splitLexemesToLines,
+  rejectEmptyLines,
+  splitTokensByLines,
 );

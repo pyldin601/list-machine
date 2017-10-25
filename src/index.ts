@@ -1,4 +1,4 @@
-import parseLexemes from './lexeme';
+import parseLexemes from './tokens';
 import parseLists from './list';
 
 export default (program: string): void => {
