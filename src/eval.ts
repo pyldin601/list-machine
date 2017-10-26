@@ -32,6 +32,10 @@ const isMethodCall = (op: string): boolean => {
   return op[0] === '.';
 };
 
+const isNewCall = (op: string): boolean => {
+  return op === '.new';
+};
+
 const applyExpression = (expression: any, env: Env) => {
   if (isEmptyList(expression)) {
     return expression;
@@ -59,6 +63,10 @@ const applyExpression = (expression: any, env: Env) => {
   }
 
   const evaluatedArgs = args.map(arg => evalExpression(arg, env));
+
+  if (isNewCall(evaluatedOp)) {
+    return newInstance(_.first(evaluatedArgs), _.tail(evaluatedArgs));
+  }
 
   if (isMethodCall(evaluatedOp)) {
     return callMethod(evaluatedOp.slice(1), _.first(evaluatedArgs), _.tail(evaluatedArgs));
@@ -88,6 +96,10 @@ const applyExpression = (expression: any, env: Env) => {
 
 const callMethod = (method: string, object: any, args: any[]): any => {
   return object[method](...args);
+};
+
+const newInstance = (object: any, args: any[]): any => {
+  return new object(...args);
 };
 
 const squeezeArguments = (args: any[], amount: number): any[] => {

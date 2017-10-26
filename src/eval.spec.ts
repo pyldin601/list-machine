@@ -1,7 +1,7 @@
 import evalString from './eval';
-import toPrimitive from "./printer";
+import toPrintable from './printer';
 
-const expectEval = (program: string) => expect(toPrimitive(evalString(program)));
+const expectEval = (program: string) => expect(toPrintable(evalString(program)));
 
 test('Eval empty program', () => {
   expectEval('').toBeUndefined();
@@ -140,4 +140,8 @@ test('Test expression with less parenthesis', () => {
 
 test('Test global interoperability #1', () => {
   expectEval('(.toUpperCase ((js String) Hello))').toBe('HELLO');
+});
+
+test('Test global interoperability #2', () => {
+  expectEval('(.fill (.new (js Array) 5) foo)').toEqual('(foo foo foo foo foo)');
 });

@@ -4,10 +4,6 @@ import { Lambda, Macro } from './types';
 import { isEmptyList, isList } from './util';
 
 const toPrimitive = (expression: any): string => {
-  if (isEmptyList(expression)) {
-    return 'Nil';
-  }
-
   if (isList(expression)) {
     return `(${expression.map(toPrimitive).join(' ')})`;
   }
