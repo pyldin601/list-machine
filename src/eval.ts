@@ -37,7 +37,7 @@ const evalExpression = (expression: any, env: Env) => {
 };
 
 const isMethodCall = (op: any): boolean => {
-  return (typeof op === 'string') && (op[0] === '.');
+  return isLMSymbol(op) && (op.value[0] === '.');
 };
 
 const isJsCall = (exp: any): boolean => {
@@ -70,7 +70,7 @@ const applyExpression = (expression: any, env: Env) => {
   const evaluatedArgs = args.map(arg => evalExpression(arg, env));
 
   if (isMethodCall(evaluatedOp)) {
-    return callMethod(env, evaluatedOp.slice(1), _.first(evaluatedArgs), _.tail(evaluatedArgs));
+    return callMethod(env, evaluatedOp.value.slice(1), _.first(evaluatedArgs), _.tail(evaluatedArgs));
   }
 
   if (evaluatedOp instanceof Lambda) {
