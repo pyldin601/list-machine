@@ -105,15 +105,14 @@ test('Issue #1', () => {
   const lexemes = flattenize([
     'def', 'f', NEW_LINE,
     INDENT, 'lambda', OPEN_PARENTHESIS, CLOSE_PARENTHESIS, NEW_LINE,
-    INDENT, INDENT, OPEN_PARENTHESIS, 'def', 'foo', '10', NEW_LINE,
-    INDENT, INDENT, INDENT, 'bar', '20', CLOSE_PARENTHESIS, NEW_LINE,
+    INDENT, INDENT, OPEN_PARENTHESIS, 'def', 'foo', '10', 'bar', '20', CLOSE_PARENTHESIS, NEW_LINE,
     INDENT, INDENT, 'lambda', OPEN_PARENTHESIS, CLOSE_PARENTHESIS, NEW_LINE,
   ]);
 
   expect(lexemes).toEqual([
     OPEN_PARENTHESIS, 'def', 'f',
                       OPEN_PARENTHESIS, 'lambda', OPEN_PARENTHESIS, CLOSE_PARENTHESIS,
-                                        OPEN_PARENTHESIS, 'def', 'foo', '10', 'bar', '20', CLOSE_PARENTHESIS,
+                                        OPEN_PARENTHESIS, OPEN_PARENTHESIS, 'def', 'foo', '10', 'bar', '20', CLOSE_PARENTHESIS, CLOSE_PARENTHESIS,
                                         OPEN_PARENTHESIS, 'lambda', OPEN_PARENTHESIS, CLOSE_PARENTHESIS, CLOSE_PARENTHESIS, CLOSE_PARENTHESIS, CLOSE_PARENTHESIS,
   ]);
 });

@@ -28,6 +28,10 @@ const evalExpression = (expression: any, env: Env) => {
   return expression;
 };
 
+const isMethodCall = (op: string): boolean => {
+  return op[0] === '.';
+};
+
 const applyExpression = (expression: any, env: Env) => {
   if (isEmptyList(expression)) {
     return expression;
@@ -38,21 +42,6 @@ const applyExpression = (expression: any, env: Env) => {
 
   if (isSpecialForm(evaluatedOp)) {
     return callSpecialForm(evaluatedOp, args, evalExpression, env);
-  }
-
-  if (evaluatedOp instanceof Lambda) {
-    const zippedArgs = _.zipObject(
-      evaluatedOp.args,
-      squeezeArguments(
-        args.map(exp => evalExpression(exp, env)),
-        evaluatedOp.args.length,
-      ),
-    );
-    const newEnv = evaluatedOp.env.newEnv(zippedArgs);
-    return evaluatedOp.body.reduce(
-      (previousResult, exp) => evalExpression(exp, newEnv),
-      undefined,
-    );
   }
 
   if (evaluatedOp instanceof Macro) {
@@ -69,7 +58,36 @@ const applyExpression = (expression: any, env: Env) => {
     );
   }
 
+  const evaluatedArgs = args.map(arg => evalExpression(arg, env));
+
+  if (isMethodCall(evaluatedOp)) {
+    return callMethod(evaluatedOp.slice(1), _.first(evaluatedArgs), _.tail(evaluatedArgs));
+  }
+
+  if (evaluatedOp instanceof Lambda) {
+    const zippedArgs = _.zipObject(
+      evaluatedOp.args,
+      squeezeArguments(
+        evaluatedArgs,
+        evaluatedOp.args.length,
+      ),
+    );
+    const newEnv = evaluatedOp.env.newEnv(zippedArgs);
+    return evaluatedOp.body.reduce(
+      (previousResult, exp) => evalExpression(exp, newEnv),
+      undefined,
+    );
+  }
+
+  if (typeof evaluatedOp === 'function') {
+    return evaluatedOp(...evaluatedArgs);
+  }
+
   throw new Error(`Symbol "${evaluatedOp}" is not callable`);
+};
+
+const callMethod = (method: string, object: any, args: any[]): any => {
+  return object[method](...args);
 };
 
 const squeezeArguments = (args: any[], amount: number): any[] => {

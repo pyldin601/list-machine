@@ -24,7 +24,7 @@ const toPrimitive = (expression: any): string => {
     return expression;
   }
 
-  return JSON.stringify(expression);
+  return `js:${expression}`;
 };
 
 export default toPrimitive;

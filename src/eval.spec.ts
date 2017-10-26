@@ -137,3 +137,7 @@ test('Test expression with less parenthesis', () => {
     circumference 4
   `).toBe(50.24);
 });
+
+test('Test global interoperability #1', () => {
+  expectEval('(.toUpperCase ((js String) Hello))').toBe('HELLO');
+});

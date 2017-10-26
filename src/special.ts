@@ -1,5 +1,6 @@
 import { chunk, first, includes, last } from 'lodash';
 import Env from './Env';
+import getGlobal from './global';
 import { Lambda, Macro } from './types/';
 
 export const OP_ADD = '+';
@@ -53,6 +54,8 @@ export const specialForms = [
   EXP_LIST,
   EXP_JS,
 ];
+
+const globalJSObject = getGlobal();
 
 export const isSpecialForm = (op: string): boolean => (
   includes(specialForms, op)
@@ -163,8 +166,8 @@ export const callSpecialForm = (
     case EXP_LIST: return args.map(arg => evalExpression(arg, env));
 
     case EXP_JS: {
-      const [func, ...funcArgs] = args.map(arg => evalExpression(arg, env));
-
+      const name = evalExpression(first(args), env);
+      return globalJSObject[name];
     }
 
     default:
