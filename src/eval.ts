@@ -4,7 +4,7 @@ import getGlobal from './global';
 import toList from './list';
 import { callSpecialForm, isSpecialForm } from './special';
 import parse from './tokens';
-import { Lambda, Macro } from './types';
+import { isLmType, Lambda, Macro } from './types';
 import { isEmptyList, isList, isSymbol } from './util';
 
 const initialEnv = new Env();
@@ -94,7 +94,7 @@ const applyExpression = (expression: any, env: Env) => {
 // todo: split types to js and non-js
 const callMethod = (env: Env, method: string, object: any, args: any[]): any => {
   const patchedArgs = args.map(arg => {
-    if (arg instanceof Lambda) {
+    if (arg instanceof Lambda && !isLmType(object)) {
       return (...innerArgs) => {
         return evalExpression([arg, ['quote', ...innerArgs]], env);
       };
@@ -102,13 +102,6 @@ const callMethod = (env: Env, method: string, object: any, args: any[]): any => 
     return arg;
   });
   return object[method](...patchedArgs);
-};
-
-const squeezeArguments = (args: any[], amount: number): any[] => {
-  if (args.length <= amount) {
-    return args;
-  }
-  return [...args.slice(0, amount - 1), args.slice(amount - 1)];
 };
 
 const expandMacro = (args: any, body: any): any => {

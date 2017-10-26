@@ -90,7 +90,7 @@ test('Test cond and eq? #1', () => {
 });
 
 
-test('Test arguments squeeze', () => {
+test('Test call convention', () => {
   expectEval(`
     (def f (lambda (x y) (list x y)))
     (f 3 4)
@@ -99,7 +99,7 @@ test('Test arguments squeeze', () => {
   expectEval(`
     (def f (lambda (x y) (list x y)))
     (f 3 4 5 6)
-  `).toBe('(3 (4 5 6))');
+  `).toBe('(3 4)');
 });
 
 
