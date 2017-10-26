@@ -14,9 +14,9 @@ test('Parse list of numbers', () => {
   const result = parse('(1 2 3)');
   expect(result).toEqual([
     OPEN_PARENTHESIS,
-    '1',
-    '2',
-    '3',
+    1,
+    2,
+    3,
     CLOSE_PARENTHESIS,
   ]);
 });
@@ -25,13 +25,13 @@ test('Parse nested lists', () => {
   const result = parse('(1 (2 3 4) 5)');
   expect(result).toEqual([
     OPEN_PARENTHESIS,
-    '1',
+    1,
     OPEN_PARENTHESIS,
-    '2',
-    '3',
-    '4',
+    2,
+    3,
+    4,
     CLOSE_PARENTHESIS,
-    '5',
+    5,
     CLOSE_PARENTHESIS,
   ]);
 });
@@ -49,9 +49,9 @@ test('Test quote', () => {
   expect(parse(`'(1 2 3)`)).toEqual([
     APOSTROPHE,
     OPEN_PARENTHESIS,
-    '1',
-    '2',
-    '3',
+    1,
+    2,
+    3,
     CLOSE_PARENTHESIS,
   ]);
 });

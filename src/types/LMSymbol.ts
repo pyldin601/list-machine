@@ -1,6 +1,6 @@
 import toPrimitive from '../printer';
 
-export default class Symbol {
+export default class LMSymbol {
   public value: string;
 
   constructor(value: string) {

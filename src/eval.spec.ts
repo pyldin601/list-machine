@@ -59,7 +59,7 @@ test('Test macro #1', () => {
   expectEval(`
     (def defmacro (macro (name args body) (def name (macro args body))))
     (defmacro inc (n) (+ 1 n))
-    (inc 4)
+    inc 4
   `).toBe(5);
 });
 

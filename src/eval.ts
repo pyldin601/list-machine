@@ -4,32 +4,33 @@ import getGlobal from './global';
 import toList from './list';
 import { callSpecialForm, isSpecialForm } from './special';
 import parse from './tokens';
-import { isLmType, Lambda, Macro } from './types';
+import { isLMSymbol, isLMType, Lambda, LMSymbol, Macro } from './types';
 import { isEmptyList, isList, isSymbol } from './util';
 
 const initialEnv = new Env();
 
 const globalJSObject = getGlobal();
 
+const evalLMSymbol = (symbol: LMSymbol, env: Env): any => {
+  const { value } = symbol;
+  if (env.isBound(value)) {
+    return env.get(value);
+  }
+
+  if (isJsCall(value)) {
+    return globalJSObject[value.slice(3)];
+  }
+
+  return symbol;
+};
+
 const evalExpression = (expression: any, env: Env) => {
   if (isList(expression)) {
     return applyExpression(expression, env);
   }
 
-  if (env.isBound(expression)) {
-    return env.get(expression);
-  }
-
-  if (looksLikeBoolean(expression)) {
-    return expression === 'true';
-  }
-
-  if (looksLikeFloat(expression)) {
-    return parseFloat(expression);
-  }
-
-  if (isJsCall(expression)) {
-    return globalJSObject[expression.slice(3)];
+  if (isLMSymbol(expression)) {
+    return evalLMSymbol(expression, env);
   }
 
   return expression;
@@ -51,8 +52,8 @@ const applyExpression = (expression: any, env: Env) => {
   const [op, ...args] = expression;
   const evaluatedOp = evalExpression(op, env);
 
-  if (isSpecialForm(evaluatedOp)) {
-    return callSpecialForm(evaluatedOp, args, evalExpression, env);
+  if (isLMSymbol(evaluatedOp) && isSpecialForm(evaluatedOp.value)) {
+    return callSpecialForm(evaluatedOp.value, args, evalExpression, env);
   }
 
   if (evaluatedOp instanceof Macro) {
@@ -94,7 +95,7 @@ const applyExpression = (expression: any, env: Env) => {
 // todo: split types to js and non-js
 const callMethod = (env: Env, method: string, object: any, args: any[]): any => {
   const patchedArgs = args.map(arg => {
-    if (arg instanceof Lambda && !isLmType(object)) {
+    if (arg instanceof Lambda && !isLMType(object)) {
       return (...innerArgs) => {
         return evalExpression([arg, ['quote', ...innerArgs]], env);
       };
@@ -109,20 +110,12 @@ const expandMacro = (args: any, body: any): any => {
     if (isList(exp)) {
       return expandMacro(args, exp);
     }
-    if (isSymbol(exp) && exp in args) {
-      return args[exp];
+    if (isLMSymbol(exp) && exp.value in args) {
+      return args[exp.value];
     }
     return exp;
   });
 };
-
-const looksLikeBoolean = (exp: string): boolean => (
-  _.includes(['true', 'false'], exp)
-);
-
-const looksLikeFloat = (exp: string): boolean => (
-  !isNaN(parseFloat(exp))
-);
 
 export default (program: string, env: Env = initialEnv): any => {
   const tokens = parse(program);
