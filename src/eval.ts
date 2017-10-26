@@ -28,15 +28,19 @@ const evalExpression = (expression: any, env: Env) => {
     return parseFloat(expression);
   }
 
-  if (expression.slice(0, 3) === 'js/') {
+  if (isJsCall(expression)) {
     return globalJSObject[expression.slice(3)];
   }
 
   return expression;
 };
 
-const isMethodCall = (op: string): boolean => {
-  return op[0] === '.';
+const isMethodCall = (op: any): boolean => {
+  return (typeof op === 'string') && (op[0] === '.');
+};
+
+const isJsCall = (exp: any): boolean => {
+  return typeof exp === 'string' && exp.slice(0, 3) === 'js/';
 };
 
 const applyExpression = (expression: any, env: Env) => {
@@ -54,10 +58,7 @@ const applyExpression = (expression: any, env: Env) => {
   if (evaluatedOp instanceof Macro) {
     const zippedArgs = _.zipObject(
       evaluatedOp.args,
-      squeezeArguments(
-        args,
-        evaluatedOp.args.length,
-      ),
+      args,
     );
     return expandMacro(zippedArgs, evaluatedOp.body).reduce(
       (previousResult, exp) => evalExpression(exp, env),
@@ -68,16 +69,13 @@ const applyExpression = (expression: any, env: Env) => {
   const evaluatedArgs = args.map(arg => evalExpression(arg, env));
 
   if (isMethodCall(evaluatedOp)) {
-    return callMethod(evaluatedOp.slice(1), _.first(evaluatedArgs), _.tail(evaluatedArgs));
+    return callMethod(env, evaluatedOp.slice(1), _.first(evaluatedArgs), _.tail(evaluatedArgs));
   }
 
   if (evaluatedOp instanceof Lambda) {
     const zippedArgs = _.zipObject(
       evaluatedOp.args,
-      squeezeArguments(
-        evaluatedArgs,
-        evaluatedOp.args.length,
-      ),
+      evaluatedArgs,
     );
     const newEnv = evaluatedOp.env.newEnv(zippedArgs);
     return evaluatedOp.body.reduce(
@@ -93,8 +91,17 @@ const applyExpression = (expression: any, env: Env) => {
   throw new Error(`Symbol "${evaluatedOp}" is not callable`);
 };
 
-const callMethod = (method: string, object: any, args: any[]): any => {
-  return object[method](...args);
+// todo: split types to js and non-js
+const callMethod = (env: Env, method: string, object: any, args: any[]): any => {
+  const patchedArgs = args.map(arg => {
+    if (arg instanceof Lambda) {
+      return (...innerArgs) => {
+        return evalExpression([arg, ['quote', ...innerArgs]], env);
+      };
+    }
+    return arg;
+  });
+  return object[method](...patchedArgs);
 };
 
 const squeezeArguments = (args: any[], amount: number): any[] => {

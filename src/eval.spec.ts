@@ -145,3 +145,8 @@ test('Test global interoperability #1', () => {
 test('Test global interoperability #2', () => {
   expectEval('(.fill (new js/Array 5) "Hello")').toEqual('(Hello Hello Hello Hello Hello)');
 });
+
+
+test('Test global interoperability #3', () => {
+  expectEval('(.map \'(1 2 3 4 5) (lambda (x) (* 2 x)))').toEqual('(2 4 6 8 10)');
+});
