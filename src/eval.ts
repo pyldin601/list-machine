@@ -96,9 +96,7 @@ const applyExpression = (expression: any, env: Env) => {
 const callMethod = (env: Env, method: string, object: any, args: any[]): any => {
   const patchedArgs = args.map(arg => {
     if (arg instanceof Lambda && !isLMType(object)) {
-      return (...innerArgs) => {
-        return evalExpression([arg, ['quote', ...innerArgs]], env);
-      };
+      return (...innerArgs) => evalExpression([arg, [new LMSymbol('quote'), ...innerArgs]], env);
     }
     return arg;
   });

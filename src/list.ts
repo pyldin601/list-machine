@@ -4,6 +4,7 @@ import optimizeTailCall from './optimizeTailCall';
 import { QUOTE } from './special';
 import { APOSTROPHE, CLOSE_PARENTHESIS, IToken, OPEN_PARENTHESIS } from './tokens';
 import { isList } from './util';
+import LMSymbol from "./types/LMSymbol";
 
 type IList = IToken | IToken[];
 
@@ -64,7 +65,7 @@ const postProcess = (list: IList[]): IList[] => {
     }
 
     if (head === APOSTROPHE) {
-      return iter(_.tail(tail), [...acc, [QUOTE, _.head(tail)]]);
+      return iter(_.tail(tail), [...acc, [new LMSymbol(QUOTE), _.head(tail)]]);
     }
 
     return iter(tail, [...acc, head]);
