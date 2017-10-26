@@ -1,5 +1,6 @@
 import * as _ from 'lodash';
 import Env from './Env';
+import getGlobal from './global';
 import toList from './list';
 import { callSpecialForm, isSpecialForm } from './special';
 import parse from './tokens';
@@ -7,6 +8,8 @@ import { Lambda, Macro } from './types';
 import { isEmptyList, isList, isSymbol } from './util';
 
 const initialEnv = new Env();
+
+const globalJSObject = getGlobal();
 
 const evalExpression = (expression: any, env: Env) => {
   if (isList(expression)) {
@@ -25,15 +28,15 @@ const evalExpression = (expression: any, env: Env) => {
     return parseFloat(expression);
   }
 
+  if (expression.slice(0, 3) === 'js/') {
+    return globalJSObject[expression.slice(3)];
+  }
+
   return expression;
 };
 
 const isMethodCall = (op: string): boolean => {
   return op[0] === '.';
-};
-
-const isNewCall = (op: string): boolean => {
-  return op === '.new';
 };
 
 const applyExpression = (expression: any, env: Env) => {
@@ -64,10 +67,6 @@ const applyExpression = (expression: any, env: Env) => {
 
   const evaluatedArgs = args.map(arg => evalExpression(arg, env));
 
-  if (isNewCall(evaluatedOp)) {
-    return newInstance(_.first(evaluatedArgs), _.tail(evaluatedArgs));
-  }
-
   if (isMethodCall(evaluatedOp)) {
     return callMethod(evaluatedOp.slice(1), _.first(evaluatedArgs), _.tail(evaluatedArgs));
   }
@@ -96,10 +95,6 @@ const applyExpression = (expression: any, env: Env) => {
 
 const callMethod = (method: string, object: any, args: any[]): any => {
   return object[method](...args);
-};
-
-const newInstance = (object: any, args: any[]): any => {
-  return new object(...args);
 };
 
 const squeezeArguments = (args: any[], amount: number): any[] => {

@@ -139,9 +139,9 @@ test('Test expression with less parenthesis', () => {
 });
 
 test('Test global interoperability #1', () => {
-  expectEval('(.toUpperCase ((js String) Hello))').toBe('HELLO');
+  expectEval('(.toUpperCase (js/String Hello))').toBe('HELLO');
 });
 
 test('Test global interoperability #2', () => {
-  expectEval('(.fill (.new (js Array) 5) "Hello")').toEqual('(Hello Hello Hello Hello Hello)');
+  expectEval('(.fill (new js/Array 5) "Hello")').toEqual('(Hello Hello Hello Hello Hello)');
 });
