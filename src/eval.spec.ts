@@ -143,5 +143,5 @@ test('Test global interoperability #1', () => {
 });
 
 test('Test global interoperability #2', () => {
-  expectEval('(.fill (.new (js Array) 5) foo)').toEqual('(foo foo foo foo foo)');
+  expectEval('(.fill (.new (js Array) 5) "Hello")').toEqual('(Hello Hello Hello Hello Hello)');
 });

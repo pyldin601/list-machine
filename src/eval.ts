@@ -21,7 +21,7 @@ const evalExpression = (expression: any, env: Env) => {
     return expression === 'true';
   }
 
-  if (looksLikeNumber(expression)) {
+  if (looksLikeFloat(expression)) {
     return parseFloat(expression);
   }
 
@@ -125,7 +125,7 @@ const looksLikeBoolean = (exp: string): boolean => (
   _.includes(['true', 'false'], exp)
 );
 
-const looksLikeNumber = (exp: string): boolean => (
+const looksLikeFloat = (exp: string): boolean => (
   !isNaN(parseFloat(exp))
 );
 
