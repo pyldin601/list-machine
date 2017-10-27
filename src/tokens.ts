@@ -156,7 +156,7 @@ const toListInternal = (tokens: IToken[], depth = 0): any[] => {
   const iterateList = optimizeTailCall(([head, ...tail]: IToken[], acc) => {
     if (_.isNil(head)) {
       if (depth > 0) {
-        throw new Error('0 non-closed parenthesis found');
+        throw new Error(`${depth} non-closed parenthesis found`);
       }
       return { acc, tail: [] };
     }
@@ -166,7 +166,8 @@ const toListInternal = (tokens: IToken[], depth = 0): any[] => {
     }
     if (head === CLOSE_PARENTHESIS) {
       if (depth === 0) {
-        throw new Error('0 superfluous open parenthesis found');
+        const supCloseCount = _.size(_.findWhere(tail, tok => tok === CLOSE_PARENTHESIS));
+        throw new Error(`${supCloseCount + 1} superfluous close parenthesis found`);
       }
       return { acc, tail };
     }
