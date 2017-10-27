@@ -9,6 +9,7 @@ export const CLOSE_PARENTHESIS  = Symbol('CLOSE_PARENTHESIS');
 export const APOSTROPHE         = Symbol('APOSTROPHE');
 export const INDENT             = Symbol('INDENT');
 export const NEW_LINE           = Symbol('NEW_LINE');
+export const PLACEHOLDER        = Symbol('PLACEHOLDER');
 
 export type IToken = symbol | string | LMSymbol;
 
@@ -21,6 +22,9 @@ const looksLikeNumber = (exp: string): boolean => (
 );
 
 const interpretValue = (value: string): any => {
+  if (value === '_') {
+    return PLACEHOLDER;
+  }
   if (looksLikeBoolean(value)) {
     return value === 'true';
   }
@@ -166,7 +170,7 @@ const toListInternal = (tokens: IToken[], depth = 0): any[] => {
     }
     if (head === CLOSE_PARENTHESIS) {
       if (depth === 0) {
-        const tailCloseCount = _.size(_.findWhere(tail, tok => tok === CLOSE_PARENTHESIS));
+        const tailCloseCount = _.size(_.find(tail, tok => tok === CLOSE_PARENTHESIS));
         throw new Error(`${tailCloseCount + 1} superfluous close parenthesis found`);
       }
       return { acc, tail };
