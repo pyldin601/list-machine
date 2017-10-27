@@ -2,7 +2,8 @@ import * as compose from 'compose-function';
 import * as _ from 'lodash';
 import optimizeTailCall from './optimizeTailCall';
 import { QUOTE } from './special';
-import { APOSTROPHE, CLOSE_PARENTHESIS, IToken, OPEN_PARENTHESIS } from './tokens';
+import { APOSTROPHE, CLOSE_PARENTHESIS, IToken, OPEN_PARENTHESIS, PLACEHOLDER } from './tokens';
+import { LMSymbol } from './types';
 import { isList } from './util';
 
 type IList = IToken | IToken[];
@@ -64,13 +65,27 @@ const postProcess = (list: IList[]): IList[] => {
     }
 
     if (head === APOSTROPHE) {
-      return iter(_.tail(tail), [...acc, [QUOTE, _.head(tail)]]);
+      return iter(_.tail(tail), [...acc, [new LMSymbol(QUOTE), _.head(tail)]]);
     }
 
     return iter(tail, [...acc, head]);
   });
 
-  return iter(list, []);
+  const result = iter(list, []);
+
+  if (isPlaceholderExpression(result)) {
+    return placeholderToLambda(result);
+  }
+
+  return result;
+};
+
+const isPlaceholderExpression = (list: IList[]): boolean => {
+  return !_.isEmpty(_.find(list, exp => exp === PLACEHOLDER));
+};
+
+const placeholderToLambda = (list: IList[]): IList[] => {
+  return list;
 };
 
 export default compose(postProcess, parseList);

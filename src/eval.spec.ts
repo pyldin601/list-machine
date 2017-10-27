@@ -59,7 +59,7 @@ test('Test macro #1', () => {
   expectEval(`
     (def defmacro (macro (name args body) (def name (macro args body))))
     (defmacro inc (n) (+ 1 n))
-    (inc 4)
+    inc 4
   `).toBe(5);
 });
 
@@ -139,14 +139,17 @@ test('Test expression with less parenthesis', () => {
 });
 
 test('Test global interoperability #1', () => {
-  expectEval('(.toUpperCase (js/String Hello))').toBe('HELLO');
+  expectEval('(.toUpperCase (js/String Hello))').toBe('"HELLO"');
 });
 
 test('Test global interoperability #2', () => {
-  expectEval('(.fill (new js/Array 5) "Hello")').toEqual('(Hello Hello Hello Hello Hello)');
+  expectEval('(.fill (new js/Array 5) "Hello")').toEqual('("Hello" "Hello" "Hello" "Hello" "Hello")');
 });
-
 
 test('Test global interoperability #3', () => {
   expectEval('(.map \'(1 2 3 4 5) (lambda (x) (* 2 x)))').toEqual('(2 4 6 8 10)');
+});
+
+xtest('Test placeholder', () => {
+  expectEval("(.map '(1 2 3 4 5) (* 2 _))").toEqual('(2 4 6 8 10)');
 });

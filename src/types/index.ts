@@ -1,9 +1,11 @@
 import Lambda from './Lambda';
+import LMSymbol from './LMSymbol';
 import Macro from './Macro';
-import Symbol from './Symbol';
 
-export { Lambda, Macro, Symbol };
+export { Lambda, Macro, LMSymbol };
 
-export const isLmType = (obj: any): boolean => {
-  return obj instanceof Lambda || obj instanceof Macro || obj instanceof Symbol;
+export const isLMType = (obj: any): boolean => {
+  return obj instanceof Lambda || obj instanceof Macro || obj instanceof LMSymbol;
 };
+
+export const isLMSymbol = (obj: any): boolean => obj instanceof LMSymbol;
