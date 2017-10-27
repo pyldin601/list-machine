@@ -166,8 +166,8 @@ const toListInternal = (tokens: IToken[], depth = 0): any[] => {
     }
     if (head === CLOSE_PARENTHESIS) {
       if (depth === 0) {
-        const supCloseCount = _.size(_.findWhere(tail, tok => tok === CLOSE_PARENTHESIS));
-        throw new Error(`${supCloseCount + 1} superfluous close parenthesis found`);
+        const tailCloseCount = _.size(_.findWhere(tail, tok => tok === CLOSE_PARENTHESIS));
+        throw new Error(`${tailCloseCount + 1} superfluous close parenthesis found`);
       }
       return { acc, tail };
     }
