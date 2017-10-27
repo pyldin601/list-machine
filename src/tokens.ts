@@ -152,4 +152,31 @@ const parse = (program: string[]): IToken[] => {
 
 const splitChars = (chars: string) => chars.split('');
 
+const toListInternal = (tokens: IToken[], depth = 0): any[] => {
+  const iterateList = optimizeTailCall(([head, ...tail]: IToken[], acc) => {
+    if (_.isNil(head)) {
+      if (depth > 0) {
+        throw new Error('0 non-closed parenthesis found');
+      }
+      return { acc, tail: [] };
+    }
+    if (head === OPEN_PARENTHESIS) {
+      const parseResult = toListInternal(tail, depth + 1);
+      return iterateList(parseResult.tail, [...acc, parseResult.acc]);
+    }
+    if (head === CLOSE_PARENTHESIS) {
+      if (depth === 0) {
+        throw new Error('0 superfluous open parenthesis found');
+      }
+      return { acc, tail };
+    }
+    return iterateList(tail, [...acc, head]);
+  });
+  return iterateList(tokens, []);
+};
+
+const toList = (tokens: IToken[]): any[] => {
+  return toListInternal(tokens, 0).acc;
+};
+
 export default compose(flattenize, parse, splitChars);
