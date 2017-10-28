@@ -18,7 +18,8 @@ body {
 }
 
 .console .history .row {
-
+    padding-left: 1px;
+    padding-top: 1px;
 }
 
 .console .input {
