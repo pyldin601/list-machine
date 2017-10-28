@@ -4,5 +4,29 @@ body {
     margin: 0;
     padding: 0;
     color: #ffffff;
-    background: #000000;
+    background: #334455;
+}
+
+.console {
+    font-size: 12pt;
+}
+
+.console .history {
+    font-family: monospace;
+    white-space: pre;
+    width: 100%;
+}
+
+.console .history .row {
+
+}
+
+.console .input {
+    font-family: monospace;
+    width: 100%;
+    display: block;
+    background: none;
+    color: #ffffff;
+    outline: none;
+    border: none;
 }
