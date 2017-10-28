@@ -12,7 +12,7 @@ body {
 }
 
 .console .history {
-    font-family: monospace;
+    font-family: 'Source Code Pro', monospace;
     white-space: pre;
     width: 100%;
 }
@@ -23,7 +23,7 @@ body {
 }
 
 .console .input {
-    font-family: monospace;
+    font-family: 'Source Code Pro', monospace;
     width: 100%;
     display: block;
     background: none;
