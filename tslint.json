@@ -5,6 +5,7 @@
   ],
   "rules": {
     "no-eval": false,
-    "no-shadowed-variable": false
+    "no-shadowed-variable": false,
+    "no-submodule-imports": false
   }
 }

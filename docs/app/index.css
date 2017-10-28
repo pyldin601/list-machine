@@ -1,0 +1,9 @@
+@import '~normalize.css';
+@import '~xterm/dist/xterm.css';
+
+body {
+    margin: 0;
+    padding: 0;
+    color: #ffffff;
+    background: #000000;
+}
