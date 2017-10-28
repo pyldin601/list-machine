@@ -7,3 +7,7 @@ body {
     color: #ffffff;
     background: #000000;
 }
+
+#xterm {
+    height: 100%;
+}

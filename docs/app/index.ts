@@ -6,5 +6,5 @@ import './index.css';
 const xterm = new Terminal();
 
 xterm.open(document.getElementById('xterm'));
-xterm.write('Hello from Terminal');
+xterm.write('Hello from Terminal!');
 xterm.fit();

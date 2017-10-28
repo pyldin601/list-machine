@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "target": "es6",
+    "target": "es5",
     "sourceMap": true,
     "outDir": "dist",
     "rootDir": "app",
-    "lib": ["es2015", "dom"],
+    "lib": ["es6", "dom"],
     "types": [
       "node",
       "jest"
