@@ -22,12 +22,11 @@ body {
     color: #ff0000;
 }
 
-.console .input {
+.console .prompt .input {
     font-family: 'Source Code Pro', monospace;
-    width: 100%;
-    display: block;
     background: none;
     color: #ffffff;
     outline: none;
     border: none;
+    flex: 1;
 }

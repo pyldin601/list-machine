@@ -4,6 +4,7 @@ import * as React from 'react';
 import Env from '../../../src/Env';
 import evaluate from '../../../src/eval';
 import toPrimitive from '../../../src/printer';
+import { InputHTMLAttributes } from "react";
 
 interface IHistoryItem {
   message: string,
@@ -17,6 +18,7 @@ interface IConsoleStateInterface {
 
 export default class Console extends React.Component<{}, IConsoleStateInterface> {
   private env: Env;
+  private inputReference: any;
 
   constructor(props: {}) {
     super(props);
@@ -32,17 +34,40 @@ export default class Console extends React.Component<{}, IConsoleStateInterface>
     this.onKeyPressed = this.onKeyPressed.bind(this);
   }
 
-  public render() {
+  public componentDidMount() {
+    document.addEventListener('click', () => {
+      this.inputReference.focus();
+    });
+  }
+
+  public renderHistory() {
+    return <div className="history">
+      {this.state.log.map((row, index) => (
+        <div className={cn('row', row.type)} key={index}>{row.message}</div>
+      ))}
+    </div>;
+  }
+
+  public renderPrompt() {
     return (
-      <div className="console">
-        {this.renderHistory()}
+      <div className="prompt">
         <input
+          ref={ ref => this.inputReference = ref }
           autoFocus={true}
           className="input"
           onChange={this.onInputChange}
           onKeyPress={this.onKeyPressed}
           value={this.state.input}
         />
+      </div>
+    );
+  }
+
+  public render() {
+    return (
+      <div className="console">
+        {this.renderHistory()}
+        {this.renderPrompt()}
       </div>
     );
   }
@@ -77,13 +102,5 @@ export default class Console extends React.Component<{}, IConsoleStateInterface>
     } catch (e) {
       this.writeToLog(e.message, 'error');
     }
-  }
-
-  private renderHistory() {
-    return <div className="history">
-      {this.state.log.map((row, index) => (
-        <div className={cn('row', row.type)} key={index}>{row.message}</div>
-      ))}
-    </div>;
   }
 }
