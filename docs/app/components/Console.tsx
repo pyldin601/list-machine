@@ -40,7 +40,7 @@ export default class Console extends React.Component<{}, IConsoleStateInterface>
     });
   }
 
-  public renderHistory() {
+  public renderLog() {
     return <div className="history">
       {this.state.log.map((row, index) => (
         <div className={cn('row', row.type)} key={index}>{row.message}</div>
@@ -66,26 +66,25 @@ export default class Console extends React.Component<{}, IConsoleStateInterface>
   public render() {
     return (
       <div className="console">
-        {this.renderHistory()}
+        {this.renderLog()}
         {this.renderPrompt()}
       </div>
     );
   }
 
-  private writeToLog(message: string, type: IHistoryItem['type']) {
+  public writeToLog(message: string, type: IHistoryItem['type']) {
     setTimeout(() => {
-      const historyItem = { message, type };
       this.setState({
-        log: [...this.state.log, historyItem],
+        log: [...this.state.log, { message, type }],
       });
     });
   }
 
-  private onInputChange(event: React.ChangeEvent<any>) {
+  public onInputChange(event: React.ChangeEvent<any>) {
     this.setState({ input: event.target.value });
   }
 
-  private onKeyPressed(event: React.KeyboardEvent<any>) {
+  public onKeyPressed(event: React.KeyboardEvent<any>) {
     if (event.key === 'Enter') {
       const command = this.state.input;
       this.setState({ input: '' });
