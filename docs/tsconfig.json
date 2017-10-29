@@ -5,8 +5,8 @@
     "jsx": "react",
     "sourceMap": true,
     "outDir": "dist",
-    "rootDir": "app",
-    "noImplicitAny": true,
+    "rootDir": "..",
+    "noImplicitAny": false,
     "lib": ["es6", "dom"],
     "types": [
       "node",

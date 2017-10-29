@@ -104,7 +104,7 @@ const callMethod = (env: Env, method: string, object: any, args: any[]): any => 
 };
 
 const expandMacro = (args: any, body: any): any => {
-  return body.map(exp => {
+  return body.map((exp: any) => {
     if (isList(exp)) {
       return expandMacro(args, exp);
     }
@@ -121,7 +121,7 @@ export default (program: string, env: Env = initialEnv): any => {
   const list = toList(tokens);
 
   return list.reduce(
-    (acc, sym) => evalExpression(sym, env),
+    (acc: any, sym: any) => evalExpression(sym, env),
     undefined,
   );
 };

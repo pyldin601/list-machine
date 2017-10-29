@@ -1,4 +1,6 @@
 import * as React from 'react';
+import evaluate from '../../../src/eval';
+import toPrimitive from "../../../src/printer";
 
 interface IConsoleStateInterface {
   history: string[],
@@ -32,15 +34,27 @@ export default class Console extends React.Component<{}, IConsoleStateInterface>
     );
   }
 
+  private addLineToLog(message: string) {
+    this.setState({
+      history: [...this.state.history, message],
+    });
+  }
+
   private onInputChange(event: React.ChangeEvent<any>) {
     this.setState({ input: event.target.value });
   }
 
   private onKeyPressed(event: React.KeyboardEvent<any>) {
     if (event.key === 'Enter') {
-      this.setState({
-        history: [...this.state.history, this.state.input],
-        input: '',
+      const command = this.state.input;
+      this.addLineToLog(command);
+      this.setState({ input: '' });
+      setTimeout(() => {
+        try {
+          this.addLineToLog(toPrimitive(evaluate(command)));
+        } catch (e) {
+          this.addLineToLog(e.message);
+        }
       });
     }
   }

@@ -23,8 +23,8 @@ module.exports = {
       {
         test: /\.css$/,
         use: ExtractTextPlugin.extract({
-          fallback: "style-loader",
-          use: "css-loader"
+          fallback: 'style-loader',
+          use: 'css-loader'
         }),
       }
     ]
@@ -34,6 +34,6 @@ module.exports = {
       name: 'vendor',
       minChunks: ({resource}) => /node_modules/.test(resource),
     }),
-    new ExtractTextPlugin("[name].style.css"),
+    new ExtractTextPlugin('[name].style.css'),
   ],
 };
