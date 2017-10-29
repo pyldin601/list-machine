@@ -4,7 +4,6 @@ import * as React from 'react';
 import Env from '../../../src/Env';
 import evaluate from '../../../src/eval';
 import toPrimitive from '../../../src/printer';
-import { InputHTMLAttributes } from "react";
 
 interface IHistoryItem {
   message: string,
