@@ -1,6 +1,7 @@
 import * as React from 'react';
+import Env from '../../../src/Env';
 import evaluate from '../../../src/eval';
-import toPrimitive from "../../../src/printer";
+import toPrimitive from '../../../src/printer';
 
 interface IConsoleStateInterface {
   history: string[],
@@ -8,6 +9,8 @@ interface IConsoleStateInterface {
 }
 
 export default class Console extends React.Component<{}, IConsoleStateInterface> {
+  private env: Env;
+
   constructor(props: {}) {
     super(props);
 
@@ -15,6 +18,8 @@ export default class Console extends React.Component<{}, IConsoleStateInterface>
       history: [],
       input: '',
     };
+
+    this.env = new Env();
 
     this.onInputChange = this.onInputChange.bind(this);
     this.onKeyPressed = this.onKeyPressed.bind(this);
@@ -51,7 +56,7 @@ export default class Console extends React.Component<{}, IConsoleStateInterface>
       this.setState({ input: '' });
       setTimeout(() => {
         try {
-          this.addLineToLog(toPrimitive(evaluate(command)));
+          this.addLineToLog(toPrimitive(evaluate(command, this.env)));
         } catch (e) {
           this.addLineToLog(e.message);
         }
