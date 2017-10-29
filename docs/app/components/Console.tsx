@@ -1,11 +1,18 @@
+import * as cn from 'classnames';
+import * as compose from 'compose-function';
 import * as React from 'react';
 import Env from '../../../src/Env';
 import evaluate from '../../../src/eval';
 import toPrimitive from '../../../src/printer';
 
+interface IHistoryItem {
+  message: string,
+  type: 'normal' | 'error',
+}
+
 interface IConsoleStateInterface {
-  history: string[],
   input: string,
+  log: IHistoryItem[],
 }
 
 export default class Console extends React.Component<{}, IConsoleStateInterface> {
@@ -15,8 +22,8 @@ export default class Console extends React.Component<{}, IConsoleStateInterface>
     super(props);
 
     this.state = {
-      history: [],
       input: '',
+      log: [],
     };
 
     this.env = new Env();
@@ -30,6 +37,7 @@ export default class Console extends React.Component<{}, IConsoleStateInterface>
       <div className="console">
         {this.renderHistory()}
         <input
+          autoFocus={true}
           className="input"
           onChange={this.onInputChange}
           onKeyPress={this.onKeyPressed}
@@ -39,9 +47,12 @@ export default class Console extends React.Component<{}, IConsoleStateInterface>
     );
   }
 
-  private addLineToLog(message: string) {
-    this.setState({
-      history: [...this.state.history, message],
+  private writeToLog(message: string, type: IHistoryItem['type']) {
+    setTimeout(() => {
+      const historyItem = { message, type };
+      this.setState({
+        log: [...this.state.log, historyItem],
+      });
     });
   }
 
@@ -52,22 +63,26 @@ export default class Console extends React.Component<{}, IConsoleStateInterface>
   private onKeyPressed(event: React.KeyboardEvent<any>) {
     if (event.key === 'Enter') {
       const command = this.state.input;
-      this.addLineToLog(command);
       this.setState({ input: '' });
-      setTimeout(() => {
-        try {
-          this.addLineToLog(toPrimitive(evaluate(command, this.env)));
-        } catch (e) {
-          this.addLineToLog(e.message);
-        }
-      });
+      this.evaluateCommand(command);
+    }
+  }
+
+  private evaluateCommand(command: string) {
+    this.writeToLog(command, 'normal');
+
+    try {
+      const chain = compose(String, toPrimitive, (cmd: string) => evaluate(cmd, this.env));
+      this.writeToLog(chain(command), 'normal');
+    } catch (e) {
+      this.writeToLog(e.message, 'error');
     }
   }
 
   private renderHistory() {
     return <div className="history">
-      {this.state.history.map((row, index) => (
-        <div className="row">{row}</div>
+      {this.state.log.map((row, index) => (
+        <div className={cn('row', row.type)} key={index}>{row.message}</div>
       ))}
     </div>;
   }
