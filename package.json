@@ -1,5 +1,5 @@
 {
-  "name": "list-machine",
+  "name": "@peacefulbit/list-machine",
   "version": "0.1.0",
   "description": "Lisp-like interpreter written on Node.js",
   "main": "dist/index.js",
