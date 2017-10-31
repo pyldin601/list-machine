@@ -150,6 +150,14 @@ test('Test global interoperability #3', () => {
   expectEval('(.map \'(1 2 3 4 5) (lambda (x) (* 2 x)))').toEqual('(2 4 6 8 10)');
 });
 
-xtest('Test placeholder', () => {
-  expectEval("(.map '(1 2 3 4 5) (* 2 _))").toEqual('(2 4 6 8 10)');
+test('Fibonacci Benchmark', () => {
+  expectEval(`
+    (def fib 
+      (lambda (n)
+        (cond
+          ((eq? 0 n) 0)
+          ((eq? 1 n) 1)
+          ((+ (fib (- n 2)) (fib (- n 1)))))))
+    (fib 20)
+  `).toEqual(6765);
 });

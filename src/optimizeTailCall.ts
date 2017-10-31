@@ -4,7 +4,7 @@ export default <R> (f: (...args: any[]) => R): (...args: any[]) => R => {
   let underCall = false;
   const queue: any[][] = [];
 
-  return (...args: any[]) => {
+  return (...args: any[]): R => {
     let result;
     queue.push(args);
 

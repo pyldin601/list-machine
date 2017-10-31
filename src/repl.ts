@@ -1,6 +1,6 @@
 import * as readLine from 'readline';
-import Env from './Env';
 import evaluate from './eval';
+import Env from './Env';
 import toPrimitive from "./printer";
 
 const rl = readLine.createInterface({
@@ -31,7 +31,7 @@ const printError = async (error: Error): Promise<any> => {
   return process.stderr.write(`${error.message}\n${error.stack}`);
 };
 
-const startIteration = () => (
+const startIteration = (): Promise<void> => (
   Promise.resolve()
     .then(readCode)
     .then(evalCode)
@@ -41,5 +41,4 @@ const startIteration = () => (
     .then(startIteration)
 );
 
-startIteration();
-
+startIteration().then(() => 'Bye');

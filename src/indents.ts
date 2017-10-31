@@ -33,7 +33,7 @@ const shrinkRedundantIndent = (lines: IToken[][]): IToken[][] => {
 };
 
 const convertIndentsToBrackets = (lines: IToken[][]): IToken[][] => {
-  const iter = optimizeTailCall((
+  const iter: any = optimizeTailCall((
     [thisLine, nextLine, ...restLines]: IToken[][],
     indentStack: number[] = [],
     acc: IToken[][] = [],

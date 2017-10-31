@@ -1,6 +1,6 @@
 import toList from './list';
+import toPrimitive from './printer';
 import parse from './tokens';
-import toPrimitive, { default as toPrimitive } from "./printer";
 
 test('Parse empty program', () => {
   const result = toList(parse(''));

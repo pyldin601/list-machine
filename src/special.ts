@@ -128,17 +128,17 @@ export const callSpecialForm = (
 
     case LAMBDA: {
       const [lambdaArgs, ...lambdaBody] = args;
-      if (!lambdaArgs.every(arg => isLMSymbol(arg))) {
+      if (!lambdaArgs.every((arg: any) => isLMSymbol(arg))) {
         throw new Error('Could not use non-LMSymbol as Lambda argument name');
       }
-      return new Lambda(lambdaArgs.map(({ value }) => value), lambdaBody, env);
+      return new Lambda(lambdaArgs.map(({ value }: any) => value), lambdaBody, env);
     }
 
     case MACRO: {
       const [macroArgs, ...macroBody] = args;
 
       if (isList(macroArgs)) {
-        if (!macroArgs.every(arg => isLMSymbol(arg))) {
+        if (!macroArgs.every((arg: any) => isLMSymbol(arg))) {
           throw new Error('Could not use non-LMSymbol as Macro argument name');
         }
 

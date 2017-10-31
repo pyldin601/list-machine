@@ -9,7 +9,7 @@ import { isEmptyList, isList, isSymbol } from './util';
 
 const initialEnv = new Env();
 
-const globalJSObject = getGlobal();
+const globalJSObject: { [key: string]: any } = getGlobal();
 
 const evalLMSymbol = (symbol: LMSymbol, env: Env): any => {
   const { value } = symbol;
@@ -24,7 +24,7 @@ const evalLMSymbol = (symbol: LMSymbol, env: Env): any => {
   return symbol;
 };
 
-const evalExpression = (expression: any, env: Env) => {
+const evalExpression = (expression: any, env: Env): any => {
   if (isList(expression)) {
     return applyExpression(expression, env);
   }
@@ -62,12 +62,12 @@ const applyExpression = (expression: any, env: Env) => {
       args,
     );
     return expandMacro(zippedArgs, evaluatedOp.body).reduce(
-      (previousResult, exp) => evalExpression(exp, env),
+      (previousResult: any, exp: any) => evalExpression(exp, env),
       undefined,
     );
   }
 
-  const evaluatedArgs = args.map(arg => evalExpression(arg, env));
+  const evaluatedArgs = args.map((arg: any) => evalExpression(arg, env));
 
   if (isMethodCall(evaluatedOp)) {
     return callMethod(env, evaluatedOp.value.slice(1), _.first(evaluatedArgs), _.tail(evaluatedArgs));
@@ -96,7 +96,7 @@ const applyExpression = (expression: any, env: Env) => {
 const callMethod = (env: Env, method: string, object: any, args: any[]): any => {
   const patchedArgs = args.map(arg => {
     if (arg instanceof Lambda && !isLMType(object)) {
-      return (...innerArgs) => evalExpression([arg, [new LMSymbol('quote'), ...innerArgs]], env);
+      return (...innerArgs: any[]) => evalExpression([arg, [new LMSymbol('quote'), ...innerArgs]], env);
     }
     return arg;
   });

@@ -1,8 +1,5 @@
-import parseLexemes from './tokens';
-import parseLists from './list';
+import evaluate from './eval';
 
-export default (program: string): void => {
-  const lexemes = parseLexemes(program);
-  const lists = parseLists(lexemes);
-  // const result = evaluate(lists);
+export default (program: string): any => {
+  return evaluate(program);
 };
