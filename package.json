@@ -1,9 +1,9 @@
 {
   "name": "@peacefulbit/list-machine",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Lisp-like interpreter written on Node.js",
   "main": "dist/index.js",
-  "types": "dist/index.js",
+  "types": "src/index.ts",
   "scripts": {
     "dev": "ts-node src/repl.ts",
     "start": "node dist/repl.js",
