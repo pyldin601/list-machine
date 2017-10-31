@@ -1,6 +1,5 @@
 import * as readLine from 'readline';
-import evaluate from './eval';
-import Env from './Env';
+import makeEvaluator from './';
 import toPrimitive from "./printer";
 
 const rl = readLine.createInterface({
@@ -9,14 +8,14 @@ const rl = readLine.createInterface({
   terminal: true,
 });
 
-const env = new Env();
+const evaluate = makeEvaluator();
 
 const readCode = (): Promise<string> => new Promise((resolve => {
   rl.question('> ', input => resolve(input));
 }));
 
 const evalCode = async (code: string): Promise<any> => {
-  return evaluate(code, env);
+  return evaluate(code);
 };
 
 const printResult = async (result: any): Promise<any> => {
