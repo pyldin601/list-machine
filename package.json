@@ -1,6 +1,6 @@
 {
   "name": "@peacefulbit/list-machine",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Lisp-like interpreter written on Node.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -11,7 +11,8 @@
     "test": "jest",
     "lint": "tslint src/",
     "cover": "jest --coverage && (cat ./coverage/lcov.info | coveralls)",
-    "build": "npm run clean && tsc"
+    "build": "npm run clean && tsc",
+    "prepublish": "npm run build"
   },
   "keywords": [],
   "author": "Roman Lakhtadyr <roman.lakhtadyr@gmail.com>",
