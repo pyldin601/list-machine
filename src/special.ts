@@ -28,6 +28,11 @@ export const COND = 'cond';
 export const EXP_LIST = 'list';
 export const EXP_NEW = 'new';
 
+export const ATTR_GET = 'get-attr';
+export const ATTR_SET = 'set-attr!';
+export const ATTR_HAS = 'has-attr?';
+export const ATTR_DEL = 'del-attr!';
+
 export const specialForms = [
   OP_ADD,
   OP_MUL,
@@ -53,6 +58,11 @@ export const specialForms = [
 
   EXP_LIST,
   EXP_NEW,
+
+  ATTR_GET,
+  ATTR_SET,
+  ATTR_HAS,
+  ATTR_DEL,
 ];
 
 
@@ -187,6 +197,28 @@ export const callSpecialForm = (
       const evaluatedArgs = args.map(arg => evalExpression(arg, env));
       const Obj = _.head(evaluatedArgs);
       return new Obj(..._.tail(evaluatedArgs));
+    }
+
+    case ATTR_GET: {
+      const [object, attr] = args.map(arg => evalExpression(arg, env));
+      return object[attr];
+    }
+
+    case ATTR_SET: {
+      const [object, attr, value] = args.map(arg => evalExpression(arg, env));
+      object[attr] = value;
+      return undefined;
+    }
+
+    case ATTR_HAS: {
+      const [object, attr] = args.map(arg => evalExpression(arg, env));
+      return attr in object;
+    }
+
+    case ATTR_DEL: {
+      const [object, attr] = args.map(arg => evalExpression(arg, env));
+      delete object[attr];
+      return undefined;
     }
 
     default:

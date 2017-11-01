@@ -178,3 +178,10 @@ test('Issue #2', () => {
     fib 20
   `).toEqual(6765);
 });
+
+test('get-attr', () => {
+  expectEval(`
+    def list '(foo bar baz)
+    get-attr list 1
+  `).toEqual('bar');
+});
