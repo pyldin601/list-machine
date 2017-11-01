@@ -1,20 +1,20 @@
 import * as isPrimitive from 'is-primitive';
 import { LAMBDA, MACRO } from './special';
 import { Lambda, Macro } from './types';
-import { isEmptyList, isList } from './util';
 import LMSymbol from "./types/LMSymbol";
+import { isList } from './util';
 
-const toPrimitive = (expression: any): string => {
+const print = (expression: any): string => {
   if (isList(expression)) {
-    return `(${expression.map(toPrimitive).join(' ')})`;
+    return `(${expression.map(print).join(' ')})`;
   }
 
   if (expression instanceof Lambda) {
-    return `(${LAMBDA} ${toPrimitive(expression.args)} ${expression.body.map(toPrimitive).join(' ')})`;
+    return `(${LAMBDA} ${print(expression.args)} ${expression.body.map(print).join(' ')})`;
   }
 
   if (expression instanceof Macro) {
-    return `(${MACRO} ${toPrimitive(expression.args)} ${expression.body.map(toPrimitive).join(' ')})`;
+    return `(${MACRO} ${print(expression.args)} ${expression.body.map(print).join(' ')})`;
   }
 
   if (expression instanceof LMSymbol) {
@@ -22,7 +22,7 @@ const toPrimitive = (expression: any): string => {
   }
 
   if (typeof expression === 'string') {
-    return `"${expression.replace('"', '\\""')}"`;
+    return `"${expression.replace('"', '\\"')}"`;
   }
 
   if (isPrimitive(expression)) {
@@ -32,4 +32,4 @@ const toPrimitive = (expression: any): string => {
   return String(expression);
 };
 
-export default toPrimitive;
+export default print;
