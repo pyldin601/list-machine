@@ -51,14 +51,13 @@ const convertIndentsToBrackets = (lines: IToken[][]): IToken[][] => {
 
     const lineWithoutIndent = thisLine.slice(thisLineIndent);
 
-    if (_.isEmpty(indentStack) && isStartsWithList(thisLine)) {
+    if (isStartsWithList(lineWithoutIndent)) {
       return iter(
         nextRestLines,
         indentStack,
         [...acc, lineWithoutIndent],
       );
     }
-
 
     if (nextLineIndent > thisLineIndent) {
       return iter(

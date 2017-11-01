@@ -82,9 +82,9 @@ test('Test cond and eq? #1', () => {
     (def fib 
       (lambda (n)
         (cond
-          ((eq? 0 n) 0)
-          ((eq? 1 n) 1)
-          ((+ (fib (- n 2)) (fib (- n 1)))))))
+          (eq? 0 n) 0
+          (eq? 1 n) 1
+          (+ (fib (- n 2)) (fib (- n 1))))))
     (fib 12)
   `).toBe(144);
 });
@@ -155,9 +155,26 @@ test('Fibonacci Benchmark', () => {
     (def fib 
       (lambda (n)
         (cond
-          ((eq? 0 n) 0)
-          ((eq? 1 n) 1)
-          ((+ (fib (- n 2)) (fib (- n 1)))))))
+          (eq? 0 n) 0
+          (eq? 1 n) 1
+          (+
+            (fib (- n 2))
+            (fib (- n 1))))))
     (fib 20)
+  `).toEqual(6765);
+});
+
+test('Issue #2', () => {
+  expectEval(`
+    def fib
+      lambda (n)
+        cond
+          (eq? n 0) 0
+          (eq? n 1) 1
+          +
+            fib (- n 2)
+            fib (- n 1)
+    
+    fib 20
   `).toEqual(6765);
 });

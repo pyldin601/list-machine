@@ -10,6 +10,7 @@ export const APOSTROPHE         = Symbol('APOSTROPHE');
 export const INDENT             = Symbol('INDENT');
 export const NEW_LINE           = Symbol('NEW_LINE');
 export const PLACEHOLDER        = Symbol('PLACEHOLDER');
+export const COMMA              = Symbol('COMMA');
 
 export type IToken = symbol | string | LMSymbol;
 
@@ -42,7 +43,7 @@ const parse = (program: string[]): IToken[] => {
   ): IToken[] => {
     if (_.isNil(head)) {
       if (depth !== 0) {
-        throw new Error(`Unbalanced parenthesis`)
+        throw new Error(`Unbalanced parenthesis`);
       }
       return accumulator;
     }
@@ -66,6 +67,8 @@ const parse = (program: string[]): IToken[] => {
         return baseIterator(tail, depth, [...accumulator, APOSTROPHE]);
       case '"':
         return stringIterator(tail, '', depth, accumulator);
+      case ',':
+        return commaIterator(tail, depth, accumulator);
       default:
         return symbolIterator(tail, head, depth, accumulator);
     }
@@ -93,6 +96,7 @@ const parse = (program: string[]): IToken[] => {
       case '\t':
       case ' ':
       case '\n':
+      case ',':
         return baseIterator(tokens, depth, [...accumulator, interpretValue(symbol)]);
       default:
         return symbolIterator(tail, `${symbol}${head}`, depth, accumulator);
@@ -150,6 +154,24 @@ const parse = (program: string[]): IToken[] => {
         return baseIterator(tokens, depth, acc);
     }
   });
+
+  const commaIterator = optimizeTailCall((tokens: string[], depth: number, acc: IToken[]): IToken[] => {
+    const [head, ...tail] = tokens;
+
+    if (_.isNil(head)) {
+      return acc;
+    }
+
+    switch (head) {
+      case '\n':
+        return baseIterator(tail, depth, acc);
+      case ' ':
+        return commaIterator(tail, depth, acc);
+      default:
+        throw new Error('Comma may be only at the end of line');
+    }
+  });
+
 
   return indentIterator(program, 0, []);
 };

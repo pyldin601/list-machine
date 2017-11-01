@@ -1,4 +1,4 @@
-import { chunk, first, includes, last, tail } from 'lodash';
+import * as _ from 'lodash';
 import Env from './Env';
 import { isLMSymbol, Lambda, Macro } from './types/';
 import { isList } from "./util";
@@ -57,7 +57,7 @@ export const specialForms = [
 
 
 export const isSpecialForm = (op: string): boolean => (
-  includes(specialForms, op)
+  _.includes(specialForms, op)
 );
 
 export const reduceArguments = (
@@ -68,7 +68,7 @@ export const reduceArguments = (
 ) => (
   args
     .slice(1)
-    .reduce((arg, item) => op(arg, evalExpression(item, env)), evalExpression(first(args), env))
+    .reduce((arg, item) => op(arg, evalExpression(item, env)), evalExpression(_.first(args), env))
 );
 
 export const callSpecialForm = (
@@ -113,11 +113,11 @@ export const callSpecialForm = (
       return reduceArguments((arg1, arg2) => arg1 <= arg2, args, evalExpression, env);
 
     case OP_NOT:
-      return !evalExpression(first(args), env);
+      return !evalExpression(_.head(args), env);
 
     /* Language special forms */
     case ST_DEF: {
-      const pairs = chunk(args, 2);
+      const pairs = _.chunk(args, 2);
       if (!pairs.every(([name]) => isLMSymbol(name))) {
         throw new Error('Could not use non-LMSymbol for binding');
       }
@@ -153,13 +153,13 @@ export const callSpecialForm = (
     }
 
     case QUOTE:
-      return first(args);
+      return _.head(args);
 
     case EVAL:
-      return evalExpression(first(args), env);
+      return evalExpression(_.head(args), env);
 
     case EVAL_IN: {
-      const lambda = evalExpression(first(args), env);
+      const lambda = evalExpression(_.head(args), env);
       if (!(lambda instanceof Lambda)) {
         throw new Error(`First argument must be lambda`);
       }
@@ -167,15 +167,14 @@ export const callSpecialForm = (
     }
 
     case COND: {
-      for (const pair of args) {
+      const pairs = _.chunk(args, 2);
+      for (const pair of pairs) {
         if (pair.length === 1) {
-          return evalExpression(first(pair), env);
+          return evalExpression(_.head(pair), env);
         }
-        if (pair.length === 0) {
-          continue;
-        }
-        if (evalExpression(first(pair), env)) {
-          return evalExpression(last(pair), env);
+
+        if (evalExpression(_.head(pair), env)) {
+          return evalExpression(_.last(pair), env);
         }
       }
       return undefined;
@@ -186,8 +185,8 @@ export const callSpecialForm = (
 
     case EXP_NEW: {
       const evaluatedArgs = args.map(arg => evalExpression(arg, env));
-      const Obj = first(evaluatedArgs);
-      return new Obj(...tail(evaluatedArgs));
+      const Obj = _.head(evaluatedArgs);
+      return new Obj(..._.tail(evaluatedArgs));
     }
 
     default:

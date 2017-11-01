@@ -112,7 +112,7 @@ test('Issue #1', () => {
   expect(lexemes).toEqual([
     OPEN_PARENTHESIS, 'def', 'f',
                       OPEN_PARENTHESIS, 'lambda', OPEN_PARENTHESIS, CLOSE_PARENTHESIS,
-                                        OPEN_PARENTHESIS, OPEN_PARENTHESIS, 'def', 'foo', '10', 'bar', '20', CLOSE_PARENTHESIS, CLOSE_PARENTHESIS,
-                                        OPEN_PARENTHESIS, 'lambda', OPEN_PARENTHESIS, CLOSE_PARENTHESIS, CLOSE_PARENTHESIS, CLOSE_PARENTHESIS, CLOSE_PARENTHESIS,
+                                        OPEN_PARENTHESIS, 'def', 'foo', '10', 'bar', '20', CLOSE_PARENTHESIS,
+                                        OPEN_PARENTHESIS, 'lambda', OPEN_PARENTHESIS, CLOSE_PARENTHESIS, CLOSE_PARENTHESIS, CLOSE_PARENTHESIS, CLOSE_PARENTHESIS
   ]);
 });

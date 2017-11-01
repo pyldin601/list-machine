@@ -6,6 +6,7 @@ import { callSpecialForm, isSpecialForm } from './special';
 import parse from './tokens';
 import { isLMSymbol, isLMType, Lambda, LMSymbol, Macro } from './types';
 import { isEmptyList, isList, isSymbol } from './util';
+import toPrimitive from "./printer";
 
 const initialEnv = new Env();
 
