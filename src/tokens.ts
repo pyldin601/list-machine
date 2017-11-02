@@ -11,6 +11,7 @@ export const INDENT             = Symbol('INDENT');
 export const NEW_LINE           = Symbol('NEW_LINE');
 export const PLACEHOLDER        = Symbol('PLACEHOLDER');
 export const COMMA              = Symbol('COMMA');
+export const ASTERISK           = Symbol('ASTERISK');
 
 export type IToken = symbol | string | LMSymbol;
 
@@ -69,6 +70,8 @@ const parse = (program: string[]): IToken[] => {
         return stringIterator(tail, '', depth, accumulator);
       case ',':
         return commaIterator(tail, depth, accumulator);
+      case '*':
+        return baseIterator(tail, depth, [...accumulator, ASTERISK]);
       default:
         return symbolIterator(tail, head, depth, accumulator);
     }
@@ -97,6 +100,7 @@ const parse = (program: string[]): IToken[] => {
       case ' ':
       case '\n':
       case ',':
+      case '*':
         return baseIterator(tokens, depth, [...accumulator, interpretValue(symbol)]);
       default:
         return symbolIterator(tail, `${symbol}${head}`, depth, accumulator);

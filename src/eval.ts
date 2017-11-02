@@ -4,7 +4,7 @@ import getGlobal from './global';
 import toList from './list';
 import lmCore from './lmcore';
 import { callSpecialForm, isSpecialForm, QUOTE } from './special';
-import parse from './tokens';
+import parse, { ASTERISK } from './tokens';
 import { isLMSymbol, isLMType, Lambda, LMSymbol, Macro } from './types';
 import { isEmptyList, isList, isSymbol } from './util';
 
@@ -167,21 +167,58 @@ const callMethod = (env: Env, method: string, object: any, args: any[]): any => 
 };
 
 const expandMacro = (args: any, body: any): any => {
-  return body.reduce((acc: any[], exp: any) => {
-    if (isList(exp)) {
-      return [...acc, expandMacro(args, exp)];
+  const iterateExpand = (rest: any[], expanded: any[]): any[] => {
+    if (_.isEmpty(rest)) {
+      return expanded;
     }
-    if (isLMSymbol(exp) && exp.value in args) {
-      return [...acc, args[exp.value]];
-    }
-    if (isSymbolWithAsterisk(exp)) {
-      const symbolName = exp.value.slice(1);
-      if (symbolName in args) {
-        return [...acc, ...args[symbolName]];
+    const [exp, nextExp, ...restExps] = rest;
+
+    // Spread operator
+    if (exp === ASTERISK) {
+      if (nextExp === ASTERISK) {
+        return iterateExpand([nextExp, ...restExps], [...expanded, ASTERISK]);
       }
+
+      if (isLMSymbol(nextExp) && nextExp.value in args) {
+        return iterateExpand(restExps, [...expanded, ...args[nextExp.value]]);
+      }
+
+      return iterateExpand(restExps, [...expanded, exp, nextExp]);
     }
-    return [...acc, exp];
-  }, []);
+
+    if (isLMSymbol(exp) && exp.value in args) {
+      return iterateExpand([nextExp, ...restExps], [...expanded, args[exp.value]]);
+    }
+
+    return iterateExpand([nextExp, ...restExps], [...expanded, exp]);
+  };
+  return iterateExpand(body, []);
+};
+
+const evaluateArgs = (args: any[], env: Env): any[] => {
+  const iterateEvalArgs = (rest: any[], evaluated: any[]): any[] => {
+    if (_.isEmpty(rest)) {
+      return evaluated;
+    }
+
+    const [arg, nextArg, ...restArgs] = rest;
+
+    if (arg === ASTERISK) {
+      if (nextExp === ASTERISK) {
+        throw new Error('Double spread operator allowed only in macro');
+      }
+
+      return iterateEvalArgs(
+        restArgs,
+        [...evaluated, ...evalExpression(arg, env)],
+      )
+    }
+
+    return iterateEvalArgs(
+      [nextArg, ...restArgs],
+      [...evaluated, evalExpression(arg, env)],
+    )
+  }
 };
 
 const evaluate = (program: string, env: Env = initializeEnv()): any => {
