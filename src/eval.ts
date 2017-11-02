@@ -10,7 +10,7 @@ import { isEmptyList, isList, isSymbol } from './util';
 
 const globalJSObject: { [key: string]: any } = getGlobal();
 
-const initializeEnv = () => {
+export const initializeEnv = () => {
   const env = new Env();
   evaluate(lmCore, env);
   return env;
