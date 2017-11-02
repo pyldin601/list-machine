@@ -1,7 +1,8 @@
 import * as _ from 'lodash';
 import Env from './Env';
+import print from './printer';
 import { isLMSymbol, Lambda, Macro } from './types/';
-import { isList } from "./util";
+import { isList } from './util';
 
 export const OP_ADD = '+';
 export const OP_MUL = '*';
@@ -15,6 +16,8 @@ export const OP_GT = 'gt?';
 export const OP_LT = 'lt?';
 export const OP_GTE = 'gte?';
 export const OP_LTE = 'lte?';
+export const OP_OR = 'or';
+export const OP_AND = 'and';
 export const OP_NOT = 'not';
 
 export const ST_DEF = 'def';
@@ -27,6 +30,7 @@ export const COND = 'cond';
 
 export const EXP_LIST = 'list';
 export const EXP_NEW = 'new';
+export const EXP_PRINT = 'print!';
 
 export const ATTR_GET = 'get-attr';
 export const ATTR_SET = 'set-attr!';
@@ -46,6 +50,8 @@ export const specialForms = [
   OP_LT,
   OP_GTE,
   OP_LTE,
+  OP_OR,
+  OP_AND,
   OP_NOT,
 
   ST_DEF,
@@ -58,6 +64,7 @@ export const specialForms = [
 
   EXP_LIST,
   EXP_NEW,
+  EXP_PRINT,
 
   ATTR_GET,
   ATTR_SET,
@@ -121,6 +128,12 @@ export const callSpecialForm = (
 
     case OP_LTE:
       return reduceArguments((arg1, arg2) => arg1 <= arg2, args, evalExpression, env);
+
+    case OP_AND:
+      return reduceArguments((arg1, arg2) => arg1 && arg2, args, evalExpression, env);
+
+    case OP_OR:
+      return reduceArguments((arg1, arg2) => arg1 || arg2, args, evalExpression, env);
 
     case OP_NOT:
       return !evalExpression(_.head(args), env);
@@ -192,6 +205,13 @@ export const callSpecialForm = (
 
     case EXP_LIST:
       return args.map(arg => evalExpression(arg, env));
+
+    case EXP_PRINT:
+      args
+        .map(arg => evalExpression(arg, env))
+        .map(print)
+        .forEach(val => console.log(val));
+      return undefined;
 
     case EXP_NEW: {
       const evaluatedArgs = args.map(arg => evalExpression(arg, env));

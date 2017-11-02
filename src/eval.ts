@@ -2,11 +2,10 @@ import * as _ from 'lodash';
 import Env from './Env';
 import getGlobal from './global';
 import toList from './list';
-import { callSpecialForm, isSpecialForm } from './special';
+import { callSpecialForm, isSpecialForm, QUOTE } from './special';
 import parse from './tokens';
 import { isLMSymbol, isLMType, Lambda, LMSymbol, Macro } from './types';
 import { isEmptyList, isList, isSymbol } from './util';
-import toPrimitive from "./printer";
 
 const initialEnv = new Env();
 
@@ -43,6 +42,19 @@ const isMethodCall = (op: any): boolean => {
 
 const isJsCall = (exp: any): boolean => {
   return typeof exp === 'string' && exp.slice(0, 3) === 'js/';
+};
+
+const evalAndQuoteNativeList = (list: any, env: Env): any => {
+  if (isEmptyList(list)) {
+    return list;
+  }
+
+  return list.map((item: any) => {
+    if (isList(item)) {
+      return [new LMSymbol(QUOTE), evalAndQuoteNativeList(item, env)];
+    }
+    return evalExpression(item, env);
+  });
 };
 
 const applyExpression = (expression: any, env: Env) => {
@@ -97,7 +109,10 @@ const applyExpression = (expression: any, env: Env) => {
 const callMethod = (env: Env, method: string, object: any, args: any[]): any => {
   const patchedArgs = args.map(arg => {
     if (arg instanceof Lambda && !isLMType(object)) {
-      return (...innerArgs: any[]) => evalExpression([arg, [new LMSymbol('quote'), ...innerArgs]], env);
+      return (...innerArgs: any[]) => {
+        const evaluatedArguments = evalAndQuoteNativeList(innerArgs, env);
+        return applyExpression([arg, ...evaluatedArguments], env);
+      };
     }
     return arg;
   });

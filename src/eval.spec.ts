@@ -179,6 +179,55 @@ test('Issue #2', () => {
   `).toEqual(6765);
 });
 
+test('Issue #3', () => {
+  const code = `
+    def defun (macro (name args body) (def name (lambda args body)))
+  
+    def deps-json "
+      {
+        \\"mongo\\": [],
+        \\"tzinfo\\": [\\"thread_safe\\"],
+        \\"uglifier\\": [\\"execjs\\"],
+        \\"execjs\\": [\\"thread_safe\\", \\"json\\"],
+        \\"redis\\": []
+      }
+    "
+    
+    def deps-map
+      .parse js/JSON deps-json
+
+    defun get-deps (name)
+      or 
+        get-attr deps-map name
+        '()
+    
+    defun unique (item i list)
+      eq?
+        .indexOf list item
+        i 
+
+    defun compute (deps)
+      .reduce deps
+        lambda (acc dep)
+          .concat
+            acc
+            compute
+              get-deps dep
+            list dep
+        '()
+
+    defun sort-deps (deps)
+      .filter
+        compute
+          .keys js/Object deps
+        unique
+    
+    sort-deps deps-map
+  `;
+
+  expectEval(code).toEqual('("mongo" "thread_safe" "tzinfo" "json" "execjs" "uglifier" "redis")');
+});
+
 test('get-attr', () => {
   expectEval(`
     def list '(foo bar baz)

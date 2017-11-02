@@ -47,15 +47,19 @@ const convertIndentsToBrackets = (lines: IToken[][]): IToken[][] => {
     const thisLineIndentStack = calcNewIndentStack(indentStack, thisLineIndent);
 
     const nextLineIndent = _.isNil(nextLine) ? 0 : getLineIndent(nextLine);
+    const nextLineIndentStack = calcNewIndentStack(thisLineIndentStack, nextLineIndent);
     const nextRestLines = _.isNil(nextLine) ? [] : [nextLine, ...restLines];
 
     const lineWithoutIndent = thisLine.slice(thisLineIndent);
 
     if (isStartsWithList(lineWithoutIndent)) {
+      const parensToClose = _.size(thisLineIndentStack) - _.size(nextLineIndentStack);
+      const parens = Array(parensToClose).fill(CLOSE_PARENTHESIS);
+
       return iter(
         nextRestLines,
         indentStack,
-        [...acc, lineWithoutIndent],
+        [...acc, [...lineWithoutIndent, ...parens]],
       );
     }
 
@@ -81,7 +85,6 @@ const convertIndentsToBrackets = (lines: IToken[][]): IToken[][] => {
       );
     }
 
-    const nextLineIndentStack = calcNewIndentStack(thisLineIndentStack, nextLineIndent);
     const parensToClose = _.size(thisLineIndentStack) - _.size(nextLineIndentStack);
     const parens = Array(parensToClose).fill(CLOSE_PARENTHESIS);
 
