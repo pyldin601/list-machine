@@ -232,3 +232,22 @@ test('get-attr', () => {
     get-attr list 1
   `).toEqual('bar');
 });
+
+test('Test Asterisk #1', () => {
+  expectEval(`
+    defun foo (a *b)
+      b
+
+    foo 2 3 4
+  `).toEqual('(3 4)');
+});
+
+test('Issue #4', () => {
+  expectEval(`
+    defun foo (a b)
+      def c 20
+      + a b
+
+    foo 2 3
+  `).toEqual(5);
+});

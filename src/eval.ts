@@ -16,6 +16,8 @@ export const initializeEnv = () => {
   return env;
 };
 
+const isSymbolWithAsterisk = (sym: LMSymbol) => _.head(sym.value) === '*';
+
 const evalLMSymbol = (symbol: LMSymbol, env: Env): any => {
   const { value } = symbol;
   if (env.isBound(value)) {
@@ -75,28 +77,24 @@ const applyExpression = (expression: any, env: Env) => {
   }
 
   if (evaluatedOp instanceof Macro) {
-    const zippedArgs = _.zipObject(
-      evaluatedOp.args,
-      args,
-    );
-    return expandMacro(zippedArgs, evaluatedOp.body).reduce(
+    const packedArgs = packArguments(args, evaluatedOp.args);
+
+    return expandMacro(packedArgs, evaluatedOp.body).reduce(
       (previousResult: any, exp: any) => evalExpression(exp, env),
       undefined,
     );
   }
 
-  const evaluatedArgs = args.map((arg: any) => evalExpression(arg, env));
+  const evaluatedArgs = evaluateArgs(args, env);
 
   if (isMethodCall(evaluatedOp)) {
     return callMethod(env, evaluatedOp.value.slice(1), _.first(evaluatedArgs), _.tail(evaluatedArgs));
   }
 
   if (evaluatedOp instanceof Lambda) {
-    const zippedArgs = _.zipObject(
-      evaluatedOp.args,
-      evaluatedArgs,
-    );
-    const newEnv = evaluatedOp.env.newEnv(zippedArgs);
+    const packedArgs = packArguments(evaluatedArgs, evaluatedOp.args);
+    const newEnv = evaluatedOp.env.newEnv(packedArgs);
+
     return evaluatedOp.body.reduce(
       (previousResult, exp) => evalExpression(exp, newEnv),
       undefined,
@@ -108,6 +106,50 @@ const applyExpression = (expression: any, env: Env) => {
   }
 
   throw new Error(`Symbol "${evaluatedOp}" is not callable`);
+};
+
+const packArguments = (argValues: any[], argNames: LMSymbol[]) => {
+  const lastArgNameIndex = _.size(argNames) - 1;
+
+  const asteriskEntries = argNames
+    .map(name => ({ name, index: argNames.indexOf(name) }))
+    .filter(({ name, index }) => isSymbolWithAsterisk(name));
+
+  if (asteriskEntries.some(({ index }) => index !== lastArgNameIndex)) {
+    throw new Error(`Symbol prefixed with asterisk should be last in the arguments list`);
+  }
+
+  const packIterate = (restArgValues: any[], restArgNames: LMSymbol[], acc: {}): {} => {
+    if (_.isEmpty(restArgNames)) {
+      return acc;
+    }
+
+    if (isSymbolWithAsterisk(_.head(restArgNames))) {
+      return packIterate(
+        [],
+        _.tail(restArgNames),
+        { ...acc, [_.head(restArgNames).value.slice(1)]: restArgValues },
+      );
+    }
+
+    return packIterate(
+      _.tail(restArgValues),
+      _.tail(restArgNames),
+      {...acc, [_.head(restArgNames).value]: _.head(restArgValues) },
+    );
+  };
+
+  return packIterate(argValues, argNames, {});
+};
+
+const evaluateArgs = (args: any[], env: Env) => {
+  return args.reduce((acc: any[], arg: any) => {
+    if (isSymbolWithAsterisk(arg)) {
+      const withoutAsterisk = new LMSymbol(arg.value.slice(1));
+      return [...acc, ...evalExpression(withoutAsterisk, env)];
+    }
+    return [...acc, evalExpression(arg, env)];
+  }, []);
 };
 
 // todo: split types to js and non-js
@@ -125,15 +167,21 @@ const callMethod = (env: Env, method: string, object: any, args: any[]): any => 
 };
 
 const expandMacro = (args: any, body: any): any => {
-  return body.map((exp: any) => {
+  return body.reduce((acc: any[], exp: any) => {
     if (isList(exp)) {
-      return expandMacro(args, exp);
+      return [...acc, expandMacro(args, exp)];
     }
     if (isLMSymbol(exp) && exp.value in args) {
-      return args[exp.value];
+      return [...acc, args[exp.value]];
     }
-    return exp;
-  });
+    if (isSymbolWithAsterisk(exp)) {
+      const symbolName = exp.value.slice(1);
+      if (symbolName in args) {
+        return [...acc, ...args[symbolName]];
+      }
+    }
+    return [...acc, exp];
+  }, []);
 };
 
 const evaluate = (program: string, env: Env = initializeEnv()): any => {

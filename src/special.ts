@@ -154,7 +154,7 @@ export const callSpecialForm = (
       if (!lambdaArgs.every((arg: any) => isLMSymbol(arg))) {
         throw new Error('Could not use non-LMSymbol as Lambda argument name');
       }
-      return new Lambda(lambdaArgs.map(({ value }: any) => value), lambdaBody, env);
+      return new Lambda(lambdaArgs, lambdaBody, env);
     }
 
     case MACRO: {
