@@ -2,14 +2,19 @@ import * as _ from 'lodash';
 import Env from './Env';
 import getGlobal from './global';
 import toList from './list';
+import lmCore from './lmcore';
 import { callSpecialForm, isSpecialForm, QUOTE } from './special';
 import parse from './tokens';
 import { isLMSymbol, isLMType, Lambda, LMSymbol, Macro } from './types';
 import { isEmptyList, isList, isSymbol } from './util';
 
-const initialEnv = new Env();
-
 const globalJSObject: { [key: string]: any } = getGlobal();
+
+const initializeEnv = () => {
+  const env = new Env();
+  evaluate(lmCore, env);
+  return env;
+};
 
 const evalLMSymbol = (symbol: LMSymbol, env: Env): any => {
   const { value } = symbol;
@@ -131,7 +136,7 @@ const expandMacro = (args: any, body: any): any => {
   });
 };
 
-export default (program: string, env: Env = initialEnv): any => {
+const evaluate = (program: string, env: Env = initializeEnv()): any => {
   const tokens = parse(program);
 
   const list = toList(tokens);
@@ -141,3 +146,5 @@ export default (program: string, env: Env = initialEnv): any => {
     undefined,
   );
 };
+
+export default evaluate;

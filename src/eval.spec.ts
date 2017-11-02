@@ -181,8 +181,6 @@ test('Issue #2', () => {
 
 test('Issue #3', () => {
   const code = `
-    def defun (macro (name args body) (def name (lambda args body)))
-  
     def deps-json "
       {
         \\"mongo\\": [],
