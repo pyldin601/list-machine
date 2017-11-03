@@ -3,10 +3,11 @@ import Env from './Env';
 import getGlobal from './global';
 import toList from './list';
 import lmCore from './lmcore';
+import optimizeTailCall from './optimizeTailCall';
 import { callSpecialForm, isSpecialForm, QUOTE } from './special';
 import parse, { ASTERISK } from './tokens';
 import { isLMSymbol, isLMType, Lambda, LMSymbol, Macro } from './types';
-import { isEmptyList, isList, isSymbol } from './util';
+import { isEmptyList, isList } from './util';
 
 const globalJSObject: { [key: string]: any } = getGlobal();
 
@@ -108,48 +109,44 @@ const applyExpression = (expression: any, env: Env) => {
   throw new Error(`Symbol "${evaluatedOp}" is not callable`);
 };
 
-const packArguments = (argValues: any[], argNames: LMSymbol[]) => {
-  const lastArgNameIndex = _.size(argNames) - 1;
-
-  const asteriskEntries = argNames
-    .map(name => ({ name, index: argNames.indexOf(name) }))
-    .filter(({ name, index }) => isSymbolWithAsterisk(name));
-
-  if (asteriskEntries.some(({ index }) => index !== lastArgNameIndex)) {
-    throw new Error(`Symbol prefixed with asterisk should be last in the arguments list`);
-  }
-
-  const packIterate = (restArgValues: any[], restArgNames: LMSymbol[], acc: {}): {} => {
+const packArguments = (argValues: any[], argNames: any[]) => {
+  const packIterate = (restArgValues: any[], restArgNames: LMSymbol[], isRest: boolean, acc: {}): {} => {
     if (_.isEmpty(restArgNames)) {
       return acc;
     }
 
-    if (isSymbolWithAsterisk(_.head(restArgNames))) {
+    if (isRest) {
+      if (_.head(restArgNames) === ASTERISK) {
+        throw new Error('Multiple asterisks are not allowed');
+      }
+
       return packIterate(
         [],
         _.tail(restArgNames),
-        { ...acc, [_.head(restArgNames).value.slice(1)]: restArgValues },
+        false,
+        {
+          ...acc,
+          [_.head(restArgNames).value]: restArgNames,
+        },
       );
+    }
+
+    if (_.head(restArgNames) === ASTERISK) {
+      return packIterate(restArgValues, _.tail(restArgNames), true, acc);
     }
 
     return packIterate(
       _.tail(restArgValues),
       _.tail(restArgNames),
-      {...acc, [_.head(restArgNames).value]: _.head(restArgValues) },
+      false,
+      {
+        ...acc,
+        [_.head(restArgNames).value]: _.head(restArgValues),
+      },
     );
   };
 
   return packIterate(argValues, argNames, {});
-};
-
-const evaluateArgs = (args: any[], env: Env) => {
-  return args.reduce((acc: any[], arg: any) => {
-    if (isSymbolWithAsterisk(arg)) {
-      const withoutAsterisk = new LMSymbol(arg.value.slice(1));
-      return [...acc, ...evalExpression(withoutAsterisk, env)];
-    }
-    return [...acc, evalExpression(arg, env)];
-  }, []);
 };
 
 // todo: split types to js and non-js
@@ -167,58 +164,70 @@ const callMethod = (env: Env, method: string, object: any, args: any[]): any => 
 };
 
 const expandMacro = (args: any, body: any): any => {
-  const iterateExpand = (rest: any[], expanded: any[]): any[] => {
-    if (_.isEmpty(rest)) {
+  const expandSymbol = (exp: any) => {
+    if (isLMSymbol(exp) && exp.value in args) {
+      return args[exp.value];
+    }
+    return exp;
+  };
+
+  const iterateExpand = optimizeTailCall((restExps: any[], isSpread: boolean, expanded: any[]): any[] => {
+    if (_.isEmpty(restExps)) {
       return expanded;
     }
-    const [exp, nextExp, ...restExps] = rest;
 
-    // Spread operator
-    if (exp === ASTERISK) {
-      if (nextExp === ASTERISK) {
-        return iterateExpand([nextExp, ...restExps], [...expanded, ASTERISK]);
+    const [headExp, ...tailExps] = restExps;
+
+    if (isSpread) {
+      if (headExp === ASTERISK) {
+        throw new Error('Multiple spread operator does not allowed');
       }
 
-      if (isLMSymbol(nextExp) && nextExp.value in args) {
-        return iterateExpand(restExps, [...expanded, ...args[nextExp.value]]);
-      }
-
-      return iterateExpand(restExps, [...expanded, exp, nextExp]);
+      return iterateExpand(tailExps, false, expanded.concat(expandSymbol(headExp)));
     }
 
-    if (isLMSymbol(exp) && exp.value in args) {
-      return iterateExpand([nextExp, ...restExps], [...expanded, args[exp.value]]);
+    if (headExp === ASTERISK) {
+      return iterateExpand(tailExps, true, expanded);
     }
 
-    return iterateExpand([nextExp, ...restExps], [...expanded, exp]);
-  };
-  return iterateExpand(body, []);
+    return iterateExpand(tailExps, [...expanded, expandSymbol(headExp)]);
+  });
+
+  return iterateExpand(body, false, []);
 };
 
 const evaluateArgs = (args: any[], env: Env): any[] => {
-  const iterateEvalArgs = (rest: any[], evaluated: any[]): any[] => {
-    if (_.isEmpty(rest)) {
-      return evaluated;
+  const iterateEvalArgs = optimizeTailCall((restArgs: any[], isSpread: boolean, evaluatedArgs: any[]): any[] => {
+    if (_.isEmpty(restArgs)) {
+      return evaluatedArgs;
     }
 
-    const [arg, nextArg, ...restArgs] = rest;
+    const [headArg, ...tailArgs] = restArgs;
 
-    if (arg === ASTERISK) {
-      if (nextExp === ASTERISK) {
-        throw new Error('Double spread operator allowed only in macro');
+    if (isSpread) {
+      if (headArg === ASTERISK) {
+        throw new Error('Multiple spread operator does not allowed');
       }
 
       return iterateEvalArgs(
-        restArgs,
-        [...evaluated, ...evalExpression(arg, env)],
-      )
+        tailArgs,
+        false,
+        evaluatedArgs.concat(evalExpression(headArg, env)),
+      );
+    }
+
+    if (headArg === ASTERISK) {
+      return iterateEvalArgs(tailArgs, true, evaluatedArgs);
     }
 
     return iterateEvalArgs(
-      [nextArg, ...restArgs],
-      [...evaluated, evalExpression(arg, env)],
+      tailArgs,
+      false,
+      [...evaluatedArgs, evalExpression(headArg, env)],
     )
-  }
+  });
+
+  return iterateEvalArgs(args, false, []);
 };
 
 const evaluate = (program: string, env: Env = initializeEnv()): any => {

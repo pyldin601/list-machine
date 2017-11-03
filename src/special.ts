@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 import Env from './Env';
 import print from './printer';
-import { isLMSymbol, Lambda, Macro } from './types/';
+import { isLMSymbol, isValidArgumentType, Lambda, Macro } from './types/';
 import { isList } from './util';
 
 export const OP_ADD = '+';
@@ -141,9 +141,6 @@ export const callSpecialForm = (
     /* Language special forms */
     case ST_DEF: {
       const pairs = _.chunk(args, 2);
-      if (!pairs.every(([name]) => isLMSymbol(name))) {
-        throw new Error('Could not use non-LMSymbol for binding');
-      }
       return pairs.forEach(
         ([name, value]) => env.bind(name.value, evalExpression(value, env)),
       );
@@ -151,26 +148,11 @@ export const callSpecialForm = (
 
     case LAMBDA: {
       const [lambdaArgs, ...lambdaBody] = args;
-      if (!lambdaArgs.every((arg: any) => isLMSymbol(arg))) {
-        throw new Error('Could not use non-LMSymbol as Lambda argument name');
-      }
       return new Lambda(lambdaArgs, lambdaBody, env);
     }
 
     case MACRO: {
       const [macroArgs, ...macroBody] = args;
-
-      if (isList(macroArgs)) {
-        if (!macroArgs.every((arg: any) => isLMSymbol(arg))) {
-          throw new Error('Could not use non-LMSymbol as Macro argument name');
-        }
-
-        return new Macro(macroArgs, macroBody);
-      }
-
-      if (!isLMSymbol(macroArgs)) {
-        throw new Error('Could not use non-LMSymbol as Macro argument name');
-      }
 
       return new Macro(macroArgs, macroBody);
     }
