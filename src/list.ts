@@ -1,8 +1,8 @@
 import * as compose from 'compose-function';
 import * as _ from 'lodash';
 import optimizeTailCall from './optimizeTailCall';
-import { QUOTE } from './special';
-import { APOSTROPHE, CLOSE_PARENTHESIS, IToken, OPEN_PARENTHESIS, PLACEHOLDER } from './tokens';
+import { QUOTE, SPREST } from './special';
+import { APOSTROPHE, ASTERISK, CLOSE_PARENTHESIS, IToken, OPEN_PARENTHESIS, PLACEHOLDER } from './tokens';
 import { LMSymbol } from './types';
 import { isList } from './util';
 
@@ -55,37 +55,31 @@ const parseList = (tokens: IToken[]): any[] => {
 };
 
 const postProcess = (list: IList[]): IList[] => {
-  const iter = optimizeTailCall(([head, ...tail], acc: IList[]): IList[] => {
+  const iter = optimizeTailCall(([head, ...tail]: IList[], acc: IList[]): IList[] => {
     if (_.isNil(head)) {
       return acc;
     }
 
     if (isList(head)) {
-      return iter(tail, [...acc, postProcess(head)]);
+      return iter(tail, [...acc, postProcess(head as IList[])]);
     }
 
     if (head === APOSTROPHE) {
-      return iter(_.tail(tail), [...acc, [new LMSymbol(QUOTE), _.head(tail)]]);
+      const headOfTail = _.head(tail);
+      const quotedNode = isList(headOfTail) ? postProcess(headOfTail as IList[]) : headOfTail;
+      return iter(_.tail(tail), [...acc, [new LMSymbol(QUOTE), quotedNode]]);
+    }
+
+    if (head === ASTERISK) {
+      const headOfTail = _.head(tail);
+      const quotedNode = isList(headOfTail) ? postProcess(headOfTail as IList[]) : headOfTail;
+      return iter(_.tail(tail), [...acc, [new LMSymbol(SPREST), quotedNode]]);
     }
 
     return iter(tail, [...acc, head]);
   });
 
-  const result = iter(list, []);
-
-  if (isPlaceholderExpression(result)) {
-    return placeholderToLambda(result);
-  }
-
-  return result;
-};
-
-const isPlaceholderExpression = (list: IList[]): boolean => {
-  return !_.isEmpty(_.find(list, exp => exp === PLACEHOLDER));
-};
-
-const placeholderToLambda = (list: IList[]): IList[] => {
-  return list;
+  return iter(list, []);
 };
 
 export default compose(postProcess, parseList);

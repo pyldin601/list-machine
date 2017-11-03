@@ -1,6 +1,6 @@
 import toPrimitive from "../printer";
 
-export default class Lambda {
+export default class Macro {
   public args: any;
   public body: any;
 

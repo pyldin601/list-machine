@@ -28,10 +28,47 @@ test('Return self if nothing to eval', () => {
 });
 
 test('Test binding support', () => {
-  expectEval('def a 4\n+ a 2 3').toBe(9);
+  expectEval('def a 4\n+ a 2').toBe(6);
+});
+
+test('Spread operator', () => {
+  expectEval(`
+    (list 1 2 3 *(list 4 5))
+  `).toBe('(1 2 3 4 5)');
+});
+
+test('Test lambda #0', () => {
+  expectEval(`
+    lambda (x) (* 2 x)
+  `).toBe('(lambda (x) (* 2 x))');
 });
 
 test('Test lambda #1', () => {
+  expectEval(`
+    ((lambda (x) (* 2 x)) 5)
+  `).toBe(10);
+});
+
+test('Test lambda: Rest operator', () => {
+  expectEval(`
+    ((lambda (x *y) (list x y)) 1 2 3 4 5)
+  `).toBe('(1 (2 3 4 5))');
+});
+
+test('Test lambda: Double rest operator', () => {
+  try {
+    expectEval(`
+      ((lambda (x *y *z) (list x y z)) 1 2 3 4 5)
+    `).toBe('(1 (2 3 4 5) ())');
+
+    fail('Should be error here');
+  } catch (e) {
+    // NOP
+  }
+});
+
+
+test('Test lambda #3', () => {
   expectEval(`
     def pi 3.14
     def circumference
@@ -57,10 +94,9 @@ test('Test lambda #2', () => {
 
 test('Test macro #1', () => {
   expectEval(`
-    (def defmacro (macro (name args body) (def name (macro args body))))
-    (defmacro inc (n) (+ 1 n))
-    inc 4
-  `).toBe(5);
+    def defmacro2 (macro (name args *body) (def name (macro args *body)))
+    expand defmacro2 inc '(n) '(+ 1 n)
+  `).toBe('(def inc (macro (n) (+ 1 n)))');
 });
 
 test('Test macro #2', () => {

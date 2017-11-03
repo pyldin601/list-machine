@@ -71,9 +71,23 @@ const parse = (program: string[]): IToken[] => {
       case ',':
         return commaIterator(tail, depth, accumulator);
       case '*':
-        return baseIterator(tail, depth, [...accumulator, ASTERISK]);
+        return asteriskIterator(tail, depth, accumulator);
       default:
         return symbolIterator(tail, head, depth, accumulator);
+    }
+  });
+
+  const asteriskIterator = optimizeTailCall((tokens: string[], depth: number, accumulator: IToken[]) => {
+    const [head, ...tail] = tokens;
+    switch (head) {
+      case ' ':
+      case '\r':
+      case '\t':
+      case ')':
+      case '\n':
+        return baseIterator(tail, depth, [...accumulator, new LMSymbol('*')]);
+      default:
+        return baseIterator(tokens, depth, [...accumulator, ASTERISK]);
     }
   });
 

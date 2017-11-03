@@ -1,8 +1,8 @@
 import * as _ from 'lodash';
 import Env from './Env';
+import { combineArguments, evaluateArgs, expandMacro } from "./evalCore";
 import print from './printer';
-import { isLMSymbol, isValidArgumentType, Lambda, Macro } from './types/';
-import { isList } from './util';
+import { Lambda, Macro } from './types/';
 
 export const OP_ADD = '+';
 export const OP_MUL = '*';
@@ -23,10 +23,12 @@ export const OP_NOT = 'not';
 export const ST_DEF = 'def';
 export const LAMBDA = 'lambda';
 export const MACRO = 'macro';
+export const EXPAND = 'expand';
 export const QUOTE = 'quote';
 export const EVAL = 'eval';
 export const EVAL_IN = 'eval-in';
 export const COND = 'cond';
+export const SPREST = 'sprest';
 
 export const EXP_LIST = 'list';
 export const EXP_NEW = 'new';
@@ -57,10 +59,12 @@ export const specialForms = [
   ST_DEF,
   LAMBDA,
   MACRO,
+  EXPAND,
   QUOTE,
   EVAL,
   EVAL_IN,
   COND,
+  SPREST,
 
   EXP_LIST,
   EXP_NEW,
@@ -82,11 +86,10 @@ export const reduceArguments = (
   args: any[],
   evalExpression: (expression: any, env: Env) => any,
   env: Env,
-) => (
-  args
-    .slice(1)
-    .reduce((arg, item) => op(arg, evalExpression(item, env)), evalExpression(_.first(args), env))
-);
+) => {
+  const evaluatedArguments = evaluateArgs(args, (exp: any) => evalExpression(exp, env));
+  return _.tail(evaluatedArguments).reduce((arg, item) => op(arg, item), _.head(evaluatedArguments));
+};
 
 export const callSpecialForm = (
   op: string,
@@ -94,6 +97,8 @@ export const callSpecialForm = (
   evalExpression: (expression: any, env: Env) => any,
   env: Env,
 ): any => {
+  const evalArgs = (args: any[]) => evaluateArgs(args, (exp: any) => evalExpression(exp, env));
+
   switch (op) {
     /* Math operators */
     case OP_ADD:
@@ -138,7 +143,6 @@ export const callSpecialForm = (
     case OP_NOT:
       return !evalExpression(_.head(args), env);
 
-    /* Language special forms */
     case ST_DEF: {
       const pairs = _.chunk(args, 2);
       return pairs.forEach(
@@ -153,8 +157,19 @@ export const callSpecialForm = (
 
     case MACRO: {
       const [macroArgs, ...macroBody] = args;
-
       return new Macro(macroArgs, macroBody);
+    }
+
+    case EXPAND: {
+      const macro = evalExpression(_.head(args), env);
+      if (!(macro instanceof Macro)) {
+        throw new Error(`Form "expand" requires first argument to be a Macro`);
+      }
+      const combinedArgs = combineArguments(
+        evalArgs(_.tail(args)),
+        macro.args,
+      );
+      return _.flatten(expandMacro(combinedArgs, macro.body));
     }
 
     case QUOTE:
@@ -185,40 +200,42 @@ export const callSpecialForm = (
       return undefined;
     }
 
+    case SPREST:
+      throw new Error(`Sprest operator is not callable form`);
+
     case EXP_LIST:
-      return args.map(arg => evalExpression(arg, env));
+      return evalArgs(args);
 
     case EXP_PRINT:
-      args
-        .map(arg => evalExpression(arg, env))
+      evalArgs(args)
         .map(print)
         .forEach(val => console.log(val));
       return undefined;
 
     case EXP_NEW: {
-      const evaluatedArgs = args.map(arg => evalExpression(arg, env));
+      const evaluatedArgs = evalArgs(args);
       const Obj = _.head(evaluatedArgs);
       return new Obj(..._.tail(evaluatedArgs));
     }
 
     case ATTR_GET: {
-      const [object, attr] = args.map(arg => evalExpression(arg, env));
+      const [object, attr] = evalArgs(args);
       return object[attr];
     }
 
     case ATTR_SET: {
-      const [object, attr, value] = args.map(arg => evalExpression(arg, env));
+      const [object, attr, value] = evalArgs(args);
       object[attr] = value;
       return undefined;
     }
 
     case ATTR_HAS: {
-      const [object, attr] = args.map(arg => evalExpression(arg, env));
+      const [object, attr] = evalArgs(args);
       return attr in object;
     }
 
     case ATTR_DEL: {
-      const [object, attr] = args.map(arg => evalExpression(arg, env));
+      const [object, attr] = evalArgs(args);
       delete object[attr];
       return undefined;
     }

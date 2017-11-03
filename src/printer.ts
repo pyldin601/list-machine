@@ -1,7 +1,8 @@
 import * as isPrimitive from 'is-primitive';
-import { LAMBDA, MACRO } from './special';
+import { LAMBDA, MACRO, QUOTE } from './special';
+import { ASTERISK } from './tokens';
 import { Lambda, Macro } from './types';
-import LMSymbol from "./types/LMSymbol";
+import LMSymbol from './types/LMSymbol';
 import { isList } from './util';
 
 const print = (expression: any): string => {
@@ -23,6 +24,18 @@ const print = (expression: any): string => {
 
   if (typeof expression === 'string') {
     return `"${expression.replace('"', '\\"')}"`;
+  }
+
+  if (typeof expression === 'symbol') {
+    return expression.toString();
+  }
+
+  if (expression === ASTERISK) {
+    return '*';
+  }
+
+  if (expression === QUOTE) {
+    return '\'';
   }
 
   if (isPrimitive(expression)) {
