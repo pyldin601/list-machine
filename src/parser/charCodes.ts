@@ -55,7 +55,6 @@ const charCodeNames: { [code: number]: string } = {
   0x8: 'Backspace',
   0x9: 'Tab',
   0xA: 'LineFeed',
-
   0xb: 'VerticalTab',
   0xc: 'FormFeed',
   0xd: 'CarriageReturn',
