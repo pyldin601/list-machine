@@ -38,13 +38,13 @@ function* readNode (tokens: IterableIterator<IToken>, type: NodeType): IterableI
             break;
 
           case 'RightParen':
-            if (type !== 'ListExpression') {
+            if (type !== NodeType.LIST_EXPRESSION) {
               throw new Error(`Unexpected punctuator value - ${token.value}`);
             }
             return;
 
           case 'RightBracket':
-            if (type !== 'BracketExpression') {
+            if (type !== NodeType.BRACKET_EXPRESSION) {
               throw new Error(`Unexpected punctuator value - ${token.value}`);
             }
             return;
