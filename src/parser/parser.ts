@@ -14,9 +14,9 @@ const parseListExpression = (tokens: IterableIterator<IToken>, type: NodeType): 
 
 function* readNode (tokens: IterableIterator<IToken>, type: NodeType): IterableIterator<INode> {
   do {
-    const nextToken = tokens.next();
+    const nextValue = tokens.next();
 
-    if (nextToken.done) {
+    if (nextValue.done) {
       if (type !== NodeType.ROOT_EXPRESSION) {
         throw new Error('Unexpected EOF');
       }
@@ -24,7 +24,7 @@ function* readNode (tokens: IterableIterator<IToken>, type: NodeType): IterableI
       return;
     }
 
-    const token = nextToken.value;
+    const token = nextValue.value;
 
     switch (token.type) {
       case TokenType.PUNCTUATOR:
