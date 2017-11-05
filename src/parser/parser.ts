@@ -3,7 +3,6 @@ import { INode, IToken } from "./types";
 
 const parseExpression = (tokens: IterableIterator<IToken>, type: INode['type']): INode => {
   const body = toArray(readNode(tokens, type) as any);
-
   return { type, body };
 };
 
