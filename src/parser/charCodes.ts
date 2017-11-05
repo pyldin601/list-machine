@@ -8,7 +8,9 @@ export enum CharCode {
   RIGHT_PAREN = 0x29,
   ASTERISK = 0x2a,
   SEMICOLON = 0x3b,
+  LEFT_BRACKET = 0x5b,
   BACKSLASH = 0x5c,
+  RIGHT_BRACKET = 0x5d,
 }
 
 const charCodeNames: { [code: number]: string } = {
@@ -21,7 +23,9 @@ const charCodeNames: { [code: number]: string } = {
   0x29: 'RightParen',
   0x2a: 'Asterisk',
   0x3b: 'Semicolon',
+  0x5b: 'LeftBracket',
   0x5c: 'Backslash',
+  0x5d: 'RightBracket',
 };
 
 export const getCharName = (charCode: number): string => {

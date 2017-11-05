@@ -6,6 +6,8 @@ import { IToken, TokenType } from './types';
 const punctuators = new Set([
   CharCode.LEFT_PAREN,
   CharCode.RIGHT_PAREN,
+  CharCode.LEFT_BRACKET,
+  CharCode.RIGHT_BRACKET,
   CharCode.NEW_LINE,
   CharCode.SPACE,
   CharCode.APOSTROPHE,

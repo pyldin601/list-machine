@@ -31,6 +31,21 @@ test('Read parens', () => {
   ]);
 });
 
+test('Read brackets', () => {
+  expect(readTokens('[]')).toEqual([
+    {
+      position: { column: 1, line: 1 },
+      type: "Punctuator",
+      value: "LeftBracket",
+    },
+    {
+      position: { column: 2, line: 1 },
+      type: "Punctuator",
+      value: "RightBracket",
+    },
+  ]);
+});
+
 test('Read identifier', () => {
   expect(readTokens('foo')).toEqual([
     {
