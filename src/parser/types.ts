@@ -12,6 +12,7 @@ export type TokenType =
 export type NodeType =
   'RootExpression' |
   'ListExpression' |
+  'QuoteExpression' |
   'BracketExpression' |
   'Literal' |
   'Id';
@@ -41,4 +42,9 @@ export interface ILiteralNode {
   raw: string;
 }
 
-export type INode = ILiteralNode | IIdentifierNode | IExpressionNode;
+export interface IQuoteExpressionNode {
+  type: 'QuoteExpression';
+  value: INode;
+}
+
+export type INode = ILiteralNode | IIdentifierNode | IExpressionNode | IQuoteExpressionNode;

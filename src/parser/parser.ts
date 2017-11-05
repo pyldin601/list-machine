@@ -43,6 +43,16 @@ function* parseToken (tokens: IterableIterator<IToken>, type: INode['type']): It
           }
           return;
 
+        case 'Apostrophe': {
+          const nestedParser = parseToken(tokens, type);
+          yield {
+            type: 'QuoteExpression',
+            value: nestedParser.next().value,
+          };
+          nestedParser.return();
+          break;
+        }
+
         case 'Space':
         case 'LineFeed':
         case 'Tab':
