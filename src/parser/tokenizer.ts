@@ -8,7 +8,7 @@ const punctuators = new Set([
   CharCode.RIGHT_PAREN,
   CharCode.LEFT_BRACKET,
   CharCode.RIGHT_BRACKET,
-  CharCode.NEW_LINE,
+  CharCode.LINE_FEED,
   CharCode.SPACE,
   CharCode.APOSTROPHE,
   CharCode.TAB,
@@ -129,7 +129,7 @@ export function* tokenize(source: IterableIterator<number>): IterableIterator<IT
 
       case TokenizerState.INLINE_COMMENT:
         switch (charCode) {
-          case CharCode.NEW_LINE:
+          case CharCode.LINE_FEED:
             yield {
               position: startPos,
               type: 'Comment',
@@ -144,7 +144,7 @@ export function* tokenize(source: IterableIterator<number>): IterableIterator<IT
         break;
     }
 
-    if (charCode === CharCode.NEW_LINE) {
+    if (charCode === CharCode.LINE_FEED) {
       line += 1;
       column = 1;
     } else {
