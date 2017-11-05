@@ -26,3 +26,7 @@ test('Parse apostrophe sugar with expression', () => {
     type: 'RootExpression',
   });
 });
+
+test('Apostrophe EOF fail', () => {
+  expect(() => parseCode("'")).toThrow();
+});

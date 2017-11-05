@@ -2,12 +2,12 @@ import { toArray } from 'lodash';
 import { INode, IToken } from "./types";
 
 const parseExpression = (tokens: IterableIterator<IToken>, type: INode['type']): INode => {
-  const body = toArray(parseToken(tokens, type) as any);
+  const body = toArray(readNode(tokens, type) as any);
 
   return { type, body };
 };
 
-function* parseToken (tokens: IterableIterator<IToken>, type: INode['type']): IterableIterator<INode> {
+function* readNode (tokens: IterableIterator<IToken>, type: INode['type']): IterableIterator<INode> {
   const nextToken = tokens.next();
 
   if (nextToken.done) {
@@ -44,12 +44,9 @@ function* parseToken (tokens: IterableIterator<IToken>, type: INode['type']): It
           return;
 
         case 'Apostrophe': {
-          const nestedParser = parseToken(tokens, type);
+          const nestedParser = readNode(tokens, 'Literal');
           const { value } = nestedParser.next();
-          yield {
-            type: 'QuoteExpression',
-            value,
-          };
+          yield { type: 'QuoteExpression', value };
           nestedParser.return();
           break;
         }
@@ -65,50 +62,30 @@ function* parseToken (tokens: IterableIterator<IToken>, type: INode['type']): It
       break;
 
     case 'Boolean':
-      yield {
-        raw: token.value,
-        type: 'Literal',
-        value: token.value === 'true',
-      };
+      yield { raw: token.value, type: 'Literal', value: token.value === 'true' };
       break;
 
     case 'Number':
-      yield {
-        raw: token.value,
-        type: 'Literal',
-        value: parseFloat(token.value),
-      };
+      yield { raw: token.value, type: 'Literal', value: parseFloat(token.value) };
       break;
 
     case 'String':
-      yield {
-        raw: token.value,
-        type: 'Literal',
-        value: token.value,
-      };
+      yield { raw: token.value, type: 'Literal', value: token.value };
       break;
 
     case 'RegExp':
-      yield {
-        raw: token.value,
-        type: 'Literal',
-        value: new RegExp(token.value),
-      };
+      yield { raw: token.value, type: 'Literal', value: new RegExp(token.value) };
       break;
 
     case 'Id':
-      yield {
-        name: token.value,
-        raw: token.value,
-        type: 'Id',
-      };
+      yield { name: token.value, raw: token.value, type: 'Id' };
       break;
 
     default:
       throw new Error(`Unexpected token - ${token.type}`);
   }
 
-  yield * parseToken(tokens, type);
+  yield* readNode(tokens, type);
 }
 
 export default (tokens: IterableIterator<IToken>) => parseExpression(tokens, 'RootExpression');
