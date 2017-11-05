@@ -16,42 +16,17 @@ test('Read string', () => {
   }]);
 });
 
-test('Read sequence', () => {
-  expect(readTokens('(def a 3.14)')).toEqual([
+test('Read parens', () => {
+  expect(readTokens('()')).toEqual([
     {
-      "position": { "column": 1, "line": 1 },
-      "type": "Punctuator",
-      "value": "LeftParen",
+      position: { column: 1, line: 1 },
+      type: "Punctuator",
+      value: "LeftParen",
     },
     {
-      "position": { "column": 2, "line": 1 },
-      "type": "Id",
-      "value": "def",
-    },
-    {
-      "position": { "column": 5, "line": 1 },
-      "type": "Punctuator",
-      "value": "Space",
-    },
-    {
-      "position": { "column": 6, "line": 1 },
-      "type": "Id",
-      "value": "a",
-    },
-    {
-      "position": { "column": 7, "line": 1 },
-      "type": "Punctuator",
-      "value": "Space"
-    },
-    {
-      "position": { "column": 8, "line": 1 },
-      "type": "Number",
-      "value": "3.14",
-    },
-    {
-      "position": { "column": 12, "line": 1 },
-      "type": "Punctuator",
-      "value": "RightParen",
+      position: { column: 2, line: 1 },
+      type: "Punctuator",
+      value: "RightParen",
     },
   ]);
 });

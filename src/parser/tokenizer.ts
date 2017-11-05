@@ -146,7 +146,7 @@ export function* tokenize(source: IterableIterator<number>): IterableIterator<IT
 
     if (charCode === CharCode.NEW_LINE) {
       line += 1;
-      column = 0;
+      column = 1;
     } else {
       column += 1;
     }
