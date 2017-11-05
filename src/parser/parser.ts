@@ -47,7 +47,6 @@ function* readNode (tokens: IterableIterator<IToken>, type: INode['type']): Iter
           const nestedParser = readNode(tokens, 'Literal');
           const { value } = nestedParser.next();
           yield { type: 'QuoteExpression', value };
-          nestedParser.return();
           break;
         }
 
@@ -85,7 +84,9 @@ function* readNode (tokens: IterableIterator<IToken>, type: INode['type']): Iter
       throw new Error(`Unexpected token - ${token.type}`);
   }
 
-  yield* readNode(tokens, type);
+  if (type === 'ListExpression' || type === 'RootExpression' || type === 'BracketExpression') {
+    yield* readNode(tokens, type);
+  }
 }
 
 export default (tokens: IterableIterator<IToken>) => parseExpression(tokens, 'RootExpression');
