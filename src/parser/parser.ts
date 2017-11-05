@@ -13,93 +13,91 @@ const parseListExpression = (tokens: IterableIterator<IToken>, type: NodeType): 
 };
 
 function* readNode (tokens: IterableIterator<IToken>, type: NodeType): IterableIterator<INode> {
-  const nextToken = tokens.next();
+  do {
+    const nextToken = tokens.next();
 
-  if (nextToken.done) {
-    if (type !== NodeType.ROOT_EXPRESSION) {
-      throw new Error('Unexpected EOF');
+    if (nextToken.done) {
+      if (type !== NodeType.ROOT_EXPRESSION) {
+        throw new Error('Unexpected EOF');
+      }
+
+      return;
     }
 
-    return;
-  }
+    const token = nextToken.value;
 
-  const token = nextToken.value;
+    switch (token.type) {
+      case TokenType.PUNCTUATOR:
+        switch (token.value) {
+          case 'LeftParen':
+            yield parseListExpression(tokens, NodeType.LIST_EXPRESSION);
+            break;
 
-  switch (token.type) {
-    case TokenType.PUNCTUATOR:
-      switch (token.value) {
-        case 'LeftParen':
-          yield parseListExpression(tokens, NodeType.LIST_EXPRESSION);
-          break;
+          case 'LeftBracket':
+            yield parseListExpression(tokens, NodeType.BRACKET_EXPRESSION);
+            break;
 
-        case 'LeftBracket':
-          yield parseListExpression(tokens, NodeType.BRACKET_EXPRESSION);
-          break;
+          case 'RightParen':
+            if (type !== 'ListExpression') {
+              throw new Error(`Unexpected punctuator value - ${token.value}`);
+            }
+            return;
 
-        case 'RightParen':
-          if (type !== 'ListExpression') {
-            throw new Error(`Unexpected punctuator value - ${token.value}`);
+          case 'RightBracket':
+            if (type !== 'BracketExpression') {
+              throw new Error(`Unexpected punctuator value - ${token.value}`);
+            }
+            return;
+
+          case 'Apostrophe': {
+            const nestedParser = readNode(tokens, NodeType.QUOTED_EXPRESSION);
+            const { value } = nestedParser.next();
+            yield { type: NodeType.QUOTED_EXPRESSION, value };
+            break;
           }
-          return;
 
-        case 'RightBracket':
-          if (type !== 'BracketExpression') {
-            throw new Error(`Unexpected punctuator value - ${token.value}`);
-          }
-          return;
+          case 'Space':
+          case 'LineFeed':
+          case 'Tab':
+            break;
 
-        case 'Apostrophe': {
-          const nestedParser = readNode(tokens, NodeType.QUOTED_EXPRESSION);
-          const { value } = nestedParser.next();
-          yield { type: NodeType.QUOTED_EXPRESSION, value };
-          break;
+          default:
+            throw new Error(`Unexpected punctuator - ${token.value}`);
         }
+        break;
 
-        case 'Space':
-        case 'LineFeed':
-        case 'Tab':
-          break;
+      case TokenType.BOOLEAN:
+        yield { raw: token.value, type: NodeType.LITERAL, value: token.value === 'true' };
+        break;
 
-        default:
-          throw new Error(`Unexpected punctuator - ${token.value}`);
-      }
-      break;
+      case TokenType.NUMBER:
+        yield { raw: token.value, type: NodeType.LITERAL, value: parseFloat(token.value) };
+        break;
 
-    case TokenType.BOOLEAN:
-      yield { raw: token.value, type: NodeType.LITERAL, value: token.value === 'true' };
-      break;
+      case TokenType.STRING:
+        yield { raw: token.value, type: NodeType.LITERAL, value: token.value };
+        break;
 
-    case TokenType.NUMBER:
-      yield { raw: token.value, type: NodeType.LITERAL, value: parseFloat(token.value) };
-      break;
+      case TokenType.REGEXP:
+        yield { raw: token.value, type: NodeType.LITERAL, value: new RegExp(token.value) };
+        break;
 
-    case TokenType.STRING:
-      yield { raw: token.value, type: NodeType.LITERAL, value: token.value };
-      break;
+      case TokenType.UNDEFINED:
+        yield undefined;
+        break;
 
-    case TokenType.REGEXP:
-      yield { raw: token.value, type: NodeType.LITERAL, value: new RegExp(token.value) };
-      break;
+      case TokenType.NULL:
+        yield null;
+        break;
 
-    case TokenType.UNDEFINED:
-      yield undefined;
-      break;
+      case TokenType.ID:
+        yield { raw: token.value, type: NodeType.ID, name: token.value };
+        break;
 
-    case TokenType.NULL:
-      yield null;
-      break;
-
-    case TokenType.ID:
-      yield { raw: token.value, type: NodeType.ID, name: token.value };
-      break;
-
-    default:
-      throw new Error(`Unexpected token - ${token.type}`);
-  }
-
-  if (continuableExpressions.has(type)) {
-    yield* readNode(tokens, type);
-  }
+      default:
+        throw new Error(`Unexpected token - ${token.type}`);
+    }
+  } while (continuableExpressions.has(type));
 }
 
 export default (tokens: IterableIterator<IToken>) => parseListExpression(tokens, NodeType.ROOT_EXPRESSION);
