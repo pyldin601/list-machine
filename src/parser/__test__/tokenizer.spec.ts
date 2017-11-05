@@ -1,8 +1,7 @@
 import { toArray } from 'lodash';
-import { readFromString } from "../reader";
-import { tokenize } from '../tokenizer';
+import { tokenizeCode } from '../';
 
-const readTokens = (code: string) => toArray(tokenize(readFromString(code)));
+const readTokens = (code: string) => toArray(tokenizeCode(code));
 
 test('Tokenize empty string', () => {
   expect(readTokens('')).toEqual([]);

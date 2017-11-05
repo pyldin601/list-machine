@@ -1,8 +1,4 @@
-import parse from '../parser';
-import { readFromString } from '../reader';
-import { tokenize } from '../tokenizer';
-
-const parseCode = (code: string) => parse(tokenize(readFromString(code)));
+import { parseCode } from '../';
 
 test('Parse apostrophe sugar with expression', () => {
   expect(parseCode("'() 'foo")).toEqual({
