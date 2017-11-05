@@ -145,3 +145,23 @@ test('Read regular expression', () => {
     },
   ]);
 });
+
+test('Read undefined', () => {
+  expect(readTokens('undefined')).toEqual([
+    {
+      position: { line: 1, column: 1 },
+      type: 'Undefined',
+      value: 'undefined',
+    }
+  ]);
+});
+
+test('Read null', () => {
+  expect(readTokens('null')).toEqual([
+    {
+      position: { line: 1, column: 1 },
+      type: 'Null',
+      value: 'null',
+    }
+  ]);
+});

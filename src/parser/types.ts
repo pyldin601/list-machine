@@ -1,5 +1,16 @@
+export type TokenType =
+  'Boolean' |
+  'Number' |
+  'Undefined' |
+  'Null' |
+  'Id' |
+  'Punctuator' |
+  'String' |
+  'Comment' |
+  'RegExp';
+
 export interface IToken {
-  type: string,
+  type: TokenType,
   value: string,
   position: {
     line: number,

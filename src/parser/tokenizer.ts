@@ -1,9 +1,7 @@
 import * as _ from 'lodash';
-import Accumulator from "./Accumulator";
+import Accumulator from './Accumulator';
 import { CharCode, getCharName } from './charCodes';
-import { IToken } from './types';
-
-export type TokenType = 'Boolean' | 'Number' | 'Undefined' | 'Null' | 'Id' | 'Punctuator' | 'String' | 'Comment' | 'RegExp';
+import { IToken, TokenType } from './types';
 
 const punctuators = new Set([
   CharCode.LEFT_PAREN,
@@ -29,7 +27,7 @@ enum TokenizerState {
   INLINE_COMMENT,
 }
 
-const interpretIdentifierType = (id: string): string => {
+const interpretIdentifierType = (id: string): TokenType => {
   if (_.isEmpty(id)) {
     throw new Error('Unexpected empty identifier');
   }
