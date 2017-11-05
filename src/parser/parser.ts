@@ -1,7 +1,7 @@
 import { toArray } from 'lodash';
 import { INode, IToken } from "./types";
 
-const parseExpression = (tokens: IterableIterator<IToken>, type: INode['type']): INode => {
+const parseListExpression = (tokens: IterableIterator<IToken>, type: INode['type']): INode => {
   const body = toArray(readNode(tokens, type) as any);
   return { type, body };
 };
@@ -23,11 +23,11 @@ function* readNode (tokens: IterableIterator<IToken>, type: INode['type']): Iter
     case 'Punctuator':
       switch (token.value) {
         case 'LeftParen':
-          yield parseExpression(tokens, 'ListExpression');
+          yield parseListExpression(tokens, 'ListExpression');
           break;
 
         case 'LeftBracket':
-          yield parseExpression(tokens, 'BracketExpression');
+          yield parseListExpression(tokens, 'BracketExpression');
           break;
 
         case 'RightParen':
@@ -88,4 +88,4 @@ function* readNode (tokens: IterableIterator<IToken>, type: INode['type']): Iter
   }
 }
 
-export default (tokens: IterableIterator<IToken>) => parseExpression(tokens, 'RootExpression');
+export default (tokens: IterableIterator<IToken>) => parseListExpression(tokens, 'RootExpression');
