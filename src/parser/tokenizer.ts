@@ -152,27 +152,28 @@ export function* tokenize(source: IterableIterator<number>): IterableIterator<IT
     }
   }
 
-  if (acc.isFilled()) {
-    const value = acc.getAndInit();
-    switch (state) {
-      case TokenizerState.BASE:
+  switch (state) {
+    case TokenizerState.BASE:
+      if (acc.isFilled()) {
+        const value = acc.getAndInit();
+
         yield {
           position: startPos,
           type: interpretIdentifierType(value),
           value,
         };
-        break;
+      }
+      break;
 
-      case TokenizerState.INLINE_COMMENT:
-        yield {
-          position: startPos,
-          type: TokenType.COMMENT,
-          value,
-        };
-        break;
+    case TokenizerState.INLINE_COMMENT:
+      yield {
+        position: startPos,
+        type: TokenType.COMMENT,
+        value: acc.getAndInit(),
+      };
+      break;
 
-      default:
-        throw new Error('Unexpected EOF');
-    }
+    default:
+      throw new Error('Unexpected EOF');
   }
 }
