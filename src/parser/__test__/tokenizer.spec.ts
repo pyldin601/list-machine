@@ -180,3 +180,11 @@ test('Read null', () => {
     }
   ]);
 });
+
+test('Read unterminated string', () => {
+  expect(() => readTokens('"foo')).toThrow();
+});
+
+test('Read unterminated string escape', () => {
+  expect(() => readTokens('"foo\\')).toThrow();
+});
