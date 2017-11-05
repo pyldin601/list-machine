@@ -51,7 +51,7 @@ const interpretIdentifierType = (id: string): TokenType => {
   return TokenType.ID;
 };
 
-export function* tokenize(source: IterableIterator<number>): IterableIterator<IToken> {
+export default function* tokenizeCharStream(source: IterableIterator<number>): IterableIterator<IToken> {
   const acc = new Accumulator();
 
   let state = TokenizerState.BASE;

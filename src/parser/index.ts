@@ -1,9 +1,9 @@
 import * as compose from 'compose-function';
 import proceedIndents from './indentsProcessor';
-import parse from './parser';
+import parseTokenStream from './parser';
 import { readFromString } from './reader';
-import { tokenize } from './tokenizer';
+import tokenizeCharStream from './tokenizer';
 
-export const parseCode = compose(parse, proceedIndents, tokenize, readFromString);
-
-export const tokenizeCode = compose(tokenize, readFromString);
+export const parse = compose(parseTokenStream, proceedIndents, tokenizeCharStream, readFromString);
+export const tokenize = compose(tokenizeCharStream, readFromString);
+export const evaluate = (): void => undefined;

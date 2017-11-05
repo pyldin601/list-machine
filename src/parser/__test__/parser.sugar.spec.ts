@@ -1,7 +1,7 @@
-import { parseCode } from '../';
+import { parse } from '../';
 
 test('Parse apostrophe sugar with expression', () => {
-  expect(parseCode("'()\n'foo")).toEqual({
+  expect(parse("'()\n'foo")).toEqual({
     body: [
       {
         type: 'QuotedExpression',
@@ -24,5 +24,5 @@ test('Parse apostrophe sugar with expression', () => {
 });
 
 test('Apostrophe EOF fail', () => {
-  expect(() => parseCode("'")).toThrow();
+  expect(() => parse("'")).toThrow();
 });

@@ -1,14 +1,14 @@
-import { parseCode } from '../';
+import { parse } from '../';
 
 test('Parse empty expression', () => {
-  expect(parseCode('')).toEqual({
+  expect(parse('')).toEqual({
     body: [],
     type: 'RootExpression',
   });
 });
 
 test('Parse root expression', () => {
-  expect(parseCode('a b c d')).toEqual({
+  expect(parse('a b c d')).toEqual({
     body: [
       {
         body: [
@@ -41,7 +41,7 @@ test('Parse root expression', () => {
 });
 
 test('Parse list expression', () => {
-  expect(parseCode('(a b)')).toEqual({
+  expect(parse('(a b)')).toEqual({
     body: [
       {
         body: [
@@ -64,7 +64,7 @@ test('Parse list expression', () => {
 });
 
 test('Parse brackets expression', () => {
-  expect(parseCode('[a b]')).toEqual({
+  expect(parse('[a b]')).toEqual({
     body: [
       {
         body: [
@@ -92,7 +92,7 @@ test('Parse brackets expression', () => {
 });
 
 test('Parse list of numbers', () => {
-  expect(parseCode('(12 3.14 1e-11 -22)')).toEqual({
+  expect(parse('(12 3.14 1e-11 -22)')).toEqual({
       body: [
         {
           body: [
