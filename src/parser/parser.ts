@@ -1,4 +1,4 @@
-import { toArray } from 'lodash';
+import * as _ from 'lodash';
 import { INode, IToken, NodeType, TokenType } from './types';
 
 const continuableExpressions = new Set([
@@ -8,7 +8,7 @@ const continuableExpressions = new Set([
 ]);
 
 const parseListExpression = (tokens: IterableIterator<IToken>, type: NodeType): INode => {
-  const body = toArray(readNode(tokens, type) as any);
+  const body = _.toArray(readNode(tokens, type) as any);
   return { type, body };
 };
 
