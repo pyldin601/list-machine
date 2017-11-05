@@ -11,25 +11,30 @@ test('Parse root expression', () => {
   expect(parseCode('a b c d')).toEqual({
     body: [
       {
-        name: 'a',
-        raw: 'a',
-        type: 'Id',
-      },
-      {
-        name: 'b',
-        raw: 'b',
-        type: 'Id',
-      },
-      {
-        name: 'c',
-        raw: 'c',
-        type: 'Id',
-      },
-      {
-        name: 'd',
-        raw: 'd',
-        type: 'Id',
-      },
+        body: [
+          {
+            name: 'a',
+            raw: 'a',
+            type: 'Id',
+          },
+          {
+            name: 'b',
+            raw: 'b',
+            type: 'Id',
+          },
+          {
+            name: 'c',
+            raw: 'c',
+            type: 'Id',
+          },
+          {
+            name: 'd',
+            raw: 'd',
+            type: 'Id',
+          },
+        ],
+        type: 'ListExpression',
+      }
     ],
     type: 'RootExpression',
   });
@@ -64,17 +69,22 @@ test('Parse brackets expression', () => {
       {
         body: [
           {
-            name: 'a',
-            raw: 'a',
-            type: 'Id',
-          },
-          {
-            name: 'b',
-            raw: 'b',
-            type: 'Id',
-          },
+            body: [
+              {
+                name: 'a',
+                raw: 'a',
+                type: 'Id',
+              },
+              {
+                name: 'b',
+                raw: 'b',
+                type: 'Id',
+              },
+            ],
+            type: 'BracketExpression',
+          }
         ],
-        type: 'BracketExpression',
+        type: 'ListExpression',
       }
     ],
     type: 'RootExpression',

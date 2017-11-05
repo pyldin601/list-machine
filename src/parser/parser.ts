@@ -1,27 +1,31 @@
 import * as _ from 'lodash';
 import { INode, IToken, NodeType, TokenType } from './types';
 
-const continuableExpressions = new Set([
+const sequentialNodeTypes = new Set([
   NodeType.ROOT_EXPRESSION,
   NodeType.LIST_EXPRESSION,
   NodeType.BRACKET_EXPRESSION,
 ]);
 
+const terminalNodeTypes = new Set([
+  NodeType.ROOT_EXPRESSION,
+]);
+
 const parseListExpression = (tokens: IterableIterator<IToken>, type: NodeType): INode => {
-  const body = _.toArray(readNode(tokens, type) as any);
+  const body = _.toArray(generateNodes(tokens, type) as any);
   return { type, body };
 };
 
-function* readNode (tokens: IterableIterator<IToken>, type: NodeType): IterableIterator<INode> {
+function* generateNodes(tokens: IterableIterator<IToken>, type: NodeType): IterableIterator<INode> {
   do {
     const nextValue = tokens.next();
 
     if (nextValue.done) {
-      if (type !== NodeType.ROOT_EXPRESSION) {
-        throw new Error('Unexpected EOF');
+      if (terminalNodeTypes.has(type)) {
+        return;
       }
 
-      return;
+      throw new Error('Unexpected end of tokens');
     }
 
     const token = nextValue.value;
@@ -50,12 +54,13 @@ function* readNode (tokens: IterableIterator<IToken>, type: NodeType): IterableI
             return;
 
           case 'Apostrophe': {
-            const nestedParser = readNode(tokens, NodeType.QUOTED_EXPRESSION);
+            const nestedParser = generateNodes(tokens, NodeType.QUOTED_EXPRESSION);
             const { value } = nestedParser.next();
             yield { type: NodeType.QUOTED_EXPRESSION, value };
             break;
           }
 
+          // Should be skipped
           case 'Space':
           case 'LineFeed':
           case 'Tab':
@@ -97,7 +102,7 @@ function* readNode (tokens: IterableIterator<IToken>, type: NodeType): IterableI
       default:
         throw new Error(`Unexpected token - ${token.type}`);
     }
-  } while (continuableExpressions.has(type));
+  } while (sequentialNodeTypes.has(type));
 }
 
 export default (tokens: IterableIterator<IToken>) => parseListExpression(tokens, NodeType.ROOT_EXPRESSION);

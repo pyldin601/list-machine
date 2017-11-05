@@ -1,7 +1,7 @@
 import { parseCode } from '../';
 
 test('Parse apostrophe sugar with expression', () => {
-  expect(parseCode("'() 'foo")).toEqual({
+  expect(parseCode("'()\n'foo")).toEqual({
     body: [
       {
         type: 'QuotedExpression',
