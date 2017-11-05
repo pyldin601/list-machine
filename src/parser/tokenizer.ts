@@ -34,21 +34,21 @@ const interpretIdentifierType = (id: string): TokenType => {
     throw new Error('Unexpected empty identifier');
   }
   if (_.head(id) === '/') {
-    return 'RegExp';
+    return TokenType.REGEXP;
   }
   if (_.includes(['true', 'false'], id)) {
-    return 'Boolean';
+    return TokenType.BOOLEAN;
   }
   if (!isNaN(parseFloat(id))) {
-    return 'Number';
+    return TokenType.NUMBER;
   }
   if (id === 'undefined') {
-    return 'Undefined';
+    return TokenType.UNDEFINED;
   }
   if (id === 'null') {
-    return 'Null';
+    return TokenType.NULL;
   }
-  return 'Id';
+  return TokenType.ID;
 };
 
 export function* tokenize(source: IterableIterator<number>): IterableIterator<IToken> {
@@ -88,7 +88,7 @@ export function* tokenize(source: IterableIterator<number>): IterableIterator<IT
             if (isPunctuator(charCode)) {
               yield {
                 position: { line, column },
-                type: 'Punctuator',
+                type: TokenType.PUNCTUATOR,
                 value: getCharName(charCode),
               };
             } else {
@@ -110,7 +110,7 @@ export function* tokenize(source: IterableIterator<number>): IterableIterator<IT
           case CharCode.DOUBLE_QUOTE:
             yield {
               position: startPos,
-              type: 'String',
+              type: TokenType.STRING,
               value: acc.getAndInit(),
             };
             state = TokenizerState.BASE;
@@ -132,7 +132,7 @@ export function* tokenize(source: IterableIterator<number>): IterableIterator<IT
           case CharCode.LINE_FEED:
             yield {
               position: startPos,
-              type: 'Comment',
+              type: TokenType.COMMENT,
               value: acc.getAndInit(),
             };
             state = TokenizerState.BASE;
@@ -166,7 +166,7 @@ export function* tokenize(source: IterableIterator<number>): IterableIterator<IT
       case TokenizerState.INLINE_COMMENT:
         yield {
           position: startPos,
-          type: 'Comment',
+          type: TokenType.COMMENT,
           value,
         };
         break;

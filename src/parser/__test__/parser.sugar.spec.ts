@@ -8,14 +8,14 @@ test('Parse apostrophe sugar with expression', () => {
   expect(parseCode("'() 'foo")).toEqual({
     body: [
       {
-        type: 'QuoteExpression',
+        type: 'QuotedExpression',
         value: {
           body: [],
           type: 'ListExpression',
         },
       },
       {
-        type: "QuoteExpression",
+        type: "QuotedExpression",
         value: {
           name: 'foo',
           raw: 'foo',

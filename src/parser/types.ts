@@ -1,21 +1,23 @@
-export type TokenType =
-  'Boolean' |
-  'Number' |
-  'Undefined' |
-  'Null' |
-  'Id' |
-  'Punctuator' |
-  'String' |
-  'Comment' |
-  'RegExp';
+export enum TokenType {
+  BOOLEAN = 'Boolean',
+  NUMBER = 'Number',
+  UNDEFINED = 'Undefined',
+  NULL = 'Null',
+  ID = 'Id',
+  PUNCTUATOR = 'Punctuator',
+  STRING = 'String',
+  COMMENT = 'Comment',
+  REGEXP = 'RegExp',
+}
 
-export type NodeType =
-  'RootExpression' |
-  'ListExpression' |
-  'QuoteExpression' |
-  'BracketExpression' |
-  'Literal' |
-  'Id';
+export enum NodeType {
+  ROOT_EXPRESSION = 'RootExpression',
+  LIST_EXPRESSION = 'ListExpression',
+  QUOTED_EXPRESSION = 'QuotedExpression',
+  BRACKET_EXPRESSION = 'BracketExpression',
+  LITERAL = 'Literal',
+  ID = 'Id',
+}
 
 export interface IToken {
   type: TokenType,
@@ -32,18 +34,18 @@ export interface IExpressionNode {
 }
 
 export interface IIdentifierNode {
-  type: 'Id';
+  type: NodeType.ID;
   name: string;
 }
 
 export interface ILiteralNode {
-  type: 'Literal';
+  type: NodeType.LITERAL;
   value: any;
   raw: string;
 }
 
 export interface IQuoteExpressionNode {
-  type: 'QuoteExpression';
+  type: NodeType.QUOTED_EXPRESSION;
   value: INode;
 }
 

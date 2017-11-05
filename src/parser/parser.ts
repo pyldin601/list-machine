@@ -1,16 +1,22 @@
 import { toArray } from 'lodash';
-import { INode, IToken } from "./types";
+import { INode, IToken, NodeType, TokenType } from './types';
 
-const parseListExpression = (tokens: IterableIterator<IToken>, type: INode['type']): INode => {
+const continuableExpressions = new Set([
+  NodeType.ROOT_EXPRESSION,
+  NodeType.LIST_EXPRESSION,
+  NodeType.BRACKET_EXPRESSION,
+]);
+
+const parseListExpression = (tokens: IterableIterator<IToken>, type: NodeType): INode => {
   const body = toArray(readNode(tokens, type) as any);
   return { type, body };
 };
 
-function* readNode (tokens: IterableIterator<IToken>, type: INode['type']): IterableIterator<INode> {
+function* readNode (tokens: IterableIterator<IToken>, type: NodeType): IterableIterator<INode> {
   const nextToken = tokens.next();
 
   if (nextToken.done) {
-    if (type !== 'RootExpression') {
+    if (type !== NodeType.ROOT_EXPRESSION) {
       throw new Error('Unexpected EOF');
     }
 
@@ -20,14 +26,14 @@ function* readNode (tokens: IterableIterator<IToken>, type: INode['type']): Iter
   const token = nextToken.value;
 
   switch (token.type) {
-    case 'Punctuator':
+    case TokenType.PUNCTUATOR:
       switch (token.value) {
         case 'LeftParen':
-          yield parseListExpression(tokens, 'ListExpression');
+          yield parseListExpression(tokens, NodeType.LIST_EXPRESSION);
           break;
 
         case 'LeftBracket':
-          yield parseListExpression(tokens, 'BracketExpression');
+          yield parseListExpression(tokens, NodeType.BRACKET_EXPRESSION);
           break;
 
         case 'RightParen':
@@ -43,9 +49,9 @@ function* readNode (tokens: IterableIterator<IToken>, type: INode['type']): Iter
           return;
 
         case 'Apostrophe': {
-          const nestedParser = readNode(tokens, 'Literal');
+          const nestedParser = readNode(tokens, NodeType.QUOTED_EXPRESSION);
           const { value } = nestedParser.next();
-          yield { type: 'QuoteExpression', value };
+          yield { type: NodeType.QUOTED_EXPRESSION, value };
           break;
         }
 
@@ -59,33 +65,41 @@ function* readNode (tokens: IterableIterator<IToken>, type: INode['type']): Iter
       }
       break;
 
-    case 'Boolean':
-      yield { raw: token.value, type: 'Literal', value: token.value === 'true' };
+    case TokenType.BOOLEAN:
+      yield { raw: token.value, type: NodeType.LITERAL, value: token.value === 'true' };
       break;
 
-    case 'Number':
-      yield { raw: token.value, type: 'Literal', value: parseFloat(token.value) };
+    case TokenType.NUMBER:
+      yield { raw: token.value, type: NodeType.LITERAL, value: parseFloat(token.value) };
       break;
 
-    case 'String':
-      yield { raw: token.value, type: 'Literal', value: token.value };
+    case TokenType.STRING:
+      yield { raw: token.value, type: NodeType.LITERAL, value: token.value };
       break;
 
-    case 'RegExp':
-      yield { raw: token.value, type: 'Literal', value: new RegExp(token.value) };
+    case TokenType.REGEXP:
+      yield { raw: token.value, type: NodeType.LITERAL, value: new RegExp(token.value) };
       break;
 
-    case 'Id':
-      yield { name: token.value, raw: token.value, type: 'Id' };
+    case TokenType.UNDEFINED:
+      yield undefined;
+      break;
+
+    case TokenType.NULL:
+      yield null;
+      break;
+
+    case TokenType.ID:
+      yield { raw: token.value, type: NodeType.ID, name: token.value };
       break;
 
     default:
       throw new Error(`Unexpected token - ${token.type}`);
   }
 
-  if (type === 'ListExpression' || type === 'RootExpression' || type === 'BracketExpression') {
+  if (continuableExpressions.has(type)) {
     yield* readNode(tokens, type);
   }
 }
 
-export default (tokens: IterableIterator<IToken>) => parseListExpression(tokens, 'RootExpression');
+export default (tokens: IterableIterator<IToken>) => parseListExpression(tokens, NodeType.ROOT_EXPRESSION);
