@@ -17,7 +17,7 @@ const parseExpression = (tokens: IterableIterator<IToken>, type: IExpressionNode
 };
 
 function* generateNodes(tokens: IterableIterator<IToken>, type: NodeType): IterableIterator<INode> {
-  while (sequentialNodeTypes.has(type)) {
+  do {
     const nextValue = tokens.next();
 
     if (nextValue.done) {
@@ -108,7 +108,7 @@ function* generateNodes(tokens: IterableIterator<IToken>, type: NodeType): Itera
       default:
         throw new Error(`Unexpected token - ${token.type}`);
     }
-  }
+  } while (sequentialNodeTypes.has(type));
 }
 
 export default (tokens: IterableIterator<IToken>) => parseExpression(tokens, NodeType.ROOT_EXPRESSION);
