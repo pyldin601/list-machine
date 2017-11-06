@@ -37,6 +37,7 @@
     "@types/winston": "^2.3.7",
     "@types/xterm": "^2.0.3",
     "compose-function": "^3.0.3",
+    "immutable": "^3.8.2",
     "is-primitive": "^2.0.0",
     "lodash": "^4.17.4",
     "winston": "^2.4.0"
