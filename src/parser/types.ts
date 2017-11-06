@@ -20,6 +20,18 @@ export enum NodeType {
   ID = 'Id',
 }
 
+export enum Punctuator {
+  LEFT_PAREN = 'LeftParen',
+  RIGHT_PAREN = 'RightParen',
+  LEFT_BRACKET = 'LeftBracket',
+  RIGHT_BRACKET = 'RightBracket',
+  LINE_FEED = 'LineFeed',
+  SPACE = 'Space',
+  APOSTROPHE = 'Apostrophe',
+  TAB = 'Tab',
+  SPREST = '...',
+}
+
 export interface IToken {
   type: TokenType,
   value: string,

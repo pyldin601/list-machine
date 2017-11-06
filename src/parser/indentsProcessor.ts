@@ -2,7 +2,7 @@ import * as compose from 'compose-function';
 import * as _ from 'lodash';
 import { arraySplitBy } from '../util';
 import IndentStack from './IndentStack';
-import { IToken, TokenType } from './types';
+import { IToken, Punctuator, TokenType } from './types';
 
 const splitTokensByOuterLineFeeds = (tokens: IToken[]): IToken[][] => {
   let depth = 0;
@@ -13,13 +13,13 @@ const splitTokensByOuterLineFeeds = (tokens: IToken[]): IToken[][] => {
       switch (token.type) {
         case TokenType.PUNCTUATOR:
           switch (token.value) {
-            case 'LeftParen':
-            case 'LeftBracket':
+            case Punctuator.LEFT_PAREN:
+            case Punctuator.LEFT_BRACKET:
               depth += 1;
               break;
 
-            case 'RightParen':
-            case 'RightBracket':
+            case Punctuator.RIGHT_PAREN:
+            case Punctuator.RIGHT_BRACKET:
               depth -= 1;
               break;
           }
@@ -28,13 +28,13 @@ const splitTokensByOuterLineFeeds = (tokens: IToken[]): IToken[][] => {
 
       return depth === 0 &&
         token.type === TokenType.PUNCTUATOR &&
-        token.value === 'LineFeed';
+        token.value === Punctuator.LINE_FEED;
     },
   );
 };
 
 const isIndent = (token: IToken) => token.type === TokenType.PUNCTUATOR &&
-  (token.value === 'Space' || token.value === 'Tab');
+  (token.value === Punctuator.SPACE || token.value === Punctuator.TAB);
 
 const isEmptyLine = (line: IToken[]) => line.every(isIndent);
 
@@ -48,7 +48,7 @@ const startsWithListExpression = (line: IToken[]): boolean => {
   const headToken = _.head(line);
 
   return headToken.type === TokenType.PUNCTUATOR &&
-    (headToken.value === 'LeftParen' || headToken.value === 'Apostrophe');
+    (headToken.value === Punctuator.LEFT_PAREN || headToken.value === Punctuator.APOSTROPHE);
 };
 
 const shrinkRedundantIndent = (lines: IToken[][]): IToken[][] => {
@@ -65,7 +65,7 @@ const createLeftParenToken = (): IToken => {
   return {
     position: { line: 0, column: 0 },
     type: TokenType.PUNCTUATOR,
-    value: 'LeftParen',
+    value: Punctuator.LEFT_PAREN,
   };
 };
 
@@ -73,7 +73,7 @@ const createRightParenToken = (): IToken => {
   return {
     position: { line: 0, column: 0 },
     type: TokenType.PUNCTUATOR,
-    value: 'RightParen',
+    value: Punctuator.RIGHT_PAREN,
   };
 };
 

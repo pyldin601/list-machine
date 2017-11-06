@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import { INode, IToken, NodeType, TokenType } from './types';
+import { INode, IToken, NodeType, Punctuator, TokenType } from './types';
 
 const sequentialNodeTypes = new Set([
   NodeType.ROOT_EXPRESSION,
@@ -33,43 +33,43 @@ function* generateNodes(tokens: IterableIterator<IToken>, type: NodeType): Itera
     switch (token.type) {
       case TokenType.PUNCTUATOR:
         switch (token.value) {
-          case 'LeftParen':
+          case Punctuator.LEFT_PAREN:
             yield parseListExpression(tokens, NodeType.LIST_EXPRESSION);
             break;
 
-          case 'LeftBracket':
+          case Punctuator.LEFT_BRACKET:
             yield parseListExpression(tokens, NodeType.BRACKET_EXPRESSION);
             break;
 
-          case 'RightParen':
+          case Punctuator.RIGHT_PAREN:
             if (type !== NodeType.LIST_EXPRESSION) {
               throw new Error(`Unexpected punctuator value - ${token.value}`);
             }
             return;
 
-          case 'RightBracket':
+          case Punctuator.RIGHT_BRACKET:
             if (type !== NodeType.BRACKET_EXPRESSION) {
               throw new Error(`Unexpected punctuator value - ${token.value}`);
             }
             return;
 
-          case 'Apostrophe': {
+          case Punctuator.APOSTROPHE: {
             const nestedParser = generateNodes(tokens, NodeType.QUOTED_EXPRESSION);
             const { value } = nestedParser.next();
             yield { type: NodeType.QUOTED_EXPRESSION, value };
             break;
           }
 
-          case '...':
+          case Punctuator.SPREST:
             const nestedParser = generateNodes(tokens, NodeType.SPREST_EXPRESSION);
             const { value } = nestedParser.next();
             yield { type: NodeType.SPREST_EXPRESSION, value };
             break;
 
           // Should be skipped
-          case 'Space':
-          case 'LineFeed':
-          case 'Tab':
+          case Punctuator.SPACE:
+          case Punctuator.LINE_FEED:
+          case Punctuator.TAB:
             break;
 
           default:

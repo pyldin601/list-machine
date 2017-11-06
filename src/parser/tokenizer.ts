@@ -50,7 +50,7 @@ const interpretIdentifierType = (id: string): TokenType => {
   if (id === 'null') {
     return TokenType.NULL;
   }
-  if (id.includes('.')) {
+  if (id !== SPREST_OPEATOR && id.includes('.')) {
     throw new Error('Incorrect identifier name');
   }
   return TokenType.ID;

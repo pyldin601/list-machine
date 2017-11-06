@@ -225,4 +225,6 @@ test('Read sprest expression', () => {
       value: 'foo',
     },
   ]);
+
+  expect(() => readTokens('a.b')).toThrow('Incorrect identifier name');
 });
