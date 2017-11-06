@@ -1,15 +1,8 @@
 import * as _ from 'lodash';
+import { compositeNodeTypes, terminalNodeTypes } from '../common/constants';
 import { IExpressionNode, INode, IToken, NodeType, Punctuator, TokenType } from './types';
 
-const sequentialNodeTypes = new Set([
-  NodeType.ROOT_EXPRESSION,
-  NodeType.LIST_EXPRESSION,
-  NodeType.BRACKET_EXPRESSION,
-]);
 
-const terminalNodeTypes = new Set([
-  NodeType.ROOT_EXPRESSION,
-]);
 
 const parseExpression = (tokens: IterableIterator<IToken>, type: IExpressionNode['type']): INode => {
   const body = _.toArray(generateNodes(tokens, type) as any);
@@ -108,7 +101,7 @@ function* generateNodes(tokens: IterableIterator<IToken>, type: NodeType): Itera
       default:
         throw new Error(`Unexpected token - ${token.type}`);
     }
-  } while (sequentialNodeTypes.has(type));
+  } while (compositeNodeTypes.has(type));
 }
 
 export default (tokens: IterableIterator<IToken>) => parseExpression(tokens, NodeType.ROOT_EXPRESSION);
