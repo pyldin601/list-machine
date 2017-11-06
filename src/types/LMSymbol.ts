@@ -1,11 +1,7 @@
 import toPrimitive from '../printer';
 
 export default class LMSymbol {
-  public value: string;
-
-  constructor(value: string) {
-    this.value = value;
-  }
+  constructor(public value: string) {}
 
   public toString() {
     return toPrimitive(this);
