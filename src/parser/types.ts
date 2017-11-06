@@ -42,7 +42,7 @@ export interface IToken {
 }
 
 export interface IExpressionNode {
-  type: NodeType;
+  type: NodeType.ROOT_EXPRESSION | NodeType.LIST_EXPRESSION | NodeType.BRACKET_EXPRESSION;
   body: INode[];
 }
 
