@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import { INode, IToken, NodeType, Punctuator, TokenType } from './types';
+import { IExpressionNode, INode, IToken, NodeType, Punctuator, TokenType } from './types';
 
 const sequentialNodeTypes = new Set([
   NodeType.ROOT_EXPRESSION,
@@ -11,7 +11,7 @@ const terminalNodeTypes = new Set([
   NodeType.ROOT_EXPRESSION,
 ]);
 
-const parseListExpression = (tokens: IterableIterator<IToken>, type: NodeType): INode => {
+const parseExpression = (tokens: IterableIterator<IToken>, type: IExpressionNode['type']): INode => {
   const body = _.toArray(generateNodes(tokens, type) as any);
   return { type, body };
 };
@@ -34,11 +34,11 @@ function* generateNodes(tokens: IterableIterator<IToken>, type: NodeType): Itera
       case TokenType.PUNCTUATOR:
         switch (token.value) {
           case Punctuator.LEFT_PAREN:
-            yield parseListExpression(tokens, NodeType.LIST_EXPRESSION);
+            yield parseExpression(tokens, NodeType.LIST_EXPRESSION);
             break;
 
           case Punctuator.LEFT_BRACKET:
-            yield parseListExpression(tokens, NodeType.BRACKET_EXPRESSION);
+            yield parseExpression(tokens, NodeType.BRACKET_EXPRESSION);
             break;
 
           case Punctuator.RIGHT_PAREN:
@@ -111,4 +111,4 @@ function* generateNodes(tokens: IterableIterator<IToken>, type: NodeType): Itera
   } while (sequentialNodeTypes.has(type));
 }
 
-export default (tokens: IterableIterator<IToken>) => parseListExpression(tokens, NodeType.ROOT_EXPRESSION);
+export default (tokens: IterableIterator<IToken>) => parseExpression(tokens, NodeType.ROOT_EXPRESSION);
