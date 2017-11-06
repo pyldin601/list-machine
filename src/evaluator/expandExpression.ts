@@ -10,20 +10,20 @@ const getNodeValue = (exp: INode, args: IArguments) => {
   return exp;
 };
 
-const expandExpression = (exp: INode, args: IArguments): any => {
-  if (!isCompositeNode(exp)) {
-    return getNodeValue(exp, args);
+const expandExpression = (expr: INode, args: IArguments): any => {
+  if (!isCompositeNode(expr)) {
+    return getNodeValue(expr, args);
   }
 
-  const expressionBody = (exp as IExpressionNode).body;
-  const newBody = expressionBody.reduce((expandedExpression: INode[], expression: INode) => {
+  const body = (expr as IExpressionNode).body;
+  const newBody = body.reduce((expandedExpr: INode[], expression: INode) => {
     if (expression.type === NodeType.SPREST_EXPRESSION) {
-      return expandedExpression.concat(expandExpression(expression.value, args));
+      return expandedExpr.concat(expandExpression(expression.value, args));
     }
-    return [...expandedExpression, expandExpression(expression, args)];
+    return [...expandedExpr, expandExpression(expression, args)];
   }, []);
 
-  return { ...exp, body: newBody };
+  return { ...expr, body: newBody };
 };
 
 export default expandExpression;
