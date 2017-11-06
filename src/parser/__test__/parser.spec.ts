@@ -124,3 +124,25 @@ test('Parse list of numbers', () => {
     }
   );
 });
+
+test('Parse sprest expression', () => {
+  expect(parse('...foo')).toEqual({
+      body: [
+        {
+          body: [
+            {
+              type: 'SprestExpression',
+              value: {
+                name: 'foo',
+                raw: 'foo',
+                type: 'Id',
+              },
+            },
+          ],
+          type: 'ListExpression',
+        }
+      ],
+      type: 'RootExpression'
+    }
+  );
+});

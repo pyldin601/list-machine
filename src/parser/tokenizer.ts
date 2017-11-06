@@ -3,6 +3,8 @@ import Accumulator from './Accumulator';
 import { CharCode, getCharName } from './charCodes';
 import { IToken, TokenType } from './types';
 
+const SPREST_OPEATOR = '...';
+
 const punctuators = new Set([
   CharCode.LEFT_PAREN,
   CharCode.RIGHT_PAREN,
@@ -47,6 +49,9 @@ const interpretIdentifierType = (id: string): TokenType => {
   }
   if (id === 'null') {
     return TokenType.NULL;
+  }
+  if (id.includes('.')) {
+    throw new Error('Incorrect identifier name');
   }
   return TokenType.ID;
 };
@@ -97,6 +102,14 @@ export default function* tokenizeCharStream(source: IterableIterator<number>): I
               }
 
               acc.add(charCode);
+
+              if (acc.equals(SPREST_OPEATOR)) {
+                yield {
+                  position: startPos,
+                  type: TokenType.PUNCTUATOR,
+                  value: acc.getAndInit(),
+                };
+              }
             }
         }
         break;

@@ -14,6 +14,7 @@ export enum NodeType {
   ROOT_EXPRESSION = 'RootExpression',
   LIST_EXPRESSION = 'ListExpression',
   QUOTED_EXPRESSION = 'QuotedExpression',
+  SPREST_EXPRESSION = 'SprestExpression',
   BRACKET_EXPRESSION = 'BracketExpression',
   LITERAL = 'Literal',
   ID = 'Id',
@@ -49,4 +50,9 @@ export interface IQuoteExpressionNode {
   value: INode;
 }
 
-export type INode = ILiteralNode | IIdentifierNode | IExpressionNode | IQuoteExpressionNode;
+export interface ISprestExpressionNode {
+  type: NodeType.SPREST_EXPRESSION;
+  value: INode;
+}
+
+export type INode = ILiteralNode | IIdentifierNode | IExpressionNode | IQuoteExpressionNode | ISprestExpressionNode;

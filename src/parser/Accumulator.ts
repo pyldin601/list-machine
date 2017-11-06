@@ -6,6 +6,9 @@ export default class Accumulator {
   public add(charCode: number) {
     this.buffer += String.fromCharCode(charCode);
   }
+  public equals(value: string): boolean {
+    return this.buffer === value;
+  }
   public getAndInit(): string {
     const value = this.buffer;
     this.init();

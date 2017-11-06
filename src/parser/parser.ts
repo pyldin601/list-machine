@@ -60,6 +60,12 @@ function* generateNodes(tokens: IterableIterator<IToken>, type: NodeType): Itera
             break;
           }
 
+          case '...':
+            const nestedParser = generateNodes(tokens, NodeType.SPREST_EXPRESSION);
+            const { value } = nestedParser.next();
+            yield { type: NodeType.SPREST_EXPRESSION, value };
+            break;
+
           // Should be skipped
           case 'Space':
           case 'LineFeed':

@@ -143,7 +143,7 @@ test('Read string', () => {
       value: "Space",
     },
     {
-      position: { column: 16,  line: 1 },
+      position: { column: 16, line: 1 },
       type: "String",
       value: "\"",
     }
@@ -186,4 +186,43 @@ test('Read unterminated string', () => {
 
 test('Read unterminated string escape', () => {
   expect(() => readTokens('"foo\\')).toThrow();
+});
+
+test('Read sprest expression', () => {
+  expect(readTokens('...')).toEqual([{
+    position: { column: 1, line: 1 },
+    type: 'Punctuator',
+    value: '...',
+  }]);
+
+  expect(readTokens('... foo')).toEqual([
+    {
+      position: { column: 1, line: 1 },
+      type: 'Punctuator',
+      value: '...',
+    },
+    {
+      position: { column: 4, line: 1 },
+      type: 'Punctuator',
+      value: 'Space',
+    },
+    {
+      position: { column: 5, line: 1 },
+      type: 'Id',
+      value: 'foo',
+    },
+  ]);
+
+  expect(readTokens('...foo')).toEqual([
+    {
+      position: { column: 1, line: 1 },
+      type: 'Punctuator',
+      value: '...',
+    },
+    {
+      position: { column: 4, line: 1 },
+      type: 'Id',
+      value: 'foo',
+    },
+  ]);
 });
