@@ -1,5 +1,6 @@
 import Env from '../../Env';
 import { List } from '../../types';
+import { Nil } from '../../types/List';
 import evalArguments from '../evalArguments';
 import evaluate from '../evaluate';
 import { nativeForms } from './';
@@ -25,4 +26,6 @@ export default () => {
     }
     return evaluatedList.tail;
   });
+
+  nativeForms.set('Nil', (env: Env) => Nil);
 };

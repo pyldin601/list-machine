@@ -3,7 +3,7 @@ import loadBinaryOperators from './binaryOperators';
 import loadDataTypes from './dataTypes';
 import loadSpecialForms from './specialForms';
 
-export type NativeForm = (env: Env) => (...args: any[]) => any;
+export type NativeForm = (env: Env) => any;
 export const nativeForms = new Map<string, NativeForm>();
 
 loadBinaryOperators();
