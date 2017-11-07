@@ -33,8 +33,8 @@ export default class List<T> {
 
     const values = [];
 
-    for (let head: List<T> = this; head != null; head = head.tail) {
-      values.push(String(head));
+    for (let node: List<T> = this; node.tail !== null; node = node.tail) {
+      values.push(String(node.head));
     }
 
     return `(${values.join(' ')})`;

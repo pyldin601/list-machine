@@ -1,10 +1,10 @@
 import * as compose from 'compose-function';
 import * as _ from 'lodash';
+import Token, { Punctuator, TokenType } from '../types/Token';
 import { arraySplitBy } from '../util';
 import IndentStack from './IndentStack';
-import { IToken, Punctuator, TokenType } from './types';
 
-const splitTokensByOuterLineFeeds = (tokens: IToken[]): IToken[][] => {
+const splitTokensByOuterLineFeeds = (tokens: Token[]): Token[][] => {
   let depth = 0;
 
   return arraySplitBy(
@@ -33,25 +33,25 @@ const splitTokensByOuterLineFeeds = (tokens: IToken[]): IToken[][] => {
   );
 };
 
-const isIndent = (token: IToken) => token.type === TokenType.PUNCTUATOR &&
+const isIndent = (token: Token) => token.type === TokenType.PUNCTUATOR &&
   (token.value === Punctuator.SPACE || token.value === Punctuator.TAB);
 
-const isEmptyLine = (line: IToken[]) => line.every(isIndent);
+const isEmptyLine = (line: Token[]) => line.every(isIndent);
 
-const getLineIndent = (line: IToken[]) => _.size(_.takeWhile(line, isIndent));
+const getLineIndent = (line: Token[]) => _.size(_.takeWhile(line, isIndent));
 
-const rejectEmptyLines = (lines: IToken[][]): IToken[][] => (
+const rejectEmptyLines = (lines: Token[][]): Token[][] => (
   lines.filter(line => !isEmptyLine(line))
 );
 
-const startsWithListExpression = (line: IToken[]): boolean => {
+const startsWithListExpression = (line: Token[]): boolean => {
   const headToken = _.head(line);
 
   return headToken.type === TokenType.PUNCTUATOR &&
     (headToken.value === Punctuator.LEFT_PAREN || headToken.value === Punctuator.APOSTROPHE);
 };
 
-const shrinkRedundantIndent = (lines: IToken[][]): IToken[][] => {
+const shrinkRedundantIndent = (lines: Token[][]): Token[][] => {
   if (_.isEmpty(lines)) {
     return [];
   }
@@ -61,17 +61,15 @@ const shrinkRedundantIndent = (lines: IToken[][]): IToken[][] => {
   return lines.map(line => line.slice(minimalDetectedIndent));
 };
 
-const createLeftParenToken = (): IToken => {
+const createLeftParenToken = (): Token => {
   return {
-    position: { line: 0, column: 0 },
     type: TokenType.PUNCTUATOR,
     value: Punctuator.LEFT_PAREN,
   };
 };
 
-const createRightParenToken = (): IToken => {
+const createRightParenToken = (): Token => {
   return {
-    position: { line: 0, column: 0 },
     type: TokenType.PUNCTUATOR,
     value: Punctuator.RIGHT_PAREN,
   };
@@ -83,7 +81,7 @@ function* generateTimes(times: number, obj: any): IterableIterator<any> {
   }
 }
 
-function* proceedIndents(lines: IToken[][]): IterableIterator<IToken> {
+function* proceedIndents(lines: Token[][]): IterableIterator<Token> {
   if (_.isEmpty(lines)) {
     return;
   }

@@ -1,4 +1,3 @@
 export default class Macro {
-  constructor(public args: any, public body: any) {
-  }
+  constructor(readonly args: any, readonly body: any) { }
 }

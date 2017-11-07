@@ -16,7 +16,7 @@ test('Simple expressions', () => {
 });
 
 test('Expand array with spread', () => {
-  expect(expand('(a ...b)', { a: 1, b: [2, 3, 4] })).toEqual('(1 ...#{2,3,4})');
+  expect(expand('(a ...b)', { a: 1, b: [2, 3, 4] })).toEqual('(1 ...#[2, 3, 4])');
 });
 
 test('Expand compose expression with spread', () => {

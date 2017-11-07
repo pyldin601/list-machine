@@ -2,7 +2,7 @@ import * as isPrimitive from 'is-primitive';
 import { LAMBDA, MACRO, QUOTE } from './special';
 import { ASTERISK } from './tokens';
 import { Lambda, Macro } from './types';
-import LMSymbol from './types/LMSymbol';
+import LMSymbol from './types/Symbol';
 import { isList } from './util';
 
 const print = (expression: any): string => {

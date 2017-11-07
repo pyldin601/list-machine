@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 import { SPREST } from "../special";
 import { isLMSymbol } from "../types/index";
-import LMSymbol from "../types/LMSymbol";
+import LMSymbol from "../types/Symbol";
 import { isList } from "../util";
 
 const isSprestExpression = (exp: any) => (

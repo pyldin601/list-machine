@@ -9,7 +9,6 @@ test('Tokenize empty string', () => {
 
 test('Read string', () => {
   expect(readTokens(' ')).toEqual([{
-    position: { column: 1, line: 1 },
     type: 'Punctuator',
     value: 'Space',
   }]);
@@ -18,12 +17,10 @@ test('Read string', () => {
 test('Read parens', () => {
   expect(readTokens('()')).toEqual([
     {
-      position: { column: 1, line: 1 },
       type: "Punctuator",
       value: "LeftParen",
     },
     {
-      position: { column: 2, line: 1 },
       type: "Punctuator",
       value: "RightParen",
     },
@@ -33,12 +30,10 @@ test('Read parens', () => {
 test('Read brackets', () => {
   expect(readTokens('[]')).toEqual([
     {
-      position: { column: 1, line: 1 },
       type: "Punctuator",
       value: "LeftBracket",
     },
     {
-      position: { column: 2, line: 1 },
       type: "Punctuator",
       value: "RightBracket",
     },
@@ -48,7 +43,6 @@ test('Read brackets', () => {
 test('Read identifier', () => {
   expect(readTokens('foo')).toEqual([
     {
-      position: { line: 1, column: 1, },
       type: 'Id',
       value: 'foo',
     },
@@ -58,37 +52,30 @@ test('Read identifier', () => {
 test('Read number', () => {
   expect(readTokens('12 3.14 1e-11 -22')).toEqual([
     {
-      position: { line: 1, column: 1, },
       type: 'Number',
       value: '12',
     },
     {
-      position: { line: 1, column: 3, },
       type: 'Punctuator',
       value: 'Space',
     },
     {
-      position: { line: 1, column: 4, },
       type: 'Number',
       value: '3.14',
     },
     {
-      position: { line: 1, column: 8, },
       type: 'Punctuator',
       value: 'Space',
     },
     {
-      position: { line: 1, column: 9, },
       type: 'Number',
       value: '1e-11',
     },
     {
-      position: { line: 1, column: 14, },
       type: 'Punctuator',
       value: 'Space',
     },
     {
-      position: { line: 1, column: 15, },
       type: 'Number',
       value: '-22',
     },
@@ -98,17 +85,14 @@ test('Read number', () => {
 test('Read boolean', () => {
   expect(readTokens('false true')).toEqual([
     {
-      position: { line: 1, column: 1, },
       type: 'Boolean',
       value: 'false',
     },
     {
-      position: { line: 1, column: 6, },
       type: 'Punctuator',
       value: 'Space',
     },
     {
-      position: { line: 1, column: 7, },
       type: 'Boolean',
       value: 'true',
     },
@@ -118,12 +102,10 @@ test('Read boolean', () => {
 test('Read comment', () => {
   expect(readTokens('foo;Hello, World!')).toEqual([
     {
-      position: { line: 1, column: 1 },
       type: 'Id',
       value: 'foo',
     },
     {
-      position: { line: 1, column: 4 },
       type: 'Comment',
       value: 'Hello, World!',
     }
@@ -133,17 +115,14 @@ test('Read comment', () => {
 test('Read string', () => {
   expect(readTokens('"Hello World!" "\\""')).toEqual([
     {
-      position: { column: 1, line: 1 },
       type: "String",
       value: "Hello World!",
     },
     {
-      position: { column: 15, line: 1 },
       type: "Punctuator",
       value: "Space",
     },
     {
-      position: { column: 16, line: 1 },
       type: "String",
       value: "\"",
     }
@@ -153,7 +132,6 @@ test('Read string', () => {
 test('Read regular expression', () => {
   expect(readTokens('/\\d+/')).toEqual([
     {
-      position: { column: 1, line: 1 },
       type: "RegExp",
       value: "/\\d+/",
     },
@@ -163,7 +141,6 @@ test('Read regular expression', () => {
 test('Read undefined', () => {
   expect(readTokens('undefined')).toEqual([
     {
-      position: { line: 1, column: 1 },
       type: 'Undefined',
       value: 'undefined',
     }
@@ -173,7 +150,6 @@ test('Read undefined', () => {
 test('Read null', () => {
   expect(readTokens('null')).toEqual([
     {
-      position: { line: 1, column: 1 },
       type: 'Null',
       value: 'null',
     }
@@ -190,24 +166,20 @@ test('Read unterminated string escape', () => {
 
 test('Read sprest expression', () => {
   expect(readTokens('...')).toEqual([{
-    position: { column: 1, line: 1 },
     type: 'Punctuator',
-    value: '...',
+    value: 'Sprest',
   }]);
 
   expect(readTokens('... foo')).toEqual([
     {
-      position: { column: 1, line: 1 },
       type: 'Punctuator',
-      value: '...',
+      value: 'Sprest',
     },
     {
-      position: { column: 4, line: 1 },
       type: 'Punctuator',
       value: 'Space',
     },
     {
-      position: { column: 5, line: 1 },
       type: 'Id',
       value: 'foo',
     },
@@ -215,12 +187,10 @@ test('Read sprest expression', () => {
 
   expect(readTokens('...foo')).toEqual([
     {
-      position: { column: 1, line: 1 },
       type: 'Punctuator',
-      value: '...',
+      value: 'Sprest',
     },
     {
-      position: { column: 4, line: 1 },
       type: 'Id',
       value: 'foo',
     },

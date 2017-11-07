@@ -14,6 +14,9 @@ export default class Accumulator {
     this.init();
     return value;
   }
+  public clean(): void {
+    this.buffer = '';
+  }
   public isFilled() {
     return this.buffer.length > 0;
   }

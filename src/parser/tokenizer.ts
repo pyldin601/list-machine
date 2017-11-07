@@ -1,9 +1,9 @@
 import * as _ from 'lodash';
+import Token, { Punctuator, TokenType } from '../types/Token';
 import Accumulator from './Accumulator';
 import { CharCode, getCharName } from './charCodes';
-import { IToken, TokenType } from './types';
 
-const SPREST_OPEATOR = '...';
+const SPREST_OPERATOR = '...';
 
 const punctuators = new Set([
   CharCode.LEFT_PAREN,
@@ -31,32 +31,32 @@ enum TokenizerState {
   INLINE_COMMENT,
 }
 
-const interpretIdentifierType = (id: string): TokenType => {
-  if (_.isEmpty(id)) {
+const interpretIdentifier = (value: string): Token => {
+  if (_.isEmpty(value)) {
     throw new Error('Unexpected empty identifier');
   }
-  if (_.head(id) === '/') {
-    return TokenType.REGEXP;
+  if (_.head(value) === '/') {
+    return new Token(TokenType.REGEXP, value);
   }
-  if (_.includes(['true', 'false'], id)) {
-    return TokenType.BOOLEAN;
+  if (_.includes(['true', 'false'], value)) {
+    return new Token(TokenType.BOOLEAN, value);
   }
-  if (!isNaN(parseFloat(id))) {
-    return TokenType.NUMBER;
+  if (!isNaN(parseFloat(value))) {
+    return new Token(TokenType.NUMBER, value);
   }
-  if (id === 'undefined') {
-    return TokenType.UNDEFINED;
+  if (value === 'undefined') {
+    return new Token(TokenType.UNDEFINED, value);
   }
-  if (id === 'null') {
-    return TokenType.NULL;
+  if (value === 'null') {
+    return new Token(TokenType.NULL, value);
   }
-  if (id !== SPREST_OPEATOR && id.includes('.')) {
+  if (value !== SPREST_OPERATOR && value.includes('.')) {
     throw new Error('Incorrect identifier name');
   }
-  return TokenType.ID;
+  return new Token(TokenType.ID, value);
 };
 
-export default function* tokenizeCharStream(source: IterableIterator<number>): IterableIterator<IToken> {
+export default function* tokenizeCharStream(source: IterableIterator<number>): IterableIterator<Token> {
   const acc = new Accumulator();
 
   let state = TokenizerState.BASE;
@@ -71,11 +71,7 @@ export default function* tokenizeCharStream(source: IterableIterator<number>): I
       case TokenizerState.BASE:
         if (isNotIdentifier(charCode) && acc.isFilled()) {
           const value = acc.getAndInit();
-          yield {
-            position: startPos,
-            type: interpretIdentifierType(value),
-            value,
-          };
+          yield interpretIdentifier(value);
         }
 
         switch (charCode) {
@@ -91,11 +87,7 @@ export default function* tokenizeCharStream(source: IterableIterator<number>): I
 
           default:
             if (isPunctuator(charCode)) {
-              yield {
-                position: { line, column },
-                type: TokenType.PUNCTUATOR,
-                value: getCharName(charCode),
-              };
+              yield new Token(TokenType.PUNCTUATOR, getCharName(charCode));
             } else {
               if (!acc.isFilled()) {
                 saveStartPos();
@@ -103,12 +95,9 @@ export default function* tokenizeCharStream(source: IterableIterator<number>): I
 
               acc.add(charCode);
 
-              if (acc.equals(SPREST_OPEATOR)) {
-                yield {
-                  position: startPos,
-                  type: TokenType.PUNCTUATOR,
-                  value: acc.getAndInit(),
-                };
+              if (acc.equals(SPREST_OPERATOR)) {
+                yield new Token(TokenType.PUNCTUATOR, Punctuator.SPREST);
+                acc.clean();
               }
             }
         }
@@ -121,11 +110,7 @@ export default function* tokenizeCharStream(source: IterableIterator<number>): I
             break;
 
           case CharCode.DOUBLE_QUOTE:
-            yield {
-              position: startPos,
-              type: TokenType.STRING,
-              value: acc.getAndInit(),
-            };
+            yield new Token(TokenType.STRING, acc.getAndInit());
             state = TokenizerState.BASE;
             break;
 
@@ -143,11 +128,7 @@ export default function* tokenizeCharStream(source: IterableIterator<number>): I
       case TokenizerState.INLINE_COMMENT:
         switch (charCode) {
           case CharCode.LINE_FEED:
-            yield {
-              position: startPos,
-              type: TokenType.COMMENT,
-              value: acc.getAndInit(),
-            };
+            yield new Token(TokenType.COMMENT, acc.getAndInit());
             state = TokenizerState.BASE;
             break;
 
@@ -169,21 +150,12 @@ export default function* tokenizeCharStream(source: IterableIterator<number>): I
     case TokenizerState.BASE:
       if (acc.isFilled()) {
         const value = acc.getAndInit();
-
-        yield {
-          position: startPos,
-          type: interpretIdentifierType(value),
-          value,
-        };
+        yield interpretIdentifier(value);
       }
       break;
 
     case TokenizerState.INLINE_COMMENT:
-      yield {
-        position: startPos,
-        type: TokenType.COMMENT,
-        value: acc.getAndInit(),
-      };
+      yield new Token(TokenType.COMMENT, acc.getAndInit());
       break;
 
     default:

@@ -1,11 +1,13 @@
+import Env from '../Env';
 import { INode, NodeType } from '../parser/types';
+import evaluate from './evaluate';
 
-export default (args: INode[], evalFn: (node: INode) => any): any[] => {
+export default (args: INode[], env: Env): any[] => {
   return args.reduce((evaluateArgs: any[], arg: INode) => {
     if (arg.type === NodeType.SPREST_EXPRESSION) {
-      return evaluateArgs.concat(evalFn(arg.value));
+      return evaluateArgs.concat(evaluate(arg.value, env));
     }
 
-    return [...evaluateArgs, evalFn(arg)];
+    return [...evaluateArgs, evaluate(arg, env)];
   }, []);
 };

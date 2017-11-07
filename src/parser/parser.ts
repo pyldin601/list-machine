@@ -1,15 +1,16 @@
 import * as _ from 'lodash';
 import { compositeNodeTypes, terminalNodeTypes } from '../common/constants';
-import { IExpressionNode, INode, IToken, NodeType, Punctuator, TokenType } from './types';
+import Token, { Punctuator, TokenType } from '../types/Token';
+import { IExpressionNode, INode, NodeType,  } from './types';
 
 
 
-const parseExpression = (tokens: IterableIterator<IToken>, type: IExpressionNode['type']): INode => {
+const parseExpression = (tokens: IterableIterator<Token>, type: IExpressionNode['type']): INode => {
   const body = _.toArray(generateNodes(tokens, type) as any);
   return { type, body };
 };
 
-function* generateNodes(tokens: IterableIterator<IToken>, type: NodeType): IterableIterator<INode> {
+function* generateNodes(tokens: IterableIterator<Token>, type: NodeType): IterableIterator<INode> {
   do {
     const nextValue = tokens.next();
 
@@ -104,4 +105,4 @@ function* generateNodes(tokens: IterableIterator<IToken>, type: NodeType): Itera
   } while (compositeNodeTypes.has(type));
 }
 
-export default (tokens: IterableIterator<IToken>) => parseExpression(tokens, NodeType.ROOT_EXPRESSION);
+export default (tokens: IterableIterator<Token>) => parseExpression(tokens, NodeType.ROOT_EXPRESSION);
