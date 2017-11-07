@@ -6,7 +6,7 @@ import toList from './list';
 import lmCore from './lmcore';
 import { callSpecialForm, isSpecialForm, QUOTE } from './special';
 import parse from './tokens';
-import { isLMSymbol, isLMType, Lambda, LMSymbol, Macro } from './types';
+import { Lambda, Macro } from './types';
 import { isEmptyList, isList } from './util';
 
 const globalJSObject: { [key: string]: any } = getGlobal();
@@ -17,7 +17,7 @@ export const initializeEnv = () => {
   return env;
 };
 
-const evalLMSymbol = (symbol: LMSymbol, env: Env): any => {
+const evalLMSymbol = (symbol: any, env: Env): any => {
   const { value } = symbol;
   if (env.isBound(value)) {
     return env.get(value);
@@ -33,10 +33,6 @@ const evalLMSymbol = (symbol: LMSymbol, env: Env): any => {
 const evalExpression = (expression: any, env: Env): any => {
   if (isList(expression)) {
     return applyExpression(expression, env);
-  }
-
-  if (isLMSymbol(expression)) {
-    return evalLMSymbol(expression, env);
   }
 
   return expression;
@@ -92,16 +88,6 @@ const applyExpression = (expression: any, env: Env) => {
       evaluatedOp.value.slice(1),
       _.head(evaluatedArgs),
       _.tail(evaluatedArgs),
-    );
-  }
-
-  if (evaluatedOp instanceof Lambda) {
-    const packedArgs = combineArguments(evaluatedArgs, evaluatedOp.args);
-    const newEnv = evaluatedOp.env.newEnv(packedArgs);
-
-    return evaluatedOp.body.reduce(
-      (previousResult, exp) => evalExpression(exp, newEnv),
-      undefined,
     );
   }
 

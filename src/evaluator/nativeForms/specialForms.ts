@@ -2,7 +2,10 @@ import * as _ from 'lodash';
 import Env from '../../Env';
 import { IExpressionNode, NodeType } from '../../parser/types';
 import { Lambda, Macro } from '../../types';
+import combineArguments from "../combineArguments";
+import evalArguments from '../evalArguments';
 import evaluate from '../evaluate';
+import expandMacro from '../expandMacro';
 import { nativeForms } from './';
 
 export default () => {
@@ -22,5 +25,14 @@ export default () => {
 
   nativeForms.set('macro', (env: Env) => (argNames: IExpressionNode, body: IExpressionNode) => {
     return new Macro(argNames, body);
+  });
+
+  nativeForms.set('expand', (env: Env) => (macroArg: any, ...args: any[]) => {
+    const macro = evaluate(macroArg, env);
+    if (!(macro instanceof Macro)) {
+      throw new Error(`Form "expand" requires first argument to be a Macro`);
+    }
+    const combinedArgs = combineArguments(macro.args, evalArguments(args, env));
+    return _.flatten(expandMacro(combinedArgs, macro.body));
   });
 };

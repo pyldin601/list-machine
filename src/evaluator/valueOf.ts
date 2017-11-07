@@ -1,7 +1,6 @@
 import { isObject, isPrimitive } from 'util';
 import { INode, NodeType } from '../parser/types';
 import { Lambda, Macro } from '../types';
-import { Punctuator } from '../types/Token';
 
 const valueOfNode = (node: INode): any => {
   switch (node.type) {
@@ -9,7 +8,7 @@ const valueOfNode = (node: INode): any => {
       return node.name;
 
     case NodeType.SPREST_EXPRESSION:
-      return `${Punctuator.SPREST}${valueOf(node.value)}`;
+      return `...${valueOf(node.value)}`;
 
     case NodeType.ROOT_EXPRESSION:
       return node.body.map(valueOf).join('\n');
