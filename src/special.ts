@@ -3,6 +3,11 @@ import Env from './Env';
 import { combineArguments, evaluateArgs, expandMacro } from "./evalCore";
 import print from './printer';
 import { Lambda, Macro } from './types/';
+import Cons from "./types/Cons";
+
+export const LIST_CONS = 'cons';
+export const LIST_CAR = 'car';
+export const LIST_CDR = 'cdr';
 
 export const OP_ADD = '+';
 export const OP_MUL = '*';
@@ -40,6 +45,10 @@ export const ATTR_HAS = 'has-attr?';
 export const ATTR_DEL = 'del-attr!';
 
 export const specialForms = [
+  LIST_CONS,
+  LIST_CAR,
+  LIST_CDR,
+
   OP_ADD,
   OP_MUL,
   OP_SUB,
@@ -100,7 +109,6 @@ export const callSpecialForm = (
   const evalArgs = (args: any[]) => evaluateArgs(args, (exp: any) => evalExpression(exp, env));
 
   switch (op) {
-    /* Math operators */
     case OP_ADD:
       return reduceArguments((arg1, arg2) => arg1 + arg2, args, evalExpression, env);
 
@@ -139,6 +147,18 @@ export const callSpecialForm = (
 
     case OP_OR:
       return reduceArguments((arg1, arg2) => arg1 || arg2, args, evalExpression, env);
+
+    case LIST_CONS: {
+      const evaluatedArguments = args.map(arg => evalExpression(arg, env));
+      const [firstItem, ...restItems] = evaluatedArguments.reverse();
+      return restItems.reduce((list, elem) => new Cons(elem, list), new Cons(firstItem));
+    }
+
+    case LIST_CAR:
+      return evalExpression(_.head(args), env).car;
+
+    case LIST_CDR:
+      return evalExpression(_.head(args), env).cdr;
 
     case OP_NOT:
       return !evalExpression(_.head(args), env);

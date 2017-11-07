@@ -4,6 +4,7 @@ import { ASTERISK } from './tokens';
 import { Lambda, Macro } from './types';
 import LMSymbol from './types/LMSymbol';
 import { isList } from './util';
+import Cons from "./types/Cons";
 
 const print = (expression: any): string => {
   if (isList(expression)) {
@@ -20,6 +21,10 @@ const print = (expression: any): string => {
 
   if (expression instanceof LMSymbol) {
     return expression.value;
+  }
+
+  if (expression instanceof Cons) {
+    return `(${print(expression.car)} ${print(expression.cdr)})`;
   }
 
   if (typeof expression === 'string') {
