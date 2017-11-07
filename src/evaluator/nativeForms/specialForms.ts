@@ -35,4 +35,20 @@ export default () => {
     const combinedArgs = combineArguments(macro.args, evalArguments(args, env));
     return _.flatten(expandMacro(combinedArgs, macro.body));
   });
+
+  nativeForms.set('cond', (env: Env) => (...args: any[]) => {
+    const pairs = _.chunk(args, 2);
+
+    for (const pair of pairs) {
+      if (pair.length === 1) {
+        return evaluate(_.head(pair), env);
+      }
+
+      if (evaluate(_.head(pair), env)) {
+        return evaluate(_.last(pair), env);
+      }
+    }
+
+    return undefined;
+  });
 };

@@ -111,26 +111,6 @@ export const callSpecialForm = (
       return evalExpression(args[1], lambda.env);
     }
 
-    case COND: {
-      const pairs = _.chunk(args, 2);
-      for (const pair of pairs) {
-        if (pair.length === 1) {
-          return evalExpression(_.head(pair), env);
-        }
-
-        if (evalExpression(_.head(pair), env)) {
-          return evalExpression(_.last(pair), env);
-        }
-      }
-      return undefined;
-    }
-
-    case SPREST:
-      throw new Error(`Sprest operator is not callable form`);
-
-    case EXP_LIST:
-      return evalArgs(args);
-
     case EXP_PRINT:
       evalArgs(args)
         .map(print)
