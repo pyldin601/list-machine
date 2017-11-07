@@ -1,5 +1,4 @@
 import Env from '../Env';
-import toPrimitive from "../printer";
 
 export default class Lambda {
   constructor(
@@ -7,8 +6,4 @@ export default class Lambda {
     public body: any[],
     public env: Env,
   ) {}
-
-  public toString() {
-    return toPrimitive(this);
-  }
 }
