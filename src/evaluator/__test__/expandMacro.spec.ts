@@ -37,4 +37,5 @@ test('Expand list expression', () => {
   expect(expand('(a \'(b))', { a: 1, b: 2, c: 3 })).toEqual('(1 \'(b))');
 
   expect(expand('(a)', {})).toEqual('(a)');
+  expect(expand('("Foo Bar")', {})).toEqual('(Foo Bar)');
 });

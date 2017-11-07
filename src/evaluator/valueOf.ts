@@ -1,6 +1,6 @@
+import { isPrimitive } from 'util';
 import { CharCode } from '../parser/charCodes';
 import { INode, NodeType, Punctuator } from '../parser/types';
-import { isPrimitive } from "util";
 
 const valueOf = (node: INode): any => {
   switch (node.type) {
@@ -24,6 +24,14 @@ const valueOf = (node: INode): any => {
 
     case NodeType.QUOTED_EXPRESSION:
       return `'${valueOf(node.value)}`;
+  }
+
+  if (node === null) {
+    return 'null';
+  }
+
+  if (node === undefined) {
+    return 'undefined';
   }
 
   if (isPrimitive(node)) {
