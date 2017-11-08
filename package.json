@@ -1,6 +1,6 @@
 {
   "name": "@peacefulbit/list-machine",
-  "version": "0.3.2",
+  "version": "0.4.1",
   "description": "Lisp-like interpreter written on Node.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -12,31 +12,33 @@
     "lint": "tslint src/",
     "cover": "jest --coverage && (cat ./coverage/lcov.info | coveralls)",
     "build": "npm run clean && tsc",
-    "prepublish": "npm run build"
+    "prepublish": "npm run build",
+    "deploy": "npm run lint && npm run test && npm publish"
   },
   "keywords": [],
   "author": "Roman Lakhtadyr <roman.lakhtadyr@gmail.com>",
   "license": "MIT",
   "devDependencies": {
     "@types/jest": "^21.1.5",
-    "@types/lodash": "^4.14.80",
-    "@types/react": "^16.0.18",
+    "@types/lodash": "^4.14.82",
+    "@types/react": "^16.0.21",
     "@types/react-dom": "^16.0.2",
-    "@types/webpack": "^3.0.14",
+    "@types/webpack": "^3.8.0",
     "coveralls": "^3.0.0",
     "jest": "^21.2.1",
     "npm": "^5.5.1",
     "rimraf": "^2.6.2",
-    "ts-jest": "^21.1.4",
+    "ts-jest": "^21.2.1",
     "ts-node": "^3.3.0",
     "tslint": "^5.8.0",
     "tslint-config-prettier": "^1.6.0",
-    "typescript": "^2.5.3"
+    "typescript": "^2.6.1"
   },
   "dependencies": {
     "@types/winston": "^2.3.7",
     "@types/xterm": "^2.0.3",
     "compose-function": "^3.0.3",
+    "immutable": "^3.8.2",
     "is-primitive": "^2.0.0",
     "lodash": "^4.17.4",
     "winston": "^2.4.0"

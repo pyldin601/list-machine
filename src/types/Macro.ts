@@ -1,15 +1,18 @@
-import toPrimitive from "../printer";
+import combineArguments from "../evaluator/combineArguments";
+import Env from "../evaluator/Env";
+import evaluate from '../evaluator/evaluate';
+import expandMacro from "../evaluator/expandMacro";
 
 export default class Macro {
-  public args: any;
-  public body: any;
+  constructor(readonly args: any, readonly body: any) { }
 
-  constructor(args: any, body: any) {
-    this.args = args;
-    this.body = body;
+  public evaluate(args: any[], env: Env): any {
+    const newBody = this.expand(args);
+    return evaluate(newBody, env);
   }
 
-  public toString() {
-    return toPrimitive(this);
+  public expand(args: any[]): any {
+    const packedArgs = combineArguments(this.args, args);
+    return expandMacro(this.body, packedArgs);
   }
 }
