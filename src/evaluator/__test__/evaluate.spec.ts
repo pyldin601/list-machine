@@ -68,8 +68,16 @@ test('Eval "cons/car/cdr" form', () => {
   expect(evalExpr('(def lst (list 1 2 3 4)) (cdr (cdr lst))')).toEqual('(3 4)');
 });
 
-test('Eval macro "expand"', () => {
+test('Eval macro "expand" #1', () => {
   expect(evalExpr('expand (macro [x y] (cons x y)) 2 (list 3 4)')).toEqual('(cons 2 (list 3 4))');
+});
+
+test('Eval macro "expand" #2', () => {
+  const code = `
+    (def defmacro (macro [name args ...body] (def name (macro args ...body))))
+    (expand defmacro abc [x] (+ 2 x) x)
+  `;
+  expect(evalExpr(code)).toEqual('(def abc (macro [x] (+ 2 x) x))');
 });
 
 test('Eval "macro" call', () => {

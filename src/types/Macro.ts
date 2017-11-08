@@ -1,5 +1,5 @@
-import Env from "../evaluator/Env";
 import combineArguments from "../evaluator/combineArguments";
+import Env from "../evaluator/Env";
 import evaluate from '../evaluator/evaluate';
 import expandMacro from "../evaluator/expandMacro";
 

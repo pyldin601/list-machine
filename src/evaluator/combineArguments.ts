@@ -32,7 +32,10 @@ const combineArguments = (argNamesExpression: IExpressionNode, argValues: any[])
       argNameExpression.type === NodeType.SPREST_EXPRESSION &&
       argNameExpression.value.type === NodeType.ID
     ) {
-      args[argNameExpression.value.name] = argValues.slice(i);
+      args[argNameExpression.value.name] = {
+        body: argValues.slice(i),
+        type: NodeType.LIST_EXPRESSION,
+      };
       afterRest = true;
     } else {
       throw new Error(`Wrong type of argument - ${argNameExpression.type}`);
