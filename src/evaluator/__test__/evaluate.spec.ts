@@ -66,12 +66,13 @@ test('Eval "macro" special form', () => {
 });
 
 test('Eval "cons/car/cdr" form', () => {
-  expect(evalExpr('(cons 1 2 3 4 5)')).toEqual('(1 2 3 4 5)');
-  expect(evalExpr('(cons 1)')).toEqual('(1)');
-  expect(evalExpr('(cons)')).toEqual('Nil');
+  expect(evalExpr('(list 1 2 3 4 5)')).toEqual('(1 2 3 4 5)');
+  expect(evalExpr('(cons 1 (list 2 3 4 5))')).toEqual('(1 2 3 4 5)');
+  expect(evalExpr('(cons 1 Nil)')).toEqual('(1)');
+  expect(evalExpr('(list)')).toEqual('Nil');
 
-  expect(evalExpr('(def list (cons 1 2 3 4)) (car list)')).toEqual(1);
-  expect(evalExpr('(def list (cons 1 2 3 4)) (cdr list)')).toEqual('(2 3 4)');
-  expect(evalExpr('(def list (cons 1 2 3 4)) (car (cdr list))')).toEqual(2);
-  expect(evalExpr('(def list (cons 1 2 3 4)) (cdr (cdr list))')).toEqual('(3 4)');
+  expect(evalExpr('(def lst (list 1 2 3 4)) (car lst)')).toEqual(1);
+  expect(evalExpr('(def lst (list 1 2 3 4)) (cdr lst)')).toEqual('(2 3 4)');
+  expect(evalExpr('(def lst (list 1 2 3 4)) (car (cdr lst))')).toEqual(2);
+  expect(evalExpr('(def lst (list 1 2 3 4)) (cdr (cdr lst))')).toEqual('(3 4)');
 });

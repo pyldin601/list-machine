@@ -7,9 +7,20 @@ import evaluate from '../evaluate';
 import { nativeForms } from './';
 
 export default () => {
-  nativeForms.set('cons', (env: Env) => (...args: any[]) => {
-    const evaluatedArgs = evalArguments(args, env);
-    return List.of(...evaluatedArgs);
+  nativeForms.set('list', (env: Env) => (...items: any[]) => {
+    const evaluatedArguments = evalArguments(items, env);
+    return List.of(...evaluatedArguments);
+  });
+
+  nativeForms.set('cons', (env: Env) => (item: any, list: any) => {
+    const evaluatedItem = evaluate(item, env);
+    const evaluatedList = evaluate(list, env);
+
+    if (!(evaluatedList instanceof List)) {
+      throw new Error('Second argument should be a list');
+    }
+
+    return evaluatedList.prepend(evaluatedItem);
   });
 
   nativeForms.set('car', (env: Env) => (list: any) => {

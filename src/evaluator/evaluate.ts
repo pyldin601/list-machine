@@ -1,9 +1,17 @@
 import * as _ from 'lodash';
+import { isObject } from 'util';
 import Env from '../Env';
 import { IExpressionNode, IIdentifierNode, INode, NodeType } from '../parser/types';
 import { getNativeForm, isNativeForm } from './nativeForms';
 
 const evaluate = (node: INode, env: Env): any => {
+  if (isObject(node) && 'type' in node) {
+    return evaluateNode(node, env);
+  }
+  return node;
+};
+
+const evaluateNode = (node: INode, env: Env): any => {
   switch (node.type) {
     case NodeType.LITERAL:
       return node.value;
@@ -34,10 +42,10 @@ const evalIdentifier = (node: IIdentifierNode, env: Env): any => {
 };
 
 const evalList = (node: IExpressionNode, env: Env) => {
-  const operator = evaluate(_.head(node.body), env);
+  const listOperator = evaluate(_.head(node.body), env);
   const args = _.tail(node.body);
 
-  return operator(...args);
+  return listOperator(...args);
 };
 
 export default evaluate;

@@ -12,6 +12,10 @@ export default class List<T> {
   constructor(readonly head: T | null, readonly tail: List<T> | null) {
   }
 
+  public prepend(item: T): List<T> {
+    return new List(item, this);
+  }
+
   public isEmpty(): boolean {
     return this.head === null && this.tail === null;
   }
@@ -19,7 +23,7 @@ export default class List<T> {
   get length(): number {
     let length = 0;
 
-    for (let head: List<T> = this; head != null; head = head.tail) {
+    for (let node: List<T> = this; node.tail != null; node = node.tail) {
       length += 1;
     }
 
