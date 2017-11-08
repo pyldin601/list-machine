@@ -14,7 +14,6 @@ test('Parse apostrophe sugar with expression', () => {
         type: "QuotedExpression",
         value: {
           name: 'foo',
-          raw: 'foo',
           type: 'Id',
         },
       },

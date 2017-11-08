@@ -14,22 +14,18 @@ test('Parse root expression', () => {
         body: [
           {
             name: 'a',
-            raw: 'a',
             type: 'Id',
           },
           {
             name: 'b',
-            raw: 'b',
             type: 'Id',
           },
           {
             name: 'c',
-            raw: 'c',
             type: 'Id',
           },
           {
             name: 'd',
-            raw: 'd',
             type: 'Id',
           },
         ],
@@ -47,12 +43,10 @@ test('Parse list expression', () => {
         body: [
           {
             name: 'a',
-            raw: 'a',
             type: 'Id',
           },
           {
             name: 'b',
-            raw: 'b',
             type: 'Id',
           },
         ],
@@ -72,12 +66,10 @@ test('Parse brackets expression', () => {
             body: [
               {
                 name: 'a',
-                raw: 'a',
                 type: 'Id',
               },
               {
                 name: 'b',
-                raw: 'b',
                 type: 'Id',
               },
             ],
@@ -134,7 +126,6 @@ test('Parse sprest expression', () => {
               type: 'SprestExpression',
               value: {
                 name: 'foo',
-                raw: 'foo',
                 type: 'Id',
               },
             },

@@ -96,7 +96,7 @@ function* generateNodes(tokens: IterableIterator<Token>, type: NodeType): Iterab
         break;
 
       case TokenType.ID:
-        yield { raw: token.value, type: NodeType.ID, name: token.value };
+        yield { type: NodeType.ID, name: token.value };
         break;
 
       default:
