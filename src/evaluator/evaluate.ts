@@ -1,8 +1,10 @@
 import * as _ from 'lodash';
 import { isObject } from 'util';
-import Env from '../Env';
 import { IExpressionNode, IIdentifierNode, INode, NodeType } from '../parser/types';
+import { Lambda, Macro } from "../types";
+import Env from './Env';
 import { getNativeForm, isNativeForm } from './nativeForms';
+import valueOf from './valueOf';
 
 const evaluate = (node: INode, env: Env): any => {
   if (isObject(node) && 'type' in node) {
@@ -44,6 +46,18 @@ const evalIdentifier = (node: IIdentifierNode, env: Env): any => {
 const evalList = (node: IExpressionNode, env: Env) => {
   const listOperator = evaluate(_.head(node.body), env);
   const args = _.tail(node.body);
+
+  if (listOperator instanceof Macro) {
+    return listOperator.evaluate(args, env);
+  }
+
+  if (listOperator instanceof Lambda) {
+    return listOperator.evaluate(args, env);
+  }
+
+  if (typeof listOperator !== 'function') {
+    throw new Error(`Expression ${valueOf(node)} is not callable`);
+  }
 
   return listOperator(...args);
 };

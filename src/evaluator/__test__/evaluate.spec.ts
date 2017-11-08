@@ -1,16 +1,7 @@
-import Env from '../../Env';
-import { parse } from '../../parser';
-import evaluate from '../evaluate';
+import { Env, evaluate } from '../../';
 import valueOf from '../valueOf';
 
-const env = new Env();
-
-env.bindAll({
-  baz: 12,
-  foo: 'Bar',
-});
-
-const evalExpr = (code: string) => valueOf(evaluate(parse(code), env));
+const evalExpr = (code: string) => valueOf(evaluate(code, new Env({ baz: 12, foo: 'Bar' })));
 
 test('Eval nothing', () => {
   expect(evalExpr('')).toEqual('undefined');
@@ -75,4 +66,20 @@ test('Eval "cons/car/cdr" form', () => {
   expect(evalExpr('(def lst (list 1 2 3 4)) (cdr lst)')).toEqual('(2 3 4)');
   expect(evalExpr('(def lst (list 1 2 3 4)) (car (cdr lst))')).toEqual(2);
   expect(evalExpr('(def lst (list 1 2 3 4)) (cdr (cdr lst))')).toEqual('(3 4)');
+});
+
+test('Eval macro "expand"', () => {
+  expect(evalExpr('expand (macro [x y] (cons x y)) 2 (list 3 4)')).toEqual('(cons 2 (list 3 4))');
+});
+
+test('Eval "macro" call', () => {
+  expect(evalExpr('((macro [x y] (cons x y)) 2 (list 3 4))')).toEqual('(2 3 4)');
+});
+
+test('Eval "lambda" call', () => {
+  expect(evalExpr('((lambda [x y] (cons x y)) 2 (list 3 4))')).toEqual('(2 3 4)');
+});
+
+test('Impossible list eval', () => {
+  expect(() => evalExpr('(1 2 3 4)')).toThrow('Expression (1 2 3 4) is not callable');
 });

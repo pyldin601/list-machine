@@ -1,4 +1,4 @@
-import Env from '../Env';
+import Env from './Env';
 import { INode, NodeType } from '../parser/types';
 import evaluate from './evaluate';
 

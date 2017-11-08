@@ -1,4 +1,4 @@
-import Env from '../Env';
+import Env from '../evaluator/Env';
 import combineArguments from '../evaluator/combineArguments';
 import evalArguments from '../evaluator/evalArguments';
 import evaluate from '../evaluator/evaluate';

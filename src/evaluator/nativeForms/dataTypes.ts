@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import Env from '../../Env';
+import Env from '../Env';
 import { List } from '../../types';
 import { Nil } from '../../types/List';
 import evalArguments from '../evalArguments';
@@ -50,27 +50,16 @@ export default () => {
   nativeForms.set('get-attr', (env: Env) => (obj: any, attr: any): any => {
     return evaluate(obj, env)[evaluate(attr, env)];
   });
+
+  nativeForms.set('set-attr!', (env: Env) => (obj: any, attr: any, value: any) => {
+    evaluate(obj, env)[evaluate(attr, env)] = evaluate(value, env);
+  });
+
+  nativeForms.set('del-attr!', (env: Env) => (obj: any, attr: any) => {
+    delete evaluate(obj, env)[evaluate(attr, env)];
+  });
+
+  nativeForms.set('has-attr', (env: Env) => (obj: any, attr: any) => {
+    return evaluate(attr, env) in evaluate(obj, env);
+  });
 };
-
-
-// case ATTR_GET: {
-//   const [object, attr] = evalArgs(args);
-//   return object[attr];
-// }
-//
-// case ATTR_SET: {
-//   const [object, attr, value] = evalArgs(args);
-//   object[attr] = value;
-//   return undefined;
-// }
-//
-// case ATTR_HAS: {
-//   const [object, attr] = evalArgs(args);
-//   return attr in object;
-// }
-//
-// case ATTR_DEL: {
-//   const [object, attr] = evalArgs(args);
-//   delete object[attr];
-//   return undefined;
-// }

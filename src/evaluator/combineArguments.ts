@@ -1,12 +1,11 @@
 import { IExpressionNode, NodeType } from '../parser/types';
-import { isList } from "../util";
 
 export interface IArguments { [name: string]: any }
 
 const combineArguments = (argNamesExpression: IExpressionNode, argValues: any[]): IArguments => {
   let afterRest = false;
 
-  if (!isList(argValues)) {
+  if (!Array.isArray(argValues)) {
     throw new Error(`Argument of type "${typeof argValues}" can not be destructed`);
   }
 

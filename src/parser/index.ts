@@ -6,4 +6,3 @@ import tokenizeCharStream from './tokenizer';
 
 export const parse = compose(parseTokenStream, proceedIndents, tokenizeCharStream, readFromString);
 export const tokenize = compose(tokenizeCharStream, readFromString);
-export const evaluate = (): void => undefined;

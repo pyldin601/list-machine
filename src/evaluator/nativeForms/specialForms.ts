@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import Env from '../../Env';
+import Env from '../Env';
 import { IExpressionNode, NodeType } from '../../parser/types';
 import { Lambda, Macro } from '../../types';
 import combineArguments from "../combineArguments";
@@ -32,8 +32,7 @@ export default () => {
     if (!(macro instanceof Macro)) {
       throw new Error(`Form "expand" requires first argument to be a Macro`);
     }
-    const combinedArgs = combineArguments(macro.args, evalArguments(args, env));
-    return _.flatten(expandMacro(combinedArgs, macro.body));
+    return macro.expand(args);
   });
 
   nativeForms.set('cond', (env: Env) => (...args: any[]) => {
@@ -50,5 +49,17 @@ export default () => {
     }
 
     return undefined;
+  });
+
+  nativeForms.set('eval', (env: Env) => (expr: any) => {
+    return evaluate(expr, env);
+  });
+
+  nativeForms.set('eval-in', (env: Env) => (lambda: any, expr: any) => {
+    const l = evaluate(lambda, env);
+    if (!(l instanceof Lambda)) {
+      throw new Error(`First argument should be a lambda`);
+    }
+    return evaluate(expr, l.env);
   });
 };

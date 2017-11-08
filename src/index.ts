@@ -1,9 +1,6 @@
-import evaluate, { initializeEnv } from './eval';
-import print from './printer';
+import { Env, evaluate as evalExpression, valueOf } from './evaluator';
+import { parse, tokenize } from './parser';
 
-export { print };
+const evaluate = (code: string, env: Env) => evalExpression(parse(code), env);
 
-export default (): any => {
-  const env = initializeEnv();
-  return (code: string) => evaluate(code, env);
-};
+export { tokenize, parse, evaluate, Env, valueOf };

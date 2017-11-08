@@ -1,4 +1,4 @@
-import Env from '../../Env';
+import Env from '../Env';
 import loadBinaryOperators from './binaryOperators';
 import loadDataTypes from './dataTypes';
 import loadSpecialForms from './specialForms';

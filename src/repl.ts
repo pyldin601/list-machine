@@ -1,6 +1,8 @@
 import * as readLine from 'readline';
-import makeEvaluator from './';
-import toPrimitive from "./printer";
+import { Env, evaluate, valueOf } from './';
+import lmCore from './lmcore';
+
+const env = new Env();
 
 const rl = readLine.createInterface({
   input: process.stdin,
@@ -8,18 +10,16 @@ const rl = readLine.createInterface({
   terminal: true,
 });
 
-const evaluate = makeEvaluator();
-
 const readCode = (): Promise<string> => new Promise((resolve => {
   rl.question('> ', input => resolve(input));
 }));
 
 const evalCode = async (code: string): Promise<any> => {
-  return evaluate(code);
+  return evaluate(code, env);
 };
 
 const printResult = async (result: any): Promise<any> => {
-  return process.stdout.write(String(toPrimitive(result)));
+  return process.stdout.write(String(valueOf(result)));
 };
 
 const printNewLine = async (result: any): Promise<any> => {
@@ -39,5 +39,7 @@ const startIteration = (): Promise<void> => (
     .then(printNewLine)
     .then(startIteration)
 );
+
+evaluate(lmCore, env);
 
 startIteration().then(() => 'Bye');

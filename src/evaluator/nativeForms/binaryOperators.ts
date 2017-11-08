@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import Env from '../../Env';
+import Env from '../Env';
 import evalArguments from '../evalArguments';
 import evaluate from '../evaluate';
 import { nativeForms } from './';
@@ -41,7 +41,7 @@ export default () => {
   nativeForms.set('gte?', (env: Env) => logicalOperator((a: number, b: number) => a >= b, env));
   nativeForms.set('lte?', (env: Env) => logicalOperator((a: number, b: number) => a <= b, env));
 
-  nativeForms.set('and', (env: Env) => logicalOperator((a: number, b: number) => a && b, env));
-  nativeForms.set('or', (env: Env) => logicalOperator((a: number, b: number) => a || b, env));
-  nativeForms.set('not', (env: Env) => arg => !evaluate(arg, env));
+  nativeForms.set('and', (env: Env) => logicalOperator((a: any, b: any) => a && b, env));
+  nativeForms.set('or', (env: Env) => logicalOperator((a: any, b: any) => a || b, env));
+  nativeForms.set('not', (env: Env) => (arg: any) => !evaluate(arg, env));
 };
