@@ -21,12 +21,19 @@ test('Combine destructuring', () => {
 });
 
 test('Combine with rest argument', () => {
-  expect(combine('[a ...b]', [1, 2, 3])).toEqual({ a: 1, b: [2, 3] });
+  expect(combine('[a ...b]', [1, 2, 3])).toEqual({ a: 1, b: { body: [2, 3], type: 'ListExpression' } });
 });
 
 test('Complex combiner test', () => {
   expect(combine('[a [b ...c] [d] [...e] ...f]', [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11, 12], [13, 14, 15]]))
-    .toEqual({ a: [1, 2, 3], b: 4, c: [5, 6], d: 7, e: [10, 11, 12], f: [[13, 14, 15]] });
+    .toEqual({
+      a: [1, 2, 3],
+      b: 4,
+      c: { body: [5, 6], type: 'ListExpression' },
+      d: 7,
+      e: { body: [10, 11, 12], type: 'ListExpression' },
+      f: { body: [[13, 14, 15]], type: 'ListExpression' }
+    });
 });
 
 test('Wrong arguments tests', () => {

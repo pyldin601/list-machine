@@ -12,7 +12,8 @@
     "lint": "tslint src/",
     "cover": "jest --coverage && (cat ./coverage/lcov.info | coveralls)",
     "build": "npm run clean && tsc",
-    "prepublish": "npm run build"
+    "prepublish": "npm run build",
+    "deploy": "npm run lint && npm run test && npm publish"
   },
   "keywords": [],
   "author": "Roman Lakhtadyr <roman.lakhtadyr@gmail.com>",
