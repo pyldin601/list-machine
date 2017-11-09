@@ -18,8 +18,8 @@ const listifyNode = (node: INode): any => {
   }
 };
 
-const listify = (rootExpression: IExpressionNode): any[] => {
-  return rootExpression.body.map(listifyNode);
+const listify = (rootExpression: IExpressionNode): List<any> => {
+  return List.of(...rootExpression.body.map(listifyNode));
 };
 
 export default listify;
