@@ -5,7 +5,7 @@ import expandMacro from '../expandMacro';
 import listify from "../listify";
 import valueOf from '../valueOf';
 
-const expand = (code: string, args: any) => valueOf(expandMacro(get(listify(parse(code)), '0'), args));
+const expand = (code: string, args: any) => valueOf(expandMacro(get(listify(parse(code)), 'head'), args));
 
 test('Expand empty body', () => {
   expect(expand('()', {})).toEqual('Nil');
