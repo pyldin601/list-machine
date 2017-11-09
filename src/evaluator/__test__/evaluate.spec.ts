@@ -74,13 +74,13 @@ test('Eval macro "expand" #1', () => {
   def m (macro [x y] (cons x y))
   def e (expand m 2 (list 3 4))
   eval ...e
-  `)).toEqual('(cons 2 (list 3 4))');
+  `)).toEqual('(2 3 4)');
 });
 
 test('Eval macro "expand" #2', () => {
   const code = `
     (def defmacro (macro [name args ...body] (def name (macro args ...body))))
-    (expand defmacro abc [x] (+ 2 x) x)
+    car (expand defmacro abc [x] (+ 2 x) x)
   `;
   expect(evalExpr(code)).toEqual('(def abc (macro [x] (+ 2 x) x))');
 });

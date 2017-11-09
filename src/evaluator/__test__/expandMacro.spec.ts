@@ -8,7 +8,7 @@ import valueOf from '../valueOf';
 const expand = (code: string, args: any) => valueOf(expandMacro(get(listify(parse(code)), '0'), args));
 
 test('Expand empty body', () => {
-  expect(expand('()', {})).toEqual('()');
+  expect(expand('()', {})).toEqual('Nil');
 });
 
 test('Simple expressions', () => {
