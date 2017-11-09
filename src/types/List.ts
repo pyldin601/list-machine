@@ -43,6 +43,58 @@ export default class List<T> {
 
     return `(${values.join(' ')})`;
   }
+
+  public toJSON(): T[] {
+    const arr = [];
+
+    for (let node: List<T> = this; node.tail !== null; node = node.tail) {
+      arr.push(node.head);
+    }
+
+    return arr;
+  }
+
+  public reduce<R>(reducer: (acc: R, item: T) => R, initial: R): R {
+    const acc = initial;
+
+    for (let node: List<T> = this; node.tail !== null; node = node.tail) {
+      acc = reducer(acc, node.head);
+    }
+
+    return acc;
+  }
+
+  public map<R>(mapper: (item: T) => R): List<R> {
+    const list = Nil;
+
+    for (let node: List<T> = this; node.tail !== null; node = node.tail) {
+      list = list.prepend(mapper(node.head));
+    }
+
+    return list.reverse();
+  }
+
+  public filter(filter: (item: T) => boolean): List<T> {
+    const list = Nil;
+
+    for (let node: List<T> = this; node.tail !== null; node = node.tail) {
+      if (filter(node.head)) {
+        list = list.prepend(node.head);
+      }
+    }
+
+    return list.reverse();
+  }
+
+  public reverse(): List<T> {
+    const list = Nil;
+
+    for (let node: List<T> = this; node.tail !== null; node = node.tail) {
+      list = list.prepend(node.head);
+    }
+
+    return list;
+  }
 }
 
 export const Nil = new List<any>(null, null);
