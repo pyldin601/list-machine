@@ -63,20 +63,15 @@ test('Parse brackets expression', () => {
       {
         body: [
           {
-            body: [
-              {
-                name: 'a',
-                type: 'Id',
-              },
-              {
-                name: 'b',
-                type: 'Id',
-              },
-            ],
-            type: 'BracketExpression',
-          }
+            name: 'a',
+            type: 'Id',
+          },
+          {
+            name: 'b',
+            type: 'Id',
+          },
         ],
-        type: 'ListExpression',
+        type: 'BracketExpression',
       }
     ],
     type: 'RootExpression',

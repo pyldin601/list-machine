@@ -5,7 +5,7 @@ import combineArguments from '../combineArguments';
 import listify from '../listify';
 
 const combine = (code: string, args: List<any>) =>
-  combineArguments(get(listify(parse(code)), 'head.head'), args);
+  combineArguments(get(listify(parse(code)), 'head'), args);
 
 test('Combine empty arguments', () => {
   expect(combine('[]', List.Nil)).toEqual({});

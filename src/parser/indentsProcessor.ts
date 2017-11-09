@@ -1,8 +1,8 @@
 import * as compose from 'compose-function';
 import * as _ from 'lodash';
-import Token, { Punctuator, TokenType } from './Token';
 import { arraySplitBy } from '../util';
 import IndentStack from './IndentStack';
+import Token, { Punctuator, TokenType } from './Token';
 
 const splitTokensByOuterLineFeeds = (tokens: Token[]): Token[][] => {
   let depth = 0;
@@ -48,7 +48,9 @@ const startsWithListExpression = (line: Token[]): boolean => {
   const headToken = _.head(line);
 
   return headToken.type === TokenType.PUNCTUATOR &&
-    (headToken.value === Punctuator.LEFT_PAREN || headToken.value === Punctuator.APOSTROPHE);
+    (headToken.value === Punctuator.LEFT_PAREN
+      || headToken.value === Punctuator.LEFT_BRACKET
+      || headToken.value === Punctuator.APOSTROPHE);
 };
 
 const shrinkRedundantIndent = (lines: Token[][]): Token[][] => {
