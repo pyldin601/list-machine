@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
-import Token, { Punctuator, TokenType } from '../types/Token';
 import Accumulator from './Accumulator';
 import { CharCode, getCharName } from './charCodes';
+import Token, { Punctuator, TokenType } from './Token';
 
 const SPREST_OPERATOR = '...';
 

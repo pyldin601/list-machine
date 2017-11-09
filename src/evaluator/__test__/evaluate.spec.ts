@@ -4,7 +4,7 @@ import valueOf from '../valueOf';
 const evalExpr = (code: string) => valueOf(evaluate(code, new Env({ baz: 12, foo: 'Bar' })));
 
 test('Eval nothing', () => {
-  expect(evalExpr('')).toEqual('undefined');
+  expect(evalExpr('')).toEqual(undefined);
 });
 
 test('Eval boolean literals', () => {
@@ -61,6 +61,7 @@ test('Eval "cons/car/cdr" form', () => {
   expect(evalExpr('(cons 1 (list 2 3 4 5))')).toEqual('(1 2 3 4 5)');
   expect(evalExpr('(cons 1 Nil)')).toEqual('(1)');
   expect(evalExpr('(list)')).toEqual('Nil');
+  expect(evalExpr('(cons 0 \'(1 2 3 b))')).toEqual('(0 1 2 3 b)');
 
   expect(evalExpr('(def lst (list 1 2 3 4)) (car lst)')).toEqual(1);
   expect(evalExpr('(def lst (list 1 2 3 4)) (cdr lst)')).toEqual('(2 3 4)');

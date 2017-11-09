@@ -1,6 +1,6 @@
 import * as compose from 'compose-function';
 import * as _ from 'lodash';
-import Token, { Punctuator, TokenType } from '../types/Token';
+import Token, { Punctuator, TokenType } from './Token';
 import { arraySplitBy } from '../util';
 import IndentStack from './IndentStack';
 

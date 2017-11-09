@@ -1,10 +1,10 @@
-import { isCompositeNode } from '../common/constants';
-import { IIdentifierNode, NodeType } from '../parser/types';
+import { Identifier, List } from '../types';
+import { isSpreadExpression } from "./utils";
 import valueOf from "./valueOf";
 
 export interface IArguments { [name: string]: any }
 
-const getArgumentValue = (id: IIdentifierNode, args: IArguments): any => {
+const getArgumentValue = (id: Identifier, args: IArguments): any => {
   if (id.name in args) {
     return args[id.name];
   }
@@ -12,28 +12,25 @@ const getArgumentValue = (id: IIdentifierNode, args: IArguments): any => {
 };
 
 const expandMacro = (expr: any, args: IArguments): any => {
-
-  if (expr.type === NodeType.ID) {
+  if (expr instanceof Identifier) {
     return getArgumentValue(expr, args);
   }
 
-  if (expr.type === NodeType.SPREST_EXPRESSION) {
-    return { ...expr, value: expandMacro(expr.value, args) };
+  if (Array.isArray(expr)) {
+    return expr.map(item => expandMacro(item, args));
   }
 
-  if (isCompositeNode(expr)) {
-    const body = expr.body.reduce((expandedExpr: any[], expression: any) => {
-      if (expression.type === NodeType.SPREST_EXPRESSION) {
-        const result = expandMacro(expression.value, args);
-        if (isCompositeNode(result)) {
-          return expandedExpr.concat(result.body);
+  if (expr instanceof List) {
+    return expr.reduce((acc, item) => {
+      if (isSpreadExpression(item)) {
+        const result = expandMacro(item.tail.head, args);
+        if (!(result instanceof List)) {
+          throw new Error(`Could not use spread in ${valueOf(expr)}`);
         }
-        throw new Error(`Could not use spread on ${valueOf(expr)}`);
+        return acc.concat(result);
       }
-      return [...expandedExpr, expandMacro(expression, args)];
-    }, []);
-
-    return { ...expr, body };
+      return acc.append(expandMacro(item, args));
+    }, List.Nil);
   }
 
   return expr;

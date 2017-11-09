@@ -1,28 +1,29 @@
 import * as _ from 'lodash';
+import { List } from "../../types";
 import Env from '../Env';
 import evalArguments from '../evalArguments';
-import evaluate from '../evaluate';
+import { evalExpr } from '../evaluate';
 import { nativeForms } from './';
 
-const binaryOperator = (fn: (a: any, b: any) => any, env: Env) => (...args: any[]) => {
-  if (_.size(args) < 2) {
+const binaryOperator = (fn: (a: any, b: any) => any, env: Env) => (args: List<any>) => {
+  if (args.length < 2) {
     throw new Error('Binary operator requires at least two arguments');
   }
 
   const evaluatedArgs = evalArguments(args, env);
 
-  return _.tail(evaluatedArgs).reduce((acc, arg) => fn(acc, arg), _.head(evaluatedArgs));
+  return evaluatedArgs.tail.reduce((acc, arg) => fn(acc, arg), evaluatedArgs.head);
 };
 
-const logicalOperator = (fn: (a: any, b: any) => any, env: Env) => (...args: any[]) => {
-  if (_.size(args) < 2) {
+const logicalOperator = (fn: (a: any, b: any) => any, env: Env) => (args: List<any>) => {
+  if (args.length < 2) {
     throw new Error('Binary operator requires at least two arguments');
   }
 
-  let left = evaluate(_.head(args), env);
+  let left = evalExpr(args.head, env);
 
-  return _.tail(args).every(right => {
-    left = fn(left, evaluate(right, env));
+  return args.tail.every(right => {
+    left = fn(left, evalExpr(right, env));
     return left;
   });
 };
@@ -43,5 +44,5 @@ export default () => {
 
   nativeForms.set('and', (env: Env) => logicalOperator((a: any, b: any) => a && b, env));
   nativeForms.set('or', (env: Env) => logicalOperator((a: any, b: any) => a || b, env));
-  nativeForms.set('not', (env: Env) => (arg: any) => !evaluate(arg, env));
+  nativeForms.set('not', (env: Env) => (arg: any) => !evalExpr(arg, env));
 };

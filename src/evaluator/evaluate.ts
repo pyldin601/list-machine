@@ -1,53 +1,48 @@
-import * as _ from 'lodash';
-import { isObject } from 'util';
-import { IExpressionNode, IIdentifierNode, INode, NodeType } from '../parser/types';
-import { Lambda, Macro } from "../types";
+import { Identifier, Lambda, List, Macro } from '../types';
 import Env from './Env';
 import { getNativeForm, isNativeForm } from './nativeForms';
 import valueOf from './valueOf';
 
-const evaluate = (node: INode, env: Env): any => {
-  if (isObject(node) && 'type' in node) {
-    return evaluateNode(node, env);
-  }
-  return node;
+const evaluate = (expr: List<any>, env: Env): any => {
+  return evalEach(expr, env);
 };
 
-const evaluateNode = (node: INode, env: Env): any => {
-  switch (node.type) {
-    case NodeType.LITERAL:
-      return node.value;
-    case NodeType.ROOT_EXPRESSION:
-      return evalEach(node, env);
-    case NodeType.ID:
-      return evalIdentifier(node, env);
-    case NodeType.QUOTED_EXPRESSION:
-      return node.value;
-    case NodeType.BRACKET_EXPRESSION:
-      throw new Error('Incorrect usage of brackets');
-    case NodeType.LIST_EXPRESSION:
-      return evalList(node, env);
-  }
+const evalEach = (exprs: List<any>, env: Env): any => {
+  return exprs.reduce((acc, expr) => evalExpr(expr, env), undefined);
 };
 
-const evalEach = (node: IExpressionNode, env: Env) =>
-  node.body.reduce((acc, node) => evaluate(node, env), undefined);
+export const evalExpr = (expr: any, env: Env): any => {
+  if (expr instanceof Identifier) {
+    return evalIdentifier(expr, env);
+  }
 
-const evalIdentifier = (node: IIdentifierNode, env: Env): any => {
-  if (env.isBound(node.name)) {
-    return env.get(node.name);
+  if (expr instanceof List) {
+    return evalList(expr, env);
   }
-  if (isNativeForm(node.name)) {
-    return getNativeForm(node.name)(env);
+
+  if (Array.isArray(expr)) {
+    return evalVector(expr, env);
   }
-  throw new Error(`Identifier "${node.name}" not bound`);
+
+  return expr;
 };
 
-const evalList = (node: IExpressionNode, env: Env) => {
-  const listOperator = evaluate(_.head(node.body), env);
-  const args = _.tail(node.body);
+const evalIdentifier = (id: Identifier, env: Env): any => {
+  if (env.isBound(id.name)) {
+    return env.get(id.name);
+  }
+  if (isNativeForm(id.name)) {
+    return getNativeForm(id.name)(env);
+  }
+  throw new Error(`Unable to resolve symbol "${id.name}" in current context`);
+};
+
+const evalList = (list: List<any>, env: Env) => {
+  const listOperator = evalExpr(list.head, env);
+  const args = list.tail;
 
   if (listOperator instanceof Macro) {
+    console.log(valueOf(listOperator.expand(args)));
     return listOperator.evaluate(args, env);
   }
 
@@ -56,10 +51,14 @@ const evalList = (node: IExpressionNode, env: Env) => {
   }
 
   if (typeof listOperator !== 'function') {
-    throw new Error(`Expression ${valueOf(node)} is not callable`);
+    throw new Error(`Expression ${valueOf(list)} is not callable`);
   }
 
-  return listOperator(...args);
+  return listOperator(args);
+};
+
+const evalVector = (vector: any[], env: Env): any => {
+  return vector.map(expr => evalExpr(expr, env));
 };
 
 export default evaluate;

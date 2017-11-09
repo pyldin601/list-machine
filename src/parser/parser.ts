@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import { compositeNodeTypes, terminalNodeTypes } from '../common/constants';
-import Token, { Punctuator, TokenType } from '../types/Token';
+import Token, { Punctuator, TokenType } from './Token';
 import { IExpressionNode, INode, NodeType,  } from './types';
 
 
