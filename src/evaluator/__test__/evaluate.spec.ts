@@ -70,7 +70,11 @@ test('Eval "cons/car/cdr" form', () => {
 });
 
 test('Eval macro "expand" #1', () => {
-  expect(evalExpr('expand (macro [x y] (cons x y)) 2 (list 3 4)')).toEqual('(cons 2 (list 3 4))');
+  expect(evalExpr(`
+  def m (macro [x y] (cons x y))
+  def e (expand m 2 (list 3 4))
+  eval ...e
+  `)).toEqual('(cons 2 (list 3 4))');
 });
 
 test('Eval macro "expand" #2', () => {

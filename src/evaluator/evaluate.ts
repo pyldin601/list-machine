@@ -42,7 +42,6 @@ const evalList = (list: List<any>, env: Env) => {
   const args = list.tail;
 
   if (listOperator instanceof Macro) {
-    console.log(valueOf(listOperator.expand(args)));
     return listOperator.evaluate(args, env);
   }
 

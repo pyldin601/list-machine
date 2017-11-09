@@ -1,7 +1,8 @@
 import * as _ from 'lodash';
 import { Identifier, Lambda, List, Macro } from '../../types';
 import Env from '../Env';
-import { evalExpr } from '../evaluate';
+import evalArguments from '../evalArguments';
+import evaluate, { evalExpr } from '../evaluate';
 import { nativeForms } from './';
 
 export default () => {
@@ -50,14 +51,16 @@ export default () => {
   });
 
   nativeForms.set('eval', (env: Env) => (args: List<any>) => {
-    return evalExpr(args.head, env);
+    const evaluatedArgs = evalArguments(args, env);
+    return evaluate(evaluatedArgs, env);
   });
 
   nativeForms.set('eval-in', (env: Env) => (args: List<any>) => {
     const l = evalExpr(args.head, env);
-    if (!(l instanceof Lambda)) {
+        if (!(l instanceof Lambda)) {
       throw new Error(`First argument should be a lambda`);
     }
-    return evalExpr(args.tail.head, l.env);
+    const evaluatedArgs = evalArguments(args.tail, env);
+    return evaluate(evaluatedArgs, l.env);
   });
 };

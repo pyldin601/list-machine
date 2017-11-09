@@ -1,4 +1,3 @@
-import * as _ from 'lodash';
 import { List } from '../../types';
 import Env from '../Env';
 import evalArguments from '../evalArguments';

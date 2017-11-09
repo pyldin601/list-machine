@@ -6,7 +6,7 @@ import { isSpreadExpression } from './utils';
 export default (args: List<any>, env: Env): List<any> => {
   return args.reduce((evaluatedArgs: List<any>, expr: any) => {
     if (isSpreadExpression(expr)) {
-      const result = evalExpr(expr.tail, env);
+      const result = evalExpr(expr.tail.head, env);
       if (Array.isArray(result)) {
         return evaluatedArgs.concat(List.of(result));
       }
